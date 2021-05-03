@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "95872664168",
+    "project_id": "minturassistent",
+    "storage_bucket": "minturassistent.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95872664168:android:1124c61c37306d2c25b1dd",
+        "android_client_info": {
+          "package_name": "com.aphex.minturassistent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95872664168-fgtffaj4pkb8rvp02e92ti8jh2rah5mh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aphex.minturassistent",
+            "certificate_hash": "b1637e100f16ee10373571d9b4eb484ce1188d53"
+          }
+        },
+        {
+          "client_id": "95872664168-resnhd3apueqooakt7odq3h4tma577pk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aphex.minturassistent",
+            "certificate_hash": "249031db9e06db61d3b73d1709543c9f16eef77b"
+          }
+        },
+        {
+          "client_id": "95872664168-gv6vq95eqmst2eabq4km5cdkrbqej3nt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgeiSslXEmerCQdTzER2T1bfF1mfF5IeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95872664168-gv6vq95eqmst2eabq4km5cdkrbqej3nt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
