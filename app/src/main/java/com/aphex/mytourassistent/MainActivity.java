@@ -1,11 +1,11 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.aphex.minturassistent.databinding.ActivityMainBinding;
+import com.aphex.mytourassistent.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 

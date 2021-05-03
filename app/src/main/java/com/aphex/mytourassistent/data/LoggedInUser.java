@@ -1,4 +1,4 @@
-package com.aphex.minturassistent.data;
+package com.aphex.mytourassistent.data;
 
 
 /**

@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MinTurassistent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MyTourAssistent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/background_blue</item>
         <item name="colorPrimaryVariant">@color/light_blue_600</item>
@@ -26,12 +26,8 @@
         <item name="android:titleTextColor">@color/white</item>
     </style>
 
-    <style name="Theme.MinTurassistent.NoActionBar">
+    <style name="Theme.MyTourAssistent.NoActionBar">
         <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-    <style name="Theme.MinTurassistent.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.MinTurassistent.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

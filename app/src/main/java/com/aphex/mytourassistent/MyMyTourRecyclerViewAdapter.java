@@ -1,4 +1,4 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.aphex.minturassistent.dummy.DummyContent.DummyItem;
+import com.aphex.mytourassistent.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 

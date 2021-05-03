@@ -1,24 +1,18 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 
-import com.aphex.minturassistent.databinding.FragmentAddTourBinding;
-
-import org.osmdroid.config.Configuration;
-import org.osmdroid.config.IConfigurationProvider;
+import com.aphex.mytourassistent.databinding.FragmentAddTourBinding;
 
 import java.util.Calendar;
 

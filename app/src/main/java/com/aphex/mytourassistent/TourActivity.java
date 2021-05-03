@@ -1,9 +1,7 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -18,13 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.aphex.minturassistent.databinding.ActivityTourBinding;
+import com.aphex.mytourassistent.databinding.ActivityTourBinding;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.material.navigation.NavigationView;
 
 import org.osmdroid.config.Configuration;
 

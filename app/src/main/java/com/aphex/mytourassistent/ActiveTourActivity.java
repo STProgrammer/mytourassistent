@@ -1,4 +1,4 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import androidx.appcompat.app.AppCompatActivity;
 

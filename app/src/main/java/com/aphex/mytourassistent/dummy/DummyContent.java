@@ -1,4 +1,4 @@
-package com.aphex.minturassistent.dummy;
+package com.aphex.mytourassistent.dummy;
 
 import java.util.ArrayList;
 import java.util.HashMap;

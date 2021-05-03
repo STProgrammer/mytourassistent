@@ -1,4 +1,4 @@
-package com.aphex.minturassistent;
+package com.aphex.mytourassistent;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.aphex.minturassistent.dummy.DummyContent;
+import com.aphex.mytourassistent.dummy.DummyContent;
 
 /**
  * A fragment representing a list of Items.

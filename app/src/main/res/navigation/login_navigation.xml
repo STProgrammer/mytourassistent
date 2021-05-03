@@ -7,17 +7,17 @@
 
     <fragment
         android:id="@+id/login"
-        android:name="com.aphex.minturassistent.LoginFragment"
+        android:name="com.aphex.mytourassistent.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" />
     <fragment
         android:id="@+id/emailRegisterFragment"
-        android:name="com.aphex.minturassistent.EmailRegisterFragment"
+        android:name="com.aphex.mytourassistent.EmailRegisterFragment"
         android:label="fragment_email_register"
         tools:layout="@layout/fragment_email_register" />
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="com.aphex.minturassistent.FirstFragment"
+        android:name="com.aphex.mytourassistent.FirstFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first">
 
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
-        android:name="com.aphex.minturassistent.SecondFragment"
+        android:name="com.aphex.mytourassistent.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
 
