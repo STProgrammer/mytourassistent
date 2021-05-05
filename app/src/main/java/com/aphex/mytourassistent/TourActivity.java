@@ -30,7 +30,7 @@ public class TourActivity extends AppCompatActivity {
     private ActivityTourBinding binding;
     private int backButtonCount;
 
-    private FusedLocationProviderClient fusedLocationClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +40,9 @@ public class TourActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.myToolbar);
 
-        Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
 
 
 
