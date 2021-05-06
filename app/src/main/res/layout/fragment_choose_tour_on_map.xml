@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ChooseTourOnMapFragment">
+    tools:context="com.aphex.mytourassistent.TourActivity">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
-        android:layout_margin="10dp"
-        android:background="#DDD"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="582dp"
+        android:layout_margin="10dp"
+        android:background="#DDD" />
 
+    <Button
+        android:id="@+id/btn_save_plan"
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        android:text="@string/fui_button_text_save" />
+
+    <Button
+        android:id="@+id/btn_clear_plan"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/clear" />
 </LinearLayout>
-
-
-
-

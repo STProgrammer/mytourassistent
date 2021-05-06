@@ -1,0 +1,85 @@
+package com.aphex.mytourassistent.db;
+
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.aphex.mytourassistent.dao.TourWithGeoPointsActualDAO;
+import com.aphex.mytourassistent.dao.TourWithGeoPointsPlannedDAO;
+import com.aphex.mytourassistent.dao.UserWithToursDAO;
+import com.aphex.mytourassistent.entities.GeoPointActual;
+import com.aphex.mytourassistent.entities.GeoPointPlanned;
+import com.aphex.mytourassistent.entities.Tour;
+import com.aphex.mytourassistent.entities.User;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Database(entities = {User.class, Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1)
+public abstract class MyTourAssistentDatabase extends RoomDatabase {
+
+    public abstract UserWithToursDAO userPlaylistDAO();
+
+    public abstract TourWithGeoPointsPlannedDAO tourWithGeoPointsPlannedDAO();
+
+    public abstract TourWithGeoPointsActualDAO tourWithGeoPointsActualDAO();
+
+    // volatile: har sammenheng med multithreading. Sikrer at alle tråder ser samme kopi av INSTANCE.
+    private static volatile MyTourAssistentDatabase INSTANCE;
+    private static final int NUMBER_OF_THREADS = 4;
+    public static final ExecutorService databaseWriteExecutor =
+            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
+    public static MyTourAssistentDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (MyTourAssistentDatabase.class) {
+                INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                        MyTourAssistentDatabase.class, "users_database")
+                        .addCallback(sRoomDatabaseCallback)
+                        .build();
+            }
+        }
+        return INSTANCE;
+    }
+
+    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+
+        /**
+         * Called when the database is created for the first time.
+         * This is called after all the tables are created.
+         * @param db
+         */
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+
+            // If you want to keep data through app restarts,
+            // comment out the following block
+            databaseWriteExecutor.execute(() -> {
+                // Populate the database in the background.
+                // If you want to start with more words, just add them.
+            });
+        }
+
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+        }
+    };
+
+    // MIGRERING/ENDRING I DATABASEN.
+    /*
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE user "
+                    + " ADD COLUMN birth_year INTEGER");
+        }
+    };
+    */
+
+}
