@@ -28,7 +28,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.aphex.mytourassistent.MainActivity"
+            android:name="com.aphex.mytourassistent.ActiveTourActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
