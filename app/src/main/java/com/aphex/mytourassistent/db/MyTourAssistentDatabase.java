@@ -14,12 +14,11 @@ import com.aphex.mytourassistent.dao.UserWithToursDAO;
 import com.aphex.mytourassistent.entities.GeoPointActual;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.entities.Tour;
-import com.aphex.mytourassistent.entities.User;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {User.class, Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1)
+@Database(entities = {Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1)
 public abstract class MyTourAssistentDatabase extends RoomDatabase {
 
     public abstract UserWithToursDAO userPlaylistDAO();
