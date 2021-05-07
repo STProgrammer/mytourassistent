@@ -40,6 +40,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.NotNull;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -54,6 +57,8 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +70,12 @@ private View view;
 
 
     private FragmentChooseTourOnMapBinding binding;
+
+
+    ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+
+    public static final ExecutorService databaseWriteExecutor =
+            Executors.newFixedThreadPool(4);
 
     private static final int CALLBACK_ALL_PERMISSIONS = 1;
     private static final int REQUEST_CHECK_SETTINGS = 10;
@@ -366,6 +377,7 @@ private View view;
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
         binding.mapView.getOverlays().add(this.mScaleBarOverlay);
 
+
         // Fange opp posisjon i klikkpunkt på kartet:
         final MapEventsReceiver mReceive = new MapEventsReceiver(){
             @Override
@@ -373,8 +385,16 @@ private View view;
                 Toast.makeText(requireContext(),geoPoint.getLatitude() + " - "+geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
                 Marker marker = new Marker(binding.mapView);
                 marker.setPosition(geoPoint);
+                waypoints.add(geoPoint);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                 binding.mapView.getOverlays().add(marker);
+
+                databaseWriteExecutor.execute(() -> {
+                    RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
+                    Road road = roadManager.getRoad(waypoints);
+                    Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                    binding.mapView.getOverlays().add(roadOverlay);
+                });
                 marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
                 marker.setTitle("Klikkpunkt");
                 binding.mapView.getOverlays().add(marker);
@@ -386,6 +406,10 @@ private View view;
             }
         };
         binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
+
+        databaseWriteExecutor.execute(() -> {
+
+        });
     }
 
 }
