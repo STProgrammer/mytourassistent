@@ -17,18 +17,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTourAssistent">
-        <activity android:name="com.aphex.mytourassistent.ActiveTourActivity"></activity>
+        <activity android:name="com.aphex.mytourassistent.activetour.ActiveTourActivity"></activity>
         <activity
             android:name="com.aphex.mytourassistent.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name="com.aphex.mytourassistent.TourActivity" />
+        <activity android:name="com.aphex.mytourassistent.tours.TourActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.aphex.mytourassistent.ActiveTourActivity"
+            android:name="com.aphex.mytourassistent.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -3,5 +3,5 @@ package com.aphex.mytourassistent.dao;
 import androidx.room.Dao;
 
 @Dao
-public abstract class TourWithGeoPointsPlannedDAO {
+public abstract class GeoPointsPlannedDAO {
 }

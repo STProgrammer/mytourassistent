@@ -6,12 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.aphex.mytourassistent.TourActivity">
+    tools:context="com.aphex.mytourassistent.tours.TourActivity">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
-        android:layout_width="match_parent"
-        android:layout_height="582dp"
+        android:layout_width="wrap_content"
+        android:layout_height="422dp"
         android:layout_margin="10dp"
         android:background="#DDD" />
 
@@ -19,11 +19,17 @@
         android:id="@+id/btn_save_plan"
         android:layout_width="match_parent"
         android:layout_height="67dp"
-        android:text="@string/fui_button_text_save" />
+        android:text="@string/btn_finished" />
 
     <Button
         android:id="@+id/btn_clear_plan"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="@string/clear" />
+        android:text="@string/btn_clear" />
+
+    <Button
+        android:id="@+id/btn_my_location"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/my_location" />
 </LinearLayout>

@@ -1,9 +1,11 @@
 package com.aphex.mytourassistent.entities;
 
 import androidx.room.Embedded;
+import androidx.room.Entity;
 import androidx.room.Relation;
 
 import java.util.List;
+
 
 public class TourWithGeoPointsActual {
     @Embedded

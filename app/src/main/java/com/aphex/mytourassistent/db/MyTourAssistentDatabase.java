@@ -8,9 +8,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.aphex.mytourassistent.dao.TourWithGeoPointsActualDAO;
-import com.aphex.mytourassistent.dao.TourWithGeoPointsPlannedDAO;
-import com.aphex.mytourassistent.dao.UserWithToursDAO;
+import com.aphex.mytourassistent.dao.GeoPointsActualDAO;
+import com.aphex.mytourassistent.dao.GeoPointsPlannedDAO;
+import com.aphex.mytourassistent.dao.ToursDAO;
 import com.aphex.mytourassistent.entities.GeoPointActual;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.entities.Tour;
@@ -21,11 +21,11 @@ import java.util.concurrent.Executors;
 @Database(entities = {Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1)
 public abstract class MyTourAssistentDatabase extends RoomDatabase {
 
-    public abstract UserWithToursDAO userPlaylistDAO();
+    public abstract ToursDAO toursDAO();
 
-    public abstract TourWithGeoPointsPlannedDAO tourWithGeoPointsPlannedDAO();
+    public abstract GeoPointsPlannedDAO geoPointsPlannedDAO();
 
-    public abstract TourWithGeoPointsActualDAO tourWithGeoPointsActualDAO();
+    public abstract GeoPointsActualDAO geoPointsActualDAO();
 
     // volatile: har sammenheng med multithreading. Sikrer at alle tråder ser samme kopi av INSTANCE.
     private static volatile MyTourAssistentDatabase INSTANCE;

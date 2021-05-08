@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.aphex.mytourassistent.ActiveTourActivity">
+    tools:context="com.aphex.mytourassistent.activetour.ActiveTourActivity">
 
     <Button
         android:id="@+id/btnReset"

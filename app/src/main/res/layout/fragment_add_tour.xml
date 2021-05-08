@@ -5,18 +5,43 @@
     android:id="@+id/viewAddTour"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTourFragment">
+    tools:context=".tours.AddTourFragment">
+
+    <EditText
+        android:id="@+id/etTourFinishTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:autofillHints="@string/tv_input_tour_finish_time"
+        android:ems="10"
+        android:hint="@string/tv_input_tour_finish_time"
+        android:inputType="date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.308"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvInputTourFinishTime" />
+
+    <TextView
+        android:id="@+id/tvInputTourFinishTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/tv_input_tour_finish_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.184"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etTourStartTime" />
 
     <TextView
         android:id="@+id/tvInputTourName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="76dp"
         android:text="@string/tv_input_tour_name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.178"
+        app:layout_constraintHorizontal_bias="0.157"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAddTourTitle" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/etTourName"
@@ -33,88 +58,39 @@
         app:layout_constraintTop_toBottomOf="@+id/tvInputTourName" />
 
     <TextView
-        android:id="@+id/tvInputTourDate"
+        android:id="@+id/tvInputTourStartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/tv_input_tour_date"
+        android:text="@string/tv_input_tour_start_time"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.153"
+        app:layout_constraintHorizontal_bias="0.177"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etTourName" />
 
-    <TextView
-        android:id="@+id/tvInputNrOfDays"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/tv_input_nr_of_days"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etTourDate" />
-
-    <TextView
-        android:id="@+id/tvInputNrOfHours"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="96dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/tv_input_nr_of_hours"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.068"
-        app:layout_constraintStart_toEndOf="@+id/tvInputNrOfDays"
-        app:layout_constraintTop_toBottomOf="@+id/etTourDate" />
-
     <EditText
-        android:id="@+id/etTourDate"
+        android:id="@+id/etTourStartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:autofillHints="@string/tv_input_tour_date"
+        android:autofillHints="@string/tv_input_tour_start_time"
         android:ems="10"
-        android:hint="@string/tv_input_tour_date"
+        android:hint="@string/tv_input_tour_start_time"
         android:inputType="date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.272"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvInputTourDate" />
-
-    <EditText
-        android:id="@+id/etNrOfDays"
-        android:layout_width="92dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="16dp"
-        android:autofillHints="@string/tv_input_nr_of_days"
-        android:ems="10"
-        android:hint="@string/tv_input_nr_of_days"
-        android:inputType="number"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvInputNrOfDays" />
-
-    <EditText
-        android:id="@+id/etNrOfHours"
-        android:layout_width="98dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="73dp"
-        android:layout_marginTop="20dp"
-        android:autofillHints="@string/tv_input_nr_of_hours"
-        android:ems="10"
-        android:hint="@string/tv_input_nr_of_hours"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/etNrOfDays"
-        app:layout_constraintTop_toBottomOf="@+id/tvInputNrOfHours" />
+        app:layout_constraintTop_toBottomOf="@+id/tvInputTourStartTime" />
 
     <RadioGroup
         android:id="@+id/rgTourType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.345"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etNrOfDays">
+        app:layout_constraintTop_toBottomOf="@+id/etTourFinishTime">
 
         <RadioButton
             android:id="@+id/rbWalking"
@@ -138,25 +114,14 @@
             android:text="@string/rb_skiing" />
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/tvAddTourTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="@string/tv_add_tour_title"
-        android:textSize="@dimen/title_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.178"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/btnChooseOnMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="28dp"
         android:text="@string/btn_choose_on_map"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.391"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rgTourType" />
 
@@ -169,8 +134,8 @@
         android:text="@string/btn_add_new_tour"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.415"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnChooseOnMap"
-        app:layout_constraintVertical_bias="0.285" />
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,8 @@
-package com.aphex.mytourassistent;
+package com.aphex.mytourassistent.tours;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -15,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.activetour.ActiveTourActivity;
 import com.aphex.mytourassistent.databinding.ActivityTourBinding;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,6 +27,7 @@ public class TourActivity extends AppCompatActivity {
 
     private ActivityTourBinding binding;
     private int backButtonCount;
+    private ToursViewModel toursViewModel;
 
 
 
@@ -34,6 +38,12 @@ public class TourActivity extends AppCompatActivity {
         binding = ActivityTourBinding.inflate(layoutInflater);
         setContentView(binding.getRoot());
         setSupportActionBar(binding.myToolbar);
+
+
+        toursViewModel = new ViewModelProvider(this).get(ToursViewModel.class);
+
+
+
 
 
 
@@ -94,17 +104,18 @@ public class TourActivity extends AppCompatActivity {
     @Override
     public void onBackPressed()
     {
-        if(backButtonCount >= 1)
-        {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
-        else
-        {
-            Toast.makeText(this, "Press bak knappen igjen for å avslutte applikasjonen", Toast.LENGTH_SHORT).show();
-            backButtonCount++;
+        if(Navigation.findNavController(binding.tourNavHostFragment).popBackStack()) {
+        } else {
+            if(backButtonCount >= 1)
+            {
+                finishAffinity();
+                System.exit(0);
+            }
+            else
+            {
+                Toast.makeText(this, "Press bak knappen igjen for å avslutte applikasjonen", Toast.LENGTH_SHORT).show();
+                backButtonCount++;
+            }
         }
     }
 }

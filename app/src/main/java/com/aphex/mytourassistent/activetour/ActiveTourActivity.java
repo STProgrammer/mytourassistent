@@ -1,4 +1,10 @@
-package com.aphex.mytourassistent;
+package com.aphex.mytourassistent.activetour;
+
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -9,23 +15,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
+import com.aphex.mytourassistent.R;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -39,16 +37,14 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import org.jetbrains.annotations.NotNull;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
-import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.MinimapOverlay;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.advancedpolyline.MonochromaticPaintList;
@@ -57,25 +53,18 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
- * A simple {@link Fragment} subclass.
- * create an instance of this fragment.
+ * OPEN STREET MAPS:
+ * Se https://github.com/osmdroid/osmdroid
+ * OG=> https://github.com/osmdroid/osmdroid/wiki/How-to-use-the-osmdroid-library-(Java)
+ * og https://github.com/osmdroid/osmdroid/wiki
+ * og https://medium.com/mindorks/have-you-heard-about-open-street-map-d6c51dc00bea
+ *
+ * NB! FÅ MED i onCreate():
+ *   Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
  */
-public class ChooseTourOnMapFragment extends Fragment {
-
-private View view;
-
-
-    private FragmentChooseTourOnMapBinding binding;
-
-
-    ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-
-    public static final ExecutorService databaseWriteExecutor =
-            Executors.newFixedThreadPool(4);
+public class ActiveTourActivity extends AppCompatActivity {
 
     private static final int CALLBACK_ALL_PERMISSIONS = 1;
     private static final int REQUEST_CHECK_SETTINGS = 10;
@@ -88,9 +77,11 @@ private View view;
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
 
+    private MapView map_view;
     private CompassOverlay mCompassOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private ScaleBarOverlay mScaleBarOverlay;
+    private MinimapOverlay mMinimapOverlay;
 
     // Indikerer om servicen er startet eller stoppet:
     private boolean requestingLocationUpdates = false;
@@ -103,37 +94,30 @@ private View view;
     private TextView tvTrackedLocation;
     private Polyline mPolyline;
 
-    private boolean gotInitialLocation = false;
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
-        // Inflate the layout for this fragment
-        binding = FragmentChooseTourOnMapBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        setContentView(R.layout.activity_main);
 
-    }
-    @Override
-    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        tvInfo = findViewById(R.id.tvInfo);
+        tvTrackedLocation = findViewById(R.id.tvTrackedLocation);
 
-        Configuration.getInstance().load(requireActivity().getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(requireActivity().getApplicationContext()));
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         //Callback for å fange opp LOKASJONsendringer:
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null || gotInitialLocation) {
+                if (locationResult == null) {
                     return;
                 }
 
                 StringBuffer locationBuffer = new StringBuffer();
                 for (Location location : locationResult.getLocations()) {
                     // Beregner avstand fra forrisge veipunkt:
-                    /*if (previousLocation==null)
+                    if (previousLocation==null)
                         previousLocation = location;
                     float distance = previousLocation.distanceTo(location);
                     Log.d("MY-LOCATION-DISTANCE", String.valueOf(distance));
@@ -143,34 +127,50 @@ private View view;
                     }
                     previousLocation = location;
 
-                    locationBuffer.append(location.getLatitude() + ", " + location.getLongitude() + "\n");*/
+                    locationBuffer.append(location.getLatitude() + ", " + location.getLongitude() + "\n");
 
                     // Polyline: tegner stien.
                     GeoPoint geoPoint = new GeoPoint(location.getLatitude() , location.getLongitude());
                     mPolyline.addPoint(geoPoint);
-                    binding.mapView.getController().setCenter(geoPoint);
-                    binding.mapView.invalidate();  //tegner kartet på nytt.
-                    gotInitialLocation = true;
+                    map_view.getController().setCenter(geoPoint);
+                    map_view.invalidate();  //tegner kartet på nytt.
                 }
+                tvTrackedLocation.setText(locationBuffer);
             }
         };
 
-        Button btnReset = view.findViewById(binding.btnClearPlan.getId());
+        Button btnReset = findViewById(R.id.btnReset);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPolyline.setPoints(new ArrayList<>());
-                binding.mapView.invalidate();
+                map_view.invalidate();
+            }
+        });
+
+        Button btnStartTracking = findViewById(R.id.btnStartTracking);
+        btnStartTracking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initLocationUpdates();
+                tvInfo.setText("Tracking pågår.");
+            }
+        });
+
+        Button btnStopTracking = findViewById(R.id.btnStopTracking);
+        btnStopTracking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopTracking();
+                tvInfo.setText("Tracking avsluttet.");
             }
         });
 
         verifyPermissions();
-        initLocationUpdates();
-
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         if (requestingLocationUpdates) {
             this.verifyPermissions();
@@ -178,18 +178,17 @@ private View view;
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         this.stopTracking();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("requestingLocationUpdates", requestingLocationUpdates);
         super.onSaveInstanceState(outState);
     }
 
-/*
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -198,7 +197,7 @@ private View view;
         } else {
             this.requestingLocationUpdates = false;
         }
-    }*/
+    }
 
     private void stopTracking() {
         if (fusedLocationClient != null && locationCallback != null)
@@ -214,16 +213,16 @@ private View view;
                 .addLocationRequest(locationRequest);
 
         // NB! Sjekker om kravene satt i locationRequest kan oppfylles:
-        SettingsClient client = LocationServices.getSettingsClient(requireContext());
+        SettingsClient client = LocationServices.getSettingsClient(this);
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-        task.addOnSuccessListener(requireActivity(), new OnSuccessListener<LocationSettingsResponse>() {
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                 // Alle lokasjopnsinnstillinger er OK, klienten kan nå initiere lokasjonsforespørsler her:
                 startLocationUpdates();
             }
         });
-        task.addOnFailureListener(requireActivity(), new OnFailureListener() {
+        task.addOnFailureListener(this, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
@@ -231,7 +230,7 @@ private View view;
                     try {
                         // Viser dialogen ved å kalle startResolutionForResult() OG SJEKKE resultatet i onActivityResult()
                         ResolvableApiException resolvable = (ResolvableApiException) e;
-                        resolvable.startResolutionForResult(requireActivity(), REQUEST_CHECK_SETTINGS);
+                        resolvable.startResolutionForResult(ActiveTourActivity.this, REQUEST_CHECK_SETTINGS);
                     } catch (IntentSender.SendIntentException sendEx) {
                         // Ignore the error.
                     }
@@ -255,7 +254,7 @@ private View view;
     public boolean hasPermissions(String... permissions) {
         if (permissions != null) {
             for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
                 }
             }
@@ -271,7 +270,7 @@ private View view;
     public void verifyPermissions() {
         // Kontrollerer om vi har tilgang til eksternt område:
         if (!hasPermissions(requiredPermissions)) {
-            ActivityCompat.requestPermissions(requireActivity(), requiredPermissions, CALLBACK_ALL_PERMISSIONS);
+            ActivityCompat.requestPermissions(this, requiredPermissions, CALLBACK_ALL_PERMISSIONS);
         } else {
             initMap();
         }
@@ -285,7 +284,7 @@ private View view;
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             //Kalles når bruker har akseptert og gitt tillatelse til bruk av posisjon:
@@ -297,6 +296,7 @@ private View view;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case CALLBACK_ALL_PERMISSIONS:
                 if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED ) {
@@ -304,13 +304,15 @@ private View view;
                 }
                 return;
             default:
-                Toast.makeText(requireContext(), "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void initMap() {
 
-        this.mPolyline = new Polyline(binding.mapView);
+        map_view = findViewById(R.id.map_view);
+
+        this.mPolyline = new Polyline(map_view);
         final Paint paintBorder = new Paint();
         paintBorder.setStrokeWidth(20);
         paintBorder.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -328,76 +330,68 @@ private View view;
         mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintBorder));
         mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintInside));
 
-        binding.mapView.getOverlays().add(mPolyline);
+        map_view.getOverlays().add(mPolyline);
 
         //map_view.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
-        binding.mapView.setTileSource(TileSourceFactory.MAPNIK);
-        binding.mapView.setBuiltInZoomControls(true);
-        binding.mapView.setMultiTouchControls(true);
-        binding.mapView.getController().setZoom(8.0);
+        map_view.setTileSource(TileSourceFactory.MAPNIK);
+        map_view.setBuiltInZoomControls(true);
+        map_view.setMultiTouchControls(true);
+        map_view.getController().setZoom(14.0);
 
         // Punkter:
-        //GeoPoint geoPointStart = new GeoPoint(68.439198,17.445000);
+        GeoPoint geoPointStart = new GeoPoint(68.439198,17.445000);
+        GeoPoint geoPointEnd = new GeoPoint(68.432000,17.435700);
 
         // Markers:
-        /*Marker startMarker = new Marker(binding.mapView);
+        Marker startMarker = new Marker(map_view);
         startMarker.setPosition(geoPointStart);
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-        binding.mapView.getOverlays().add(startMarker);
+        map_view.getOverlays().add(startMarker);
         startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
         startMarker.setTitle("Start point");
         //startMarker.setTextIcon("Startpunkt!");
         startMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
-                Toast.makeText(requireContext(),"Klikk på ikon...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"Klikk på ikon...", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
-        binding.mapView.getOverlays().add(startMarker);*/
+        map_view.getOverlays().add(startMarker);
 
-        //binding.mapView.getController().setCenter(geoPointStart);
+        map_view.getController().setCenter(geoPointStart);
 
         // Compass overlay;
-        this.mCompassOverlay = new CompassOverlay(requireContext(), new InternalCompassOrientationProvider(requireContext()), binding.mapView);
+        this.mCompassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), map_view);
         this.mCompassOverlay.enableCompass();
-        binding.mapView.getOverlays().add(this.mCompassOverlay);
+        map_view.getOverlays().add(this.mCompassOverlay);
 
         // Multi touch:
-        mRotationGestureOverlay = new RotationGestureOverlay(requireActivity(), binding.mapView);
+        mRotationGestureOverlay = new RotationGestureOverlay(this, map_view);
         mRotationGestureOverlay.setEnabled(true);
-        binding.mapView.setMultiTouchControls(true);
-        binding.mapView.getOverlays().add(this.mRotationGestureOverlay);
+        map_view.setMultiTouchControls(true);
+        map_view.getOverlays().add(this.mRotationGestureOverlay);
 
         // Zoom-knapper;
         final DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScaleBarOverlay = new ScaleBarOverlay(binding.mapView);
+        mScaleBarOverlay = new ScaleBarOverlay(map_view);
         mScaleBarOverlay.setCentred(true);
         //play around with these values to get the location on screen in the right place for your application
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
-        binding.mapView.getOverlays().add(this.mScaleBarOverlay);
-
+        map_view.getOverlays().add(this.mScaleBarOverlay);
 
         // Fange opp posisjon i klikkpunkt på kartet:
         final MapEventsReceiver mReceive = new MapEventsReceiver(){
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
-                Toast.makeText(requireContext(),geoPoint.getLatitude() + " - "+geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
-                Marker marker = new Marker(binding.mapView);
+                //Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
+                Marker marker = new Marker(map_view);
                 marker.setPosition(geoPoint);
-                waypoints.add(geoPoint);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                binding.mapView.getOverlays().add(marker);
-
-                databaseWriteExecutor.execute(() -> {
-                    RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
-                    Road road = roadManager.getRoad(waypoints);
-                    Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                    binding.mapView.getOverlays().add(roadOverlay);
-                });
-                marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
+                map_view.getOverlays().add(marker);
+                marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
                 marker.setTitle("Klikkpunkt");
-                binding.mapView.getOverlays().add(marker);
+                map_view.getOverlays().add(marker);
                 return false;
             }
             @Override
@@ -405,11 +399,7 @@ private View view;
                 return false;
             }
         };
-        binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
-
-        databaseWriteExecutor.execute(() -> {
-
-        });
+        map_view.getOverlays().add(new MapEventsOverlay(mReceive));
     }
 
 }
