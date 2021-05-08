@@ -3,12 +3,12 @@ package com.aphex.mytourassistent.tours;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.databinding.FragmentMyToursBinding;
 import com.aphex.mytourassistent.dummy.DummyContent.DummyItem;
+import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
 import java.util.List;
 
@@ -18,47 +18,41 @@ import java.util.List;
  */
 public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<TourWithGeoPointsPlanned> mTours;
+    private FragmentMyToursBinding binding;
 
-    public MyMyTourRecyclerViewAdapter(List<DummyItem> items) {
-        mValues = items;
+    public MyMyTourRecyclerViewAdapter(List<TourWithGeoPointsPlanned> items) {
+        mTours = items;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_my_tours, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(FragmentMyToursBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.bind(mTours.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mTours.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+        private FragmentMyToursBinding binding;
 
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+        public ViewHolder(FragmentMyToursBinding viewBinding) {
+            super(viewBinding.getRoot());
+            binding = viewBinding;
         }
 
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+        void bind(TourWithGeoPointsPlanned tourPlannedItem) {
+            binding.itemTitle.setText(tourPlannedItem.tour.title);
+            binding.itemTourType.setText(tourPlannedItem.tour.tourType);
+            binding.itemTourStatus.setText(tourPlannedItem.tour.tourStatus);
+            }
         }
-    }
+
 }

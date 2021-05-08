@@ -18,20 +18,18 @@ public class Tour {
     public long finishTimeActual;
     public String comment;
 
-    public boolean isCompleted;
-    public boolean isStarted;
+    public String tourStatus;
     public String tourType;
 
 
-    public Tour(String title, long startTimePlanned, long finishTimePlanned, long startTimeActual, long finishTimeActual, String comment, boolean isCompleted, boolean isStarted, String tourType) {
+    public Tour(String title, long startTimePlanned, long finishTimePlanned, long startTimeActual, long finishTimeActual, String comment, String tourStatus, String tourType) {
         this.title = title;
         this.startTimePlanned = startTimePlanned;
         this.finishTimePlanned = finishTimePlanned;
         this.startTimeActual = startTimeActual;
         this.finishTimeActual = finishTimeActual;
         this.comment = comment;
-        this.isCompleted = isCompleted;
-        this.isStarted = isStarted;
         this.tourType = tourType;
+        this.tourStatus = tourStatus;
     }
 }

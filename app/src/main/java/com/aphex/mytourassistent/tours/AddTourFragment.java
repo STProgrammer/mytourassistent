@@ -170,7 +170,7 @@ public class AddTourFragment extends Fragment {
                 }
 //show some progress bar
                 toursViewModel.addNewTour(binding.etTourName.getText().toString(),
-                        startTime, endTime, tourType);
+                        startTime, endTime, tourType, getString(R.string.tour_list_status_new));
             }
         });
 

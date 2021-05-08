@@ -151,6 +151,9 @@
     <string name="btn_clear">Clear plan</string>
     <string name="btn_finished">Finished</string>
     <string name="toast_empty_geopoints">Please select some points</string>
+    <string name="tour_list_status_completed">Completed</string>
+    <string name="tour_list_status_started">Started</string>
+    <string name="tour_list_status_new">Not started</string>
 
 
 </resources>
