@@ -16,7 +16,7 @@
         android:background="#DDD" />
 
     <Button
-        android:id="@+id/btn_save_plan"
+        android:id="@+id/btn_finish_plan"
         android:layout_width="match_parent"
         android:layout_height="67dp"
         android:text="@string/btn_finished" />

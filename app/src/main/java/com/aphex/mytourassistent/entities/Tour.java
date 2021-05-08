@@ -12,10 +12,10 @@ public class Tour {
     public long tourId;
 
     public String title;
-    public int startTimePlanned;
-    public int finishTimePlanned;
-    public int startTimeActual;
-    public int finishTimeActual;
+    public long startTimePlanned;
+    public long finishTimePlanned;
+    public long startTimeActual;
+    public long finishTimeActual;
     public String comment;
 
     public boolean isCompleted;
@@ -23,7 +23,7 @@ public class Tour {
     public String tourType;
 
 
-    public Tour(String title, int startTimePlanned, int finishTimePlanned, int startTimeActual, int finishTimeActual, String comment, boolean isCompleted, boolean isStarted, String tourType) {
+    public Tour(String title, long startTimePlanned, long finishTimePlanned, long startTimeActual, long finishTimeActual, String comment, boolean isCompleted, boolean isStarted, String tourType) {
         this.title = title;
         this.startTimePlanned = startTimePlanned;
         this.finishTimePlanned = finishTimePlanned;

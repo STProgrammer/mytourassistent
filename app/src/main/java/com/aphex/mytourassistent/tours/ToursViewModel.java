@@ -4,10 +4,9 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.aphex.mytourassistent.Repository;
+import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 
 import org.osmdroid.util.GeoPoint;
@@ -44,5 +43,7 @@ public class ToursViewModel extends AndroidViewModel {
     }
 
 
-
+    public void addNewTour(String tourName, long startTime, long endTime, String tourType) {
+        repository.addTour(tourName, startTime, endTime, tourType, geoPoints.getValue());
+    }
 }

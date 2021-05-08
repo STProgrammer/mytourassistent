@@ -114,6 +114,11 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
+
+    <string name="title_activity_settings">Settings</string>
+
+
+    <!-- Add Tour -->
     <string name="tv_input_tour_name">Tour name</string>
     <string name="tv_input_tour_start_time">Start time tour</string>
     <string name="tv_input_tour_finish_time">Finish time for tour</string>
@@ -122,8 +127,12 @@
     <string name="rb_skiing">Skiing</string>
     <string name="tv_add_tour_title">New tour</string>
     <string name="btn_choose_on_map">Choose tour on map</string>
+    <string name="btn_edit_on_map">Edit tour on map</string>
     <string name="btn_add_new_tour">Add new tour</string>
-    <string name="title_activity_settings">Settings</string>
+    <string name="toast_empty_date">Date is empty</string>
+    <string name="toast_empty_name">Name is empty</string>
+    <string name="toast_empty_tourtype">Please choose tour type</string>
+
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -141,5 +150,7 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="btn_clear">Clear plan</string>
     <string name="btn_finished">Finished</string>
+    <string name="toast_empty_geopoints">Please select some points</string>
+
 
 </resources>

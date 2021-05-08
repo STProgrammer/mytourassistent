@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentAddTourBinding;
@@ -88,7 +89,7 @@ public class AddTourFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentAddTourBinding.inflate(inflater, container, false);
 
-        toursViewModel = new ViewModelProvider(this).get(ToursViewModel.class);
+        toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
 
 
         mSimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm", Locale.getDefault());
@@ -127,9 +128,67 @@ public class AddTourFragment extends Fragment {
                 Navigation.findNavController(getView()).navigate(R.id.chooseTourOnMapFragment);
             }
         });
+
+        binding.btnChooseOnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(getView()).navigate(R.id.chooseTourOnMapFragment);
+            }
+        });
+
+        binding.btnAddNewTour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCalendarStart == null || mCalendarFinish == null) {
+                    Toast.makeText(requireContext(),R.string.toast_empty_date, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (binding.etTourName.getText().toString().isEmpty()) {
+                    Toast.makeText(requireContext(),R.string.toast_empty_name, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (binding.rgTourType.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(requireContext(),R.string.toast_empty_tourtype, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (toursViewModel.getGeoPoints().isEmpty()) {
+                    Toast.makeText(requireContext(), R.string.toast_empty_geopoints, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                long startTime = mCalendarStart.getTimeInMillis();
+                long endTime = mCalendarFinish.getTimeInMillis();
+                String tourType = "";
+                if( binding.rbBicycling.isSelected()) {
+                    tourType = getString(R.string.rb_bicycling);
+                }
+                else if ( binding.rbSkiing.isSelected()) {
+                    tourType = getString(R.string.rb_skiing);
+                }
+                else {
+                    tourType = getString(R.string.rb_walking);
+                }
+//show some progress bar
+                toursViewModel.addNewTour(binding.etTourName.getText().toString(),
+                        startTime, endTime, tourType);
+            }
+        });
+
         return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (toursViewModel.getGeoPoints().isEmpty()) {
+//button will say choose tour on map
+            binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
+        } else{
+            //button will say edit tour on map
+            binding.btnChooseOnMap.setText(R.string.btn_edit_on_map);
+        }
+
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

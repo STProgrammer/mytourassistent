@@ -37,7 +37,7 @@ public abstract class MyTourAssistentDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (MyTourAssistentDatabase.class) {
                 INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                        MyTourAssistentDatabase.class, "users_database")
+                        MyTourAssistentDatabase.class, "tours_database")
                         .addCallback(sRoomDatabaseCallback)
                         .build();
             }

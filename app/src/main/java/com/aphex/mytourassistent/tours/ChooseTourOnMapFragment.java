@@ -127,27 +127,14 @@ private View view;
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
 
-        toursViewModel = new ViewModelProvider(this).get(ToursViewModel.class);
-
+        toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
+//sharedViewModels
         verifyPermissions();
         initLocationUpdates();
 
         binding.mapView.getController().setZoom(7.0);
 
-        if (!toursViewModel.getGeoPoints().isEmpty()) {
-            Marker marker = new Marker(binding.mapView);
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
 
-            databaseWriteExecutor.execute(() -> {
-                RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
-                Road road = roadManager.getRoad(toursViewModel.getGeoPoints());
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                binding.mapView.getOverlays().add(roadOverlay);
-            });
-            marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-            marker.setTitle("Klikkpunkt");
-            binding.mapView.getOverlays().add(marker);
-        }
 
         binding.btnClearPlan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +153,7 @@ private View view;
             }
         });
 
-        binding.btnSavePlan.setOnClickListener(new View.OnClickListener() {
+        binding.btnFinishPlan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Navigation.findNavController(getView()).popBackStack();
@@ -186,7 +173,7 @@ private View view;
                         if (location != null) {
                             // Logic to handle location object
                             binding.mapView.getController().setCenter(new GeoPoint(location.getLatitude(), location.getLongitude()));
-                            binding.mapView.getController().setZoom(7.0);
+                            binding.mapView.getController().setZoom(10.0);
                             Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + location.toString());
                         }
                     }
@@ -401,18 +388,47 @@ private View view;
                     Road road = roadManager.getRoad(toursViewModel.getGeoPoints());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
+                    marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
+                    marker.setTitle("Klikkpunkt");
+                    binding.mapView.getOverlays().add(marker);
                 });
-                marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                marker.setTitle("Klikkpunkt");
-                binding.mapView.getOverlays().add(marker);
+
                 return false;
             }
         };
         binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
 
-        databaseWriteExecutor.execute(() -> {
+        if (!toursViewModel.getGeoPoints().isEmpty()) {
+            //this means user already have selected geopoints
+            //in this case, we will connect all waypoints when user come to this screen
+            //wen need to iterate over all the waypoints and connect them together
+            //waypint1
+            //waypint 2
+            //waypint 3
+            //iteration 1
 
-        });
+
+            databaseWriteExecutor.execute(() -> {
+
+                for (GeoPoint gp: toursViewModel.getGeoPoints()) {
+                    Marker marker = new Marker(binding.mapView);
+                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                    marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
+                    marker.setTitle("Klikkpunkt");
+                    marker.setPosition(gp);
+                    binding.mapView.getOverlays().add(marker);
+                }
+
+
+                RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
+                Road road = roadManager.getRoad(toursViewModel.getGeoPoints());
+                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                binding.mapView.getOverlays().add(roadOverlay);
+
+            });
+        }
+
+
     }
 
 }
