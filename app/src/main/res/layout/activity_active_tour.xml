@@ -8,45 +8,94 @@
     android:orientation="vertical"
     tools:context="com.aphex.mytourassistent.activetour.ActiveTourActivity">
 
-    <Button
-        android:id="@+id/btnReset"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="Nullstill rute" />
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/btn_start_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/btn_start_tracking" />
+
+        <Button
+            android:id="@+id/btn_pause_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/btn_pause_tracking" />
+
+        <Button
+            android:id="@+id/btn_finish_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/btn_stop_tracking" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/btn_find_my_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/my_location" />
+
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/btn_reset_route" />
+
+        <Button
+            android:id="@+id/btn_take_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:text="@string/btn_take_picture" />
+    </LinearLayout>
+
+
 
     <TextView
         android:id="@+id/tvInfo"
-        android:textSize="20sp"
-        android:background="#99CCFF"
         android:layout_width="match_parent"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginRight="10dp"
+        android:background="#99CCFF"
         android:text=""
         android:textAlignment="center"
-        />
-
-    <Button
-        android:id="@+id/btnStartTracking"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="Start tracking" />
-
-    <Button
-        android:id="@+id/btnStopTracking"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:text="Stop tracking" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/tvTrackedLocation"

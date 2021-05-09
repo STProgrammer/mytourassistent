@@ -11,8 +11,6 @@ import com.aphex.mytourassistent.dao.ToursDAO;
 import com.aphex.mytourassistent.db.MyTourAssistentDatabase;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.entities.Tour;
-import com.aphex.mytourassistent.entities.TourWithGeoPointsActual;
-import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
 import org.osmdroid.util.GeoPoint;
 
@@ -26,7 +24,9 @@ public class Repository {
     private GeoPointsPlannedDAO geoPointsPlannedDAO;
     private GeoPointsActualDAO geoPointsActualDAO;
 
-    private MutableLiveData<List<TourWithGeoPointsPlanned>> plannedTour;
+    private MutableLiveData<List<Tour>> plannedTour;
+
+    private LiveData<List<GeoPointPlanned>> geoPointsPlanned;
 
 
     public Repository(Application application) {
@@ -35,6 +35,7 @@ public class Repository {
         geoPointsPlannedDAO = db.geoPointsPlannedDAO();
         geoPointsActualDAO = db.geoPointsActualDAO();
         plannedTour = new MutableLiveData<>();
+        geoPointsPlanned = new MutableLiveData();
 
     }
 
@@ -58,14 +59,15 @@ public class Repository {
                 //TODO return some flag that data is successfully inserted
             }
         });
-
     }
+
+
 //TODO: Why LiveData doesn't work, why DAO can't return LiveData
-    public LiveData<List<TourWithGeoPointsPlanned>> getAllTours() {
+    public LiveData<List<Tour>> getAllTours() {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(()->{
-            List<TourWithGeoPointsPlanned> tourList = toursDAO.getAllToursWithGeopoints();
+            List<Tour> tourList = toursDAO.getAll();
             if (tourList == null) {
-                plannedTour.postValue(new ArrayList<TourWithGeoPointsPlanned>());
+                plannedTour.postValue(new ArrayList<Tour>());
             } else {
                 plannedTour.postValue(tourList);
             }
@@ -78,5 +80,16 @@ public class Repository {
         return plannedTour;
 
         //they will observe live data value from here
+    }
+
+    public LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId, boolean mIsFirstTime) {
+        if (!mIsFirstTime) {
+            return geoPointsPlanned;
+        }
+   //     MyTourAssistentDatabase.databaseWriteExecutor.execute(()->{
+            geoPointsPlanned = geoPointsPlannedDAO.getGeoPointsPlanned(tourId);
+     //   });
+        return geoPointsPlanned;
+
     }
 }

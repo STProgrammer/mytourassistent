@@ -133,6 +133,15 @@
     <string name="toast_empty_name">Name is empty</string>
     <string name="toast_empty_tourtype">Please choose tour type</string>
 
+    <!-- Tours list -->
+    <string name="tours_list_title">Title: </string>
+    <string name="tours_list_date">Planned start date: </string>
+    <string name="tours_list_status">Status: </string>
+    <string name="tours_list_type">Tour type: </string>
+    <string name="tours_list_details">Details</string>
+    <string name="tours_list_start">Start</string>
+
+
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -154,6 +163,11 @@
     <string name="tour_list_status_completed">Completed</string>
     <string name="tour_list_status_started">Started</string>
     <string name="tour_list_status_new">Not started</string>
+    <string name="btn_reset_route">Reset</string>
+    <string name="btn_start_tracking">Start</string>
+    <string name="btn_stop_tracking">Stop</string>
+    <string name="btn_pause_tracking">Pause</string>
+    <string name="btn_take_picture">Take photo</string>
 
 
 </resources>

@@ -2,31 +2,42 @@ package com.aphex.mytourassistent.tours;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.activetour.ActiveTourActivity;
 import com.aphex.mytourassistent.databinding.FragmentMyToursBinding;
-import com.aphex.mytourassistent.dummy.DummyContent.DummyItem;
+import com.aphex.mytourassistent.entities.Tour;
 import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem}.
+ * {@link RecyclerView.Adapter} that can display a {@link com.aphex.mytourassistent.entities.Tour}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRecyclerViewAdapter.ViewHolder> {
 
-    private final List<TourWithGeoPointsPlanned> mTours;
+    private final List<Tour> mTours;
     private FragmentMyToursBinding binding;
 
-    public MyMyTourRecyclerViewAdapter(List<TourWithGeoPointsPlanned> items) {
+    private Context context;
+
+    public MyMyTourRecyclerViewAdapter(List<Tour> items) {
         mTours = items;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        context = parent.getContext();
         return new ViewHolder(FragmentMyToursBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
@@ -48,11 +59,32 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
             binding = viewBinding;
         }
 
-        void bind(TourWithGeoPointsPlanned tourPlannedItem) {
-            binding.itemTitle.setText(tourPlannedItem.tour.title);
-            binding.itemTourType.setText(tourPlannedItem.tour.tourType);
-            binding.itemTourStatus.setText(tourPlannedItem.tour.tourStatus);
+        void bind(Tour tour) {
+            String date = new SimpleDateFormat("yyyy-MM-dd")
+                    .format(new Date(tour.startTimePlanned));
+            binding.itemTitle.setText(tour.title);
+            binding.itemTourType.setText(tour.tourType);
+            binding.itemTourStatus.setText(tour.tourStatus);
+            binding.itemTourDate.setText(date);
+            if (tour.tourStatus == "Completed") {
+                binding.btnTourStart.setVisibility(View.INVISIBLE);
+            } else {
+                binding.btnTourStart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActiveTourActivity(tour.tourId);
+
+                    }
+                });
             }
         }
+    }
+
+    public void startActiveTourActivity(long tourId) {
+        Intent intent = new Intent(context, ActiveTourActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("TOUR_ID", tourId);
+        context.startActivity(intent);
+    }
 
 }

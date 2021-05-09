@@ -30,3 +30,8 @@ public class GeoPointActual {
         this.imageUri = imageUri;
     }
 }
+//background service
+//foreground service->let u do anything continuesly
+//user starts tour
+// we show him notification that tour is in progress
+

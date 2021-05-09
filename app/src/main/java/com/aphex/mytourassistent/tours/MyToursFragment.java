@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.aphex.mytourassistent.R;
-import com.aphex.mytourassistent.dummy.DummyContent;
+import com.aphex.mytourassistent.entities.Tour;
 import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
 import org.jetbrains.annotations.NotNull;
@@ -80,9 +80,9 @@ public class MyToursFragment extends Fragment {
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
-        toursViewModel.getAllTours().observe(requireActivity(), new Observer<List<TourWithGeoPointsPlanned>>() {
+        toursViewModel.getAllTours().observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
-            public void onChanged(List<TourWithGeoPointsPlanned> tourWithGeoPointsPlanned) {
+            public void onChanged(List<Tour> tourWithGeoPointsPlanned) {
                 //we will have all the tours here when database returns values
                 // Set the adapter
                 if (view instanceof RecyclerView) {

@@ -141,7 +141,7 @@ private View view;
             public void onClick(View v) {
                 binding.mapView.invalidate();
                 binding.mapView.getOverlays().clear();
-                toursViewModel.getGeoPoints().clear();
+                toursViewModel.getGeoPoints().getValue().clear();
                 initMap();
             }
         });
@@ -317,10 +317,6 @@ private View view;
     private void initMap() {
 
 
-
-
-
-
         //map_view.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
         binding.mapView.setTileSource(TileSourceFactory.MAPNIK);
         binding.mapView.setBuiltInZoomControls(true);
@@ -385,7 +381,7 @@ private View view;
 
                 databaseWriteExecutor.execute(() -> {
                     RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
-                    Road road = roadManager.getRoad(toursViewModel.getGeoPoints());
+                    Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -398,7 +394,7 @@ private View view;
         };
         binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
 
-        if (!toursViewModel.getGeoPoints().isEmpty()) {
+        if (!toursViewModel.getGeoPoints().getValue().isEmpty()) {
             //this means user already have selected geopoints
             //in this case, we will connect all waypoints when user come to this screen
             //wen need to iterate over all the waypoints and connect them together
@@ -410,7 +406,7 @@ private View view;
 
             databaseWriteExecutor.execute(() -> {
 
-                for (GeoPoint gp: toursViewModel.getGeoPoints()) {
+                for (GeoPoint gp: toursViewModel.getGeoPoints().getValue()) {
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -421,7 +417,7 @@ private View view;
 
 
                 RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
-                Road road = roadManager.getRoad(toursViewModel.getGeoPoints());
+                Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 binding.mapView.getOverlays().add(roadOverlay);
 
