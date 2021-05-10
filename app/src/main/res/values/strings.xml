@@ -168,6 +168,10 @@
     <string name="btn_stop_tracking">Stop</string>
     <string name="btn_pause_tracking">Pause</string>
     <string name="btn_take_picture">Take photo</string>
+    <string name="tour_detail_start_date_planned">Start date planned:</string>
+    <string name="tour_detail_finish_date_planned">"Finish date planned: "</string>
+    <string name="tour_detail_tour_type">"Tour type: "</string>
+    <string name="tv_tracking_started">Tracking going on</string>
 
 
 </resources>

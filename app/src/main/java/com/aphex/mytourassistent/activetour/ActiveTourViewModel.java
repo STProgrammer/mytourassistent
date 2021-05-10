@@ -7,8 +7,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.aphex.mytourassistent.entities.GeoPointActual;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.entities.Tour;
+import com.aphex.mytourassistent.entities.TourWithAllGeoPoints;
 import com.aphex.mytourassistent.repository.Repository;
 
 import org.osmdroid.util.GeoPoint;
@@ -26,6 +28,7 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     private MutableLiveData<ArrayList<GeoPoint>> geoPointsPlanned;
     private MutableLiveData<ArrayList<GeoPoint>> geoPointsActual;
+    private MutableLiveData<Tour> tour;
 
     private Repository repository;
 
@@ -52,8 +55,8 @@ public class ActiveTourViewModel extends AndroidViewModel {
         repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPointsPlanned.getValue());
     }
 
-    public LiveData<List<Tour>> getAllTours() {
-        return repository.getAllTours();
+    public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
+        return repository.getAllTours(mIsFirstTime);
     }
 
     public LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId, boolean mIsFirstTime) {
@@ -66,5 +69,17 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public LiveData<ArrayList<GeoPoint>> getGeoPointsActual() {
         return geoPointsActual;
+    }
+
+    public MutableLiveData<Tour> getTour(long tourId) {
+        return repository.getTour(tourId);
+    }
+
+    public LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId, boolean mIsFirstTime) {
+        return repository.getTourWithAllGeoPoints(tourId, mIsFirstTime);
+    }
+
+    public void addGeoPointsActual(GeoPointActual gpa) {
+        repository.addGeoPointActual(gpa);
     }
 }

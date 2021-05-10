@@ -11,7 +11,11 @@ import androidx.annotation.Nullable;
 
 import com.aphex.mytourassistent.R;
 
-class TourDetailsFragment extends Fragment {
+public class TourDetailsFragment extends Fragment {
+
+    public TourDetailsFragment() {
+
+    }
 
     @Nullable
     @Override

@@ -26,7 +26,9 @@ import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.ActivityActiveTourBinding;
+import com.aphex.mytourassistent.entities.GeoPointActual;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
+import com.aphex.mytourassistent.entities.TourWithAllGeoPoints;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -58,7 +60,9 @@ import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,6 +84,12 @@ public class ActiveTourActivity extends AppCompatActivity {
 
     private long tourId;
     private boolean mIsFirstTime;
+    private boolean firstTimeLocation;
+
+    private TourWithAllGeoPoints tourWithAllGeoPoints;
+    private boolean trackingActive;
+    private boolean trackingFinished;
+    private long travelOrder;
 
     private static final int CALLBACK_ALL_PERMISSIONS = 1;
     private static final int REQUEST_CHECK_SETTINGS = 10;
@@ -111,9 +121,9 @@ public class ActiveTourActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState==null) {
+        //if (savedInstanceState==null) {
             mIsFirstTime = true;
-        }
+        //}
         Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
         tourId = getIntent().getLongExtra("TOUR_ID", 0L);
@@ -126,9 +136,26 @@ public class ActiveTourActivity extends AppCompatActivity {
         activeTourViewModel = new ViewModelProvider(this).get(ActiveTourViewModel.class);
 
 
-        activeTourViewModel.getGeoPointsPlanned(tourId, mIsFirstTime).observe(this, geoPointsPlanned -> {
-            if (geoPointsPlanned != null) {
-                    for (GeoPointPlanned gp: geoPointsPlanned) {
+
+
+        activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
+            if (tourWithAllGeoPoints != null) {
+                StringBuilder sb = new StringBuilder();
+                String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
+                        .format(new Date(tourWithAllGeoPoints.tour.startTimePlanned));
+                String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
+                        .format(new Date(tourWithAllGeoPoints.tour.finishTimePlanned));
+                sb.append(getString(R.string.tours_list_title));
+                sb.append(tourWithAllGeoPoints.tour.title + "\n");
+                sb.append(getString(R.string.tour_detail_start_date_planned));
+                sb.append(startDatePlanned + "\n");
+                sb.append(getString(R.string.tour_detail_finish_date_planned));
+                sb.append(finishDatePlanned + "\n");
+                sb.append(getString(R.string.tour_detail_tour_type));
+                sb.append(tourWithAllGeoPoints.tour.tourType);
+                binding.tvDetails.setText(sb.toString());
+                this.tourWithAllGeoPoints = tourWithAllGeoPoints;
+                    for (GeoPointPlanned gp: tourWithAllGeoPoints.geoPointsPlanned) {
                         Marker marker = new Marker(binding.mapView);
                         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                         marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -147,6 +174,8 @@ public class ActiveTourActivity extends AppCompatActivity {
                 });
 
                     // Punkter:
+                if (!firstTimeLocation) {
+
                     GeoPoint geoPointStart = activeTourViewModel.getGeoPointsPlanned().getValue().get(0);
                     GeoPoint geoPointEnd = new GeoPoint(68.432000,17.435700);
 
@@ -161,6 +190,8 @@ public class ActiveTourActivity extends AppCompatActivity {
 
                     binding.mapView.getOverlays().add(startMarker);
                     binding.mapView.getController().setCenter(geoPointStart);
+                    firstTimeLocation = true;
+                }
 
 
             }
@@ -196,15 +227,18 @@ public class ActiveTourActivity extends AppCompatActivity {
                     locationBuffer.append(location.getLatitude() + ", " + location.getLongitude() + "\n");
 
                     // Polyline: tegner stien.
-                    GeoPoint geoPoint = new GeoPoint(location.getLatitude() , location.getLongitude());
+                    GeoPoint gp = new GeoPoint(location.getLatitude() , location.getLongitude());
 
-                    activeTourViewModel.addToGeoPointsActual(geoPoint);
+                    activeTourViewModel.addToGeoPointsActual(gp);
 
-                    mPolyline.addPoint(geoPoint);
-                    binding.mapView.getController().setCenter(geoPoint);
+                    mPolyline.addPoint(gp);
+                    binding.mapView.getController().setCenter(gp);
+                    activeTourViewModel.addToGeoPointsActual(gp);
+                    GeoPointActual gpa = new GeoPointActual(gp.getLatitude(), gp.getLongitude(), tourId, travelOrder++, null);
+                    activeTourViewModel.addGeoPointsActual(gpa);
+
                     binding.mapView.invalidate();  //tegner kartet på nytt.
                 }
-                binding.tvTrackedLocation.setText(locationBuffer);
             }
         };
 
@@ -218,15 +252,17 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         });
 
-        binding.btnStartTracking.setOnClickListener(new View.OnClickListener() {
+        binding.ivPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 initLocationUpdates();
-                binding.tvInfo.setText("Tracking pågår.");
+
+                binding.tvInfo.setText(getString(R.string.tv_tracking_started));
             }
         });
 
-        binding.btnFinishTracking.setOnClickListener(new View.OnClickListener() {
+        binding.ivStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopTracking();
@@ -235,7 +271,7 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         });
 
-        binding.btnPauseTracking.setOnClickListener(new View.OnClickListener() {
+        binding.ivPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopTracking();
@@ -288,6 +324,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         if (fusedLocationClient != null && locationCallback != null)
             fusedLocationClient.removeLocationUpdates(locationCallback);
     }
+
 
     // Verifiserer kravene satt i locationRequest-objektet.
     //   Dersom OK verifiseres fine-location-tillatelse start av lokasjonsforespørsler.
@@ -393,7 +430,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         }
     }
 
-
+    Marker currentMarker;
     // DEL 1: Finner siste kjente posisjon.
     @SuppressLint("MissingPermission")
     private void getLastKnownLocation() {
@@ -404,16 +441,17 @@ public class ActiveTourActivity extends AppCompatActivity {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
-                            Marker marker = new Marker(binding.mapView);
+                            if (currentMarker!=null){
+                                binding.mapView.getOverlays().remove(currentMarker);
+                            }
+                            currentMarker = new Marker(binding.mapView);
                             GeoPoint gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-                            marker.setPosition(gp);
-                            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                            binding.mapView.getOverlays().add(marker);
-                            marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
-                            marker.setTitle("Klikkpunkt");
-                            binding.mapView.getOverlays().add(marker);
+                            currentMarker.setPosition(gp);
+                            currentMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                            currentMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
+                            binding.mapView.getOverlays().add(currentMarker);
                             binding.mapView.getController().setCenter(gp);
-                            binding.mapView.getController().setZoom(14.0);
+                            binding.mapView.getController().setZoom(17.0);
                             Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + location.toString());
                         }
                     }

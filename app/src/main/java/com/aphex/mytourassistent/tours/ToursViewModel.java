@@ -51,7 +51,11 @@ public class ToursViewModel extends AndroidViewModel {
         repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPoints.getValue());
     }
 
-    public LiveData<List<Tour>> getAllTours() {
-        return repository.getAllTours();
+    public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
+        return repository.getAllTours(mIsFirstTime);
+    }
+
+    public void deleteTour(long tourId) {
+        repository.deleteTour(tourId);
     }
 }

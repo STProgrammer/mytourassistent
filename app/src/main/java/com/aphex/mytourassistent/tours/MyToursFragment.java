@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +36,7 @@ public class MyToursFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private ToursViewModel toursViewModel;
+    private boolean mIsFirstTime;
 
 
     /**
@@ -78,9 +80,13 @@ public class MyToursFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (savedInstanceState == null) {
+            mIsFirstTime = true;
+        }
+
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
-        toursViewModel.getAllTours().observe(requireActivity(), new Observer<List<Tour>>() {
+        toursViewModel.getAllTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
             public void onChanged(List<Tour> tourWithGeoPointsPlanned) {
                 //we will have all the tours here when database returns values
@@ -93,7 +99,19 @@ public class MyToursFragment extends Fragment {
                     } else {
                         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
                     }
-                    recyclerView.setAdapter(new MyMyTourRecyclerViewAdapter(tourWithGeoPointsPlanned));
+                    MyMyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyMyTourRecyclerViewAdapter(tourWithGeoPointsPlanned);
+                    recyclerView.setAdapter(myMyTourRecyclerViewAdapter);
+                    myMyTourRecyclerViewAdapter.setStartPlannedTourDetailsFragment(new MyMyTourRecyclerViewAdapter.onClickButton() {
+                        @Override
+                        public void onClickToDetailsFragment() {
+                            Navigation.findNavController(view).navigate(R.id.action_myToursFragment_to_tourDetailsFragment);
+                        }
+
+                        @Override
+                        public void onClickToDeleteTour(long tourId) {
+                            toursViewModel.deleteTour(tourId);
+                        }
+                    });
                 }
             }
         });

@@ -18,7 +18,7 @@ import com.aphex.mytourassistent.entities.Tour;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1)
+@Database(entities = {Tour.class, GeoPointPlanned.class, GeoPointActual.class}, version = 1, exportSchema = false )
 public abstract class MyTourAssistentDatabase extends RoomDatabase {
 
     public abstract ToursDAO toursDAO();

@@ -4,17 +4,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.activetour.ActiveTourActivity;
 import com.aphex.mytourassistent.databinding.FragmentMyToursBinding;
 import com.aphex.mytourassistent.entities.Tour;
-import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +29,18 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
 
     public MyMyTourRecyclerViewAdapter(List<Tour> items) {
         mTours = items;
+    }
+
+
+    public onClickButton startPlannedTourDetailsFragment;
+
+    public void setStartPlannedTourDetailsFragment(onClickButton startPlannedTourDetailsFragment) {
+        this.startPlannedTourDetailsFragment = startPlannedTourDetailsFragment;
+    }
+
+    public interface onClickButton {
+        public void onClickToDetailsFragment();
+        public void onClickToDeleteTour(long tourId);
     }
 
     @Override
@@ -77,6 +85,21 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
                     }
                 });
             }
+            binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startPlannedTourDetailsFragment.onClickToDetailsFragment();
+
+                }
+            });
+
+            binding.ivDeleteTour.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startPlannedTourDetailsFragment.onClickToDeleteTour(tour.tourId);
+
+                }
+            });
         }
     }
 

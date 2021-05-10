@@ -30,7 +30,12 @@
         android:id="@+id/tourDetailsFragment"
         android:name="com.aphex.mytourassistent.tours.TourDetailsFragment"
         android:label="fragment_tour_details"
-        tools:layout="@layout/fragment_tour_details" />
+        tools:layout="@layout/fragment_tour_details" >
+        <argument
+            android:name="TOUR_ID"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
     <fragment
         android:id="@+id/chooseTourOnMapFragment"
         android:name="com.aphex.mytourassistent.tours.ChooseTourOnMapFragment"
