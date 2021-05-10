@@ -18,11 +18,11 @@ public class Tour {
     public long finishTimeActual;
     public String comment;
 
-    public String tourStatus;
-    public String tourType;
+    public int tourStatus;
+    public int tourType;
 
 
-    public Tour(String title, long startTimePlanned, long finishTimePlanned, long startTimeActual, long finishTimeActual, String comment, String tourStatus, String tourType) {
+    public Tour(String title, long startTimePlanned, long finishTimePlanned, long startTimeActual, long finishTimeActual, String comment, int tourStatus, int tourType) {
         this.title = title;
         this.startTimePlanned = startTimePlanned;
         this.finishTimePlanned = finishTimePlanned;

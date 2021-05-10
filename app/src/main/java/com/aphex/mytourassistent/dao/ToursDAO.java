@@ -7,6 +7,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
+import androidx.room.Update;
 
 import com.aphex.mytourassistent.entities.Tour;
 import com.aphex.mytourassistent.entities.TourWithAllGeoPoints;
@@ -42,4 +43,13 @@ public abstract class ToursDAO {
     @Query("DELETE FROM Tour WHERE Tour.tourId = :tourId")
     public abstract void delete(long tourId);
 
+    @Transaction
+    @Query("UPDATE Tour SET startTimeActual = :startTime, tourStatus = :status WHERE Tour.tourId = :tourId")
+    public abstract void startTour(long tourId, long startTime, int status);
+
+    @Transaction
+    @Update
+    public abstract void update(Tour tour);
+
+    // public abstract void startTour(long tourId);
 }

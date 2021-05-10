@@ -47,7 +47,7 @@ public class ToursViewModel extends AndroidViewModel {
     }
 
 
-    public void addNewTour(String tourName, long startTime, long endTime, String tourType, String tourStatus) {
+    public void addNewTour(String tourName, long startTime, long endTime, int tourType, int tourStatus) {
         repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPoints.getValue());
     }
 

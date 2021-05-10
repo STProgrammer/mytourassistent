@@ -53,7 +53,7 @@ public class Repository {
     }
 
 
-    public void addTour(String tourName, long startTime, long endTime, String tourType, String tourStatus, ArrayList<GeoPoint> geoPoints) {
+    public void addTour(String tourName, long startTime, long endTime, int tourType, int tourStatus, ArrayList<GeoPoint> geoPoints) {
 
         MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -125,5 +125,28 @@ public class Repository {
             }
         });
 
+    }
+
+    public void startTour(long tourId, long startTime, int status) {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                toursDAO.startTour(tourId, startTime, status);
+            } catch (SQLiteConstraintException e) {
+            }
+        });
+
+    }
+
+    public void clearGeoPoints(long tourId) {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
+            geoPointsActualDAO.clear(tourId);
+        });
+
+    }
+
+    public void updateTour(Tour tour) {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            toursDAO.update(tour);
+        });
     }
 }

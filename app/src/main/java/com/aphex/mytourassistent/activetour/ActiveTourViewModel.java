@@ -31,6 +31,8 @@ public class ActiveTourViewModel extends AndroidViewModel {
     private MutableLiveData<Tour> tour;
 
     private Repository repository;
+    private GeoPoint currentLocation;
+    private double currentZoomLevel;
 
 
     public ActiveTourViewModel(@NonNull Application application) {
@@ -51,7 +53,7 @@ public class ActiveTourViewModel extends AndroidViewModel {
     }
 
 
-    public void addNewTour(String tourName, long startTime, long endTime, String tourType, String tourStatus) {
+    public void addNewTour(String tourName, long startTime, long endTime, int tourType, int tourStatus) {
         repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPointsPlanned.getValue());
     }
 
@@ -81,5 +83,35 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public void addGeoPointsActual(GeoPointActual gpa) {
         repository.addGeoPointActual(gpa);
+    }
+
+    public void startTour(long tourId, long startTime, int status) {
+        repository.startTour(tourId, startTime, status);
+
+
+    }
+
+    public void clearGeoPoints(long tourId) {
+        repository.clearGeoPoints(tourId);
+    }
+
+    public void updateTour(Tour tour) {
+        repository.updateTour(tour);
+    }
+
+    public void updateCurrentLocation(GeoPoint gp) {
+        currentLocation = gp;
+    }
+
+    public GeoPoint getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentZoom(double zoomLevelDouble) {
+        currentZoomLevel = zoomLevelDouble;
+    }
+
+    public double getCurrentZoomLevel() {
+        return currentZoomLevel;
     }
 }

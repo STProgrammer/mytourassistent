@@ -8,9 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.activetour.ActiveTourActivity;
 import com.aphex.mytourassistent.databinding.FragmentMyToursBinding;
 import com.aphex.mytourassistent.entities.Tour;
+import com.aphex.mytourassistent.enums.TourStatus;
+import com.aphex.mytourassistent.enums.TourType;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,17 +74,50 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
             String date = new SimpleDateFormat("yyyy-MM-dd")
                     .format(new Date(tour.startTimePlanned));
             binding.itemTitle.setText(tour.title);
-            binding.itemTourType.setText(tour.tourType);
-            binding.itemTourStatus.setText(tour.tourStatus);
+            String tourType = "";
+            String tourStatus = "";
+
+
+            switch(tour.tourType) {
+                case 1:
+                    tourType = itemView.getContext().getString(R.string.tour_type_walking);
+                    break;
+                case 2:
+                    tourType = itemView.getContext().getString(R.string.tour_type_bicycling);
+                    break;
+                case 3:
+                    tourType = itemView.getContext().getString(R.string.tour_type_skiing);
+                    break;
+            }
+
+            switch(tour.tourStatus) {
+                case 1:
+                    tourStatus = itemView.getContext().getString(R.string.status_not_started);
+                    break;
+                case 2:
+                    tourStatus = itemView.getContext().getString(R.string.status_active);
+                    break;
+                case 3:
+                    tourStatus = itemView.getContext().getString(R.string.status_paused);
+                    break;
+                case 4:
+                    tourStatus = itemView.getContext().getString(R.string.status_completed);
+                    break;
+            }
+
+
+
+            binding.itemTourType.setText(tourType);
+            binding.itemTourStatus.setText(tourStatus);
             binding.itemTourDate.setText(date);
-            if (tour.tourStatus == "Completed") {
+            if (tour.tourStatus == TourStatus.COMPLETED.getValue()) {
                 binding.btnTourStart.setVisibility(View.INVISIBLE);
             } else {
                 binding.btnTourStart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startActiveTourActivity(tour.tourId);
-
+                        //check if
+                        startActiveTourActivity(tour.tourId, tour.tourStatus);
                     }
                 });
             }
@@ -103,10 +139,11 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
         }
     }
 
-    public void startActiveTourActivity(long tourId) {
+    public void startActiveTourActivity(long tourId, int tourStatus) {
         Intent intent = new Intent(context, ActiveTourActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("TOUR_ID", tourId);
+        intent.putExtra("TOUR_STATUS", tourStatus);
         context.startActivity(intent);
     }
 

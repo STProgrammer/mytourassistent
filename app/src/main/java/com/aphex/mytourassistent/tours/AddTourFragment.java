@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentAddTourBinding;
+import com.aphex.mytourassistent.enums.TourStatus;
+import com.aphex.mytourassistent.enums.TourType;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -158,19 +160,19 @@ public class AddTourFragment extends Fragment {
 
                 long startTime = mCalendarStart.getTimeInMillis();
                 long endTime = mCalendarFinish.getTimeInMillis();
-                String tourType = "";
+                int tourType = 0;
                 if( binding.rbBicycling.isSelected()) {
-                    tourType = getString(R.string.rb_bicycling);
+                    tourType = TourType.BIKING.getValue();
                 }
                 else if ( binding.rbSkiing.isSelected()) {
-                    tourType = getString(R.string.rb_skiing);
+                    tourType = TourType.SKIING.getValue();
                 }
                 else {
-                    tourType = getString(R.string.rb_walking);
+                    tourType = TourType.WALKING.getValue();
                 }
 //show some progress bar
                 toursViewModel.addNewTour(binding.etTourName.getText().toString(),
-                        startTime, endTime, tourType, getString(R.string.tour_list_status_new));
+                        startTime, endTime, tourType, TourStatus.NOT_STARTED.getValue());
             }
         });
 
