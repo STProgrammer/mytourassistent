@@ -192,18 +192,6 @@ public class ActiveTourActivity extends AppCompatActivity {
                     firstTimeLocation = true;
                 }
 
-
-
-                sb.append(getString(R.string.tours_list_title));
-                sb.append(tourWithAllGeoPoints.tour.title + "\n");
-                sb.append(getString(R.string.tour_detail_start_date_planned));
-                sb.append(startDatePlanned + "\n");
-                sb.append(getString(R.string.tour_detail_finish_date_planned));
-                sb.append(finishDatePlanned + "\n");
-                sb.append(getString(R.string.tour_detail_tour_type));
-                sb.append(tourType);
-                binding.tvDetails.setText(sb.toString());
-
                 for (GeoPointPlanned gp : tourWithAllGeoPoints.geoPointsPlanned) {
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);

@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context="com.aphex.mytourassistent.activetour.ActiveTourActivity">
 
+    <TextView
+        android:id="@+id/tv_active_tour_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/title_text"
+        android:textAlignment="center"
+        android:text="Tour Title" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,12 +78,6 @@
         android:orientation="horizontal"
         />
 
-
-    <TextView
-        android:id="@+id/tv_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
 
     <TextView
         android:id="@+id/tv_weather"

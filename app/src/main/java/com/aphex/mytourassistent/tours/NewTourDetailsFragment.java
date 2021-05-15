@@ -11,9 +11,9 @@ import androidx.annotation.Nullable;
 
 import com.aphex.mytourassistent.R;
 
-public class TourDetailsFragment extends Fragment {
+public class NewTourDetailsFragment extends Fragment {
 
-    public TourDetailsFragment() {
+    public NewTourDetailsFragment() {
 
     }
 
@@ -22,6 +22,6 @@ public class TourDetailsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_tour_details, container, false);
+        return inflater.inflate(R.layout.fragment_new_tour_details, container, false);
     }
 }

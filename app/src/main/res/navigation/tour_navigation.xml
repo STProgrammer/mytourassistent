@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tour_navigation"
-    app:startDestination="@id/myToursFragment">
+    app:startDestination="@id/myToursListFragment">
 
     <fragment
-        android:id="@+id/myToursFragment"
-        android:name="com.aphex.mytourassistent.tours.MyToursFragment"
+        android:id="@+id/myToursListFragment"
+        android:name="com.aphex.mytourassistent.tours.MyToursListFragment"
         android:label="fragment_my_tours_list"
         tools:layout="@layout/fragment_my_tours_list" >
         <action
-            android:id="@+id/actionMyToursFragment_to_addTourFragment"
+            android:id="@+id/actionMyToursListFragment_to_addTourFragment"
             app:destination="@id/addTourFragment" />
         <action
-            android:id="@+id/action_myToursFragment_to_tourDetailsFragment"
-            app:destination="@id/tourDetailsFragment" />
+            android:id="@+id/myToursFragment_to_completedToursListFragment"
+            app:destination="@id/completedToursListFragment" />
     </fragment>
     <fragment
         android:id="@+id/addTourFragment"
@@ -27,18 +27,27 @@
             app:destination="@id/chooseTourOnMapFragment" />
     </fragment>
     <fragment
-        android:id="@+id/tourDetailsFragment"
-        android:name="com.aphex.mytourassistent.tours.TourDetailsFragment"
-        android:label="fragment_tour_details"
-        tools:layout="@layout/fragment_tour_details" >
+        android:id="@+id/chooseTourOnMapFragment"
+        android:name="com.aphex.mytourassistent.tours.ChooseTourOnMapFragment"
+        android:label="fragment_choose_tour_on_map"
+        tools:layout="@layout/fragment_choose_tour_on_map" />
+    <fragment
+        android:id="@+id/completedToursListFragment"
+        android:name="com.aphex.mytourassistent.tours.CompletedToursListFragment"
+        android:label="fragment_completed_tours_list"
+        tools:layout="@layout/fragment_completed_tours_list" >
+        <action
+            android:id="@+id/completedToursListFragment_to_completedTourDetailsFragment"
+            app:destination="@id/completedTourDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/completedTourDetailsFragment"
+        android:name="com.aphex.mytourassistent.CompletedTourDetailsFragment"
+        android:label="fragment_completed_tour_details"
+        tools:layout="@layout/fragment_completed_tour_details" >
         <argument
             android:name="TOUR_ID"
             app:argType="long"
             android:defaultValue="0L" />
     </fragment>
-    <fragment
-        android:id="@+id/chooseTourOnMapFragment"
-        android:name="com.aphex.mytourassistent.tours.ChooseTourOnMapFragment"
-        android:label="fragment_choose_tour_on_map"
-        tools:layout="@layout/fragment_choose_tour_on_map" />
 </navigation>

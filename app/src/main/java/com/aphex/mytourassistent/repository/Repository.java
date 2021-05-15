@@ -28,10 +28,12 @@ public class Repository {
     private GeoPointsActualDAO geoPointsActualDAO;
 
     private LiveData<List<Tour>> toursList;
+    private LiveData<List<Tour>> toursListCompleted;
 
     private LiveData<List<GeoPointPlanned>> geoPointsPlanned;
 
     private LiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
+
 
 
     public Repository(Application application) {
@@ -73,11 +75,11 @@ public class Repository {
     }
 
 
-    public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
+    public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
         if (!mIsFirstTime) {
             return toursList;
         }
-        toursList = toursDAO.getAll();
+        toursList = toursDAO.getAllUncompletedTours();
 
         return toursList;
 
@@ -148,5 +150,16 @@ public class Repository {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
             toursDAO.update(tour);
         });
+    }
+
+    public LiveData<List<Tour>> getAllCompletedTours(boolean mIsFirstTime) {
+        if (!mIsFirstTime) {
+            return toursListCompleted;
+        }
+        toursListCompleted = toursDAO.getAllCompletedTours();
+
+        return toursListCompleted;
+
+        //they will observe live data value from here
     }
 }

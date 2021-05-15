@@ -22,8 +22,12 @@ public abstract class ToursDAO {
     public abstract long insert(Tour tour);
 
     @Transaction
-    @Query("SELECT * FROM Tour")
-    public abstract LiveData<List<Tour>> getAll();
+    @Query("SELECT * FROM Tour WHERE Tour.tourStatus IS NOT 4")
+    public abstract LiveData<List<Tour>> getAllUncompletedTours();
+
+    @Transaction
+    @Query("SELECT * FROM Tour WHERE Tour.tourStatus = 4")
+    public abstract LiveData<List<Tour>> getAllCompletedTours();
 
 
     @Transaction

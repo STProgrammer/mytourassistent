@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.entities.Tour;
-import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.entities.GeoPointPlanned;
 
@@ -51,11 +50,15 @@ public class ToursViewModel extends AndroidViewModel {
         repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPoints.getValue());
     }
 
-    public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
-        return repository.getAllTours(mIsFirstTime);
+    public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
+        return repository.getAllUncompletedTours(mIsFirstTime);
     }
 
     public void deleteTour(long tourId) {
         repository.deleteTour(tourId);
+    }
+
+    public LiveData<List<Tour>> getAllCompletedTours(boolean mIsFirstTime) {
+        return repository.getAllCompletedTours(mIsFirstTime);
     }
 }

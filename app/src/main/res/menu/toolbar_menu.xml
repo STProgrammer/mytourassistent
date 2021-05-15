@@ -6,18 +6,30 @@
         android:id="@+id/newTour"
         android:icon="@drawable/ic_baseline_add_circle_24"
         app:showAsAction="always"
-        android:title="Settings screen" />
+        android:title="@string/btn_add_new_tour" />
+
+    <item
+        android:id="@+id/toursList"
+        android:icon="@drawable/ic_baseline_view_list_24"
+        app:showAsAction="always"
+        android:title="@string/btn_tours_list" />
+
+    <item
+        android:id="@+id/history"
+        android:icon="@drawable/ic_baseline_history_24"
+        app:showAsAction="always"
+        android:title="@string/tours_history" />
 
     <item
         android:id="@+id/settings"
         android:icon="@drawable/ic_baseline_settings_24"
         app:showAsAction="always"
-        android:title="Settings screen" />
+        android:title="@string/action_settings" />
 
     <item
         android:id="@+id/logout"
         android:icon="@drawable/ic_baseline_logout_24"
         app:showAsAction="always"
-        android:title="Users screen" />
+        android:title="@string/logout" />
 
 </menu>

@@ -10,10 +10,9 @@ import android.view.ViewGroup;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.activetour.ActiveTourActivity;
-import com.aphex.mytourassistent.databinding.FragmentMyToursBinding;
+import com.aphex.mytourassistent.databinding.ItemMyTourBinding;
 import com.aphex.mytourassistent.entities.Tour;
 import com.aphex.mytourassistent.enums.TourStatus;
-import com.aphex.mytourassistent.enums.TourType;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,33 +22,32 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link com.aphex.mytourassistent.entities.Tour}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRecyclerViewAdapter.ViewHolder> {
+public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecyclerViewAdapter.ViewHolder> {
 
     private final List<Tour> mTours;
-    private FragmentMyToursBinding binding;
+    private ItemMyTourBinding binding;
 
     private Context context;
 
-    public MyMyTourRecyclerViewAdapter(List<Tour> items) {
+    public MyTourRecyclerViewAdapter(List<Tour> items) {
         mTours = items;
     }
 
 
-    public onClickButton startPlannedTourDetailsFragment;
+    public OnClickButton onClickButton;
 
-    public void setStartPlannedTourDetailsFragment(onClickButton startPlannedTourDetailsFragment) {
-        this.startPlannedTourDetailsFragment = startPlannedTourDetailsFragment;
+    public void setOnClickButton(OnClickButton onClickButton) {
+        this.onClickButton = onClickButton;
     }
 
-    public interface onClickButton {
-        public void onClickToDetailsFragment();
+    public interface OnClickButton {
         public void onClickToDeleteTour(long tourId);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
-        return new ViewHolder(FragmentMyToursBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+        return new ViewHolder(ItemMyTourBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -63,17 +61,19 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private FragmentMyToursBinding binding;
+        private ItemMyTourBinding binding;
 
-        public ViewHolder(FragmentMyToursBinding viewBinding) {
+        public ViewHolder(ItemMyTourBinding viewBinding) {
             super(viewBinding.getRoot());
             binding = viewBinding;
         }
 
         void bind(Tour tour) {
-            String date = new SimpleDateFormat("yyyy-MM-dd")
+            String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH:mm")
                     .format(new Date(tour.startTimePlanned));
-            binding.itemTitle.setText(tour.title);
+            String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+                    .format(new Date(tour.finishTimePlanned));
+            binding.tvTourTitle.setText(tour.title);
             String tourType = "";
             String tourStatus = "";
 
@@ -107,9 +107,10 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
 
 
 
-            binding.itemTourType.setText(tourType);
-            binding.itemTourStatus.setText(tourStatus);
-            binding.itemTourDate.setText(date);
+            binding.tvTourType.setText(tourType);
+            binding.tvTourStatus.setText(tourStatus);
+            binding.tvTourDatePlanStart.setText(startDatePlanned);
+            binding.tvTourDatePlanEnd.setText(startDatePlanned);
             if (tour.tourStatus == TourStatus.COMPLETED.getValue()) {
                 binding.btnTourStart.setVisibility(View.INVISIBLE);
             } else {
@@ -121,18 +122,11 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
                     }
                 });
             }
-            binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startPlannedTourDetailsFragment.onClickToDetailsFragment();
-
-                }
-            });
 
             binding.ivDeleteTour.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startPlannedTourDetailsFragment.onClickToDeleteTour(tour.tourId);
+                    onClickButton.onClickToDeleteTour(tour.tourId);
 
                 }
             });
@@ -146,5 +140,4 @@ public class MyMyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyMyTourRe
         intent.putExtra("TOUR_STATUS", tourStatus);
         context.startActivity(intent);
     }
-
 }

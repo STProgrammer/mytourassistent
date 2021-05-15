@@ -43,15 +43,6 @@ public class TourActivity extends AppCompatActivity {
         toursViewModel = new ViewModelProvider(this).get(ToursViewModel.class);
 
 
-
-
-
-
-
-
-
-
-
         // Henter referanse til NavController-objektet.
         // Gjøres ulikt avhengig av om man bruker <fragment../> eller <FragmentContainerView.../>
         // i activity_main.xml. Her brukes vi FragmentContainerView i activity_main.xml
@@ -75,6 +66,12 @@ public class TourActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+
+        /*NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+        return NavigationUI.onNavDestinationSelected(item, navController)
+                || super.onOptionsItemSelected(item);*/
+
         switch (item.getItemId()) {
             case R.id.logout:
                 AuthUI.getInstance().signOut(this)
@@ -85,14 +82,24 @@ public class TourActivity extends AppCompatActivity {
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
                     }
-
                 }
             });
             case R.id.newTour:
                 Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.addTourFragment);
-                /*NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
                 return NavigationUI.onNavDestinationSelected(item, navController)
-                        || super.onOptionsItemSelected(item);*/
+                        || super.onOptionsItemSelected(item);
+
+            case R.id.history:
+                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.completedToursListFragment);
+                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+                return NavigationUI.onNavDestinationSelected(item, navController)
+                        || super.onOptionsItemSelected(item);
+            case R.id.toursList:
+                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.myToursListFragment);
+                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+                return NavigationUI.onNavDestinationSelected(item, navController)
+                        || super.onOptionsItemSelected(item);
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

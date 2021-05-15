@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -20,7 +19,6 @@ import android.view.ViewGroup;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.entities.Tour;
-import com.aphex.mytourassistent.entities.TourWithGeoPointsPlanned;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +27,7 @@ import java.util.List;
 /**
  * A fragment representing a list of Items.
  */
-public class MyToursFragment extends Fragment {
+public class MyToursListFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -43,13 +41,13 @@ public class MyToursFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public MyToursFragment() {
+    public MyToursListFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static MyToursFragment newInstance(int columnCount) {
-        MyToursFragment fragment = new MyToursFragment();
+    public static MyToursListFragment newInstance(int columnCount) {
+        MyToursListFragment fragment = new MyToursListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -86,7 +84,7 @@ public class MyToursFragment extends Fragment {
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
-        toursViewModel.getAllTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
+        toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
             public void onChanged(List<Tour> tourWithGeoPointsPlanned) {
                 //we will have all the tours here when database returns values
@@ -99,14 +97,9 @@ public class MyToursFragment extends Fragment {
                     } else {
                         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
                     }
-                    MyMyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyMyTourRecyclerViewAdapter(tourWithGeoPointsPlanned);
+                    MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tourWithGeoPointsPlanned);
                     recyclerView.setAdapter(myMyTourRecyclerViewAdapter);
-                    myMyTourRecyclerViewAdapter.setStartPlannedTourDetailsFragment(new MyMyTourRecyclerViewAdapter.onClickButton() {
-                        @Override
-                        public void onClickToDetailsFragment() {
-                            Navigation.findNavController(view).navigate(R.id.action_myToursFragment_to_tourDetailsFragment);
-                        }
-
+                    myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
                         @Override
                         public void onClickToDeleteTour(long tourId) {
                             toursViewModel.deleteTour(tourId);

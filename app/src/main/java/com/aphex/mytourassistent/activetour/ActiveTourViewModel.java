@@ -58,7 +58,7 @@ public class ActiveTourViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
-        return repository.getAllTours(mIsFirstTime);
+        return repository.getAllUncompletedTours(mIsFirstTime);
     }
 
     public LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId, boolean mIsFirstTime) {
