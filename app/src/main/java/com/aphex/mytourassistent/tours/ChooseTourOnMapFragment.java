@@ -51,6 +51,7 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
@@ -76,6 +77,9 @@ private View view;
     private FragmentChooseTourOnMapBinding binding;
 
     private ToursViewModel toursViewModel;
+
+    FolderOverlay kmlOverlay;
+
 
     ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
 
@@ -133,6 +137,9 @@ private View view;
         initLocationUpdates();
 
         binding.mapView.getController().setZoom(7.0);
+
+        kmlOverlay = (FolderOverlay)toursViewModel.getKmlDocument().mKmlRoot.buildOverlay(binding.mapView, null, null, toursViewModel.getKmlDocument());
+
 
 
 
@@ -363,6 +370,7 @@ private View view;
         //play around with these values to get the location on screen in the right place for your application
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
         binding.mapView.getOverlays().add(this.mScaleBarOverlay);
+        kmlOverlay = (FolderOverlay) toursViewModel.getKmlDocument().mKmlRoot.buildOverlay(binding.mapView, null,null, toursViewModel.getKmlDocument());
 
 
         // Fange opp posisjon i klikkpunkt på kartet:
@@ -373,11 +381,12 @@ private View view;
             }
             @Override
             public boolean longPressHelper(GeoPoint geoPoint) {
-                Toast.makeText(requireContext(),geoPoint.getLatitude() + " - "+geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(),geoPoint.getLatitude() + " - " + geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
                 Marker marker = new Marker(binding.mapView);
                 marker.setPosition(geoPoint);
                 toursViewModel.addToGeoPoints(geoPoint);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+
 
                 databaseWriteExecutor.execute(() -> {
                     RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
@@ -386,7 +395,9 @@ private View view;
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
                     marker.setTitle("Klikkpunkt");
-                    binding.mapView.getOverlays().add(marker);
+                    //binding.mapView.getOverlays().add(marker);
+                    kmlOverlay.add(marker);
+                    binding.mapView.getOverlays().add(kmlOverlay);
                 });
 
                 return false;
