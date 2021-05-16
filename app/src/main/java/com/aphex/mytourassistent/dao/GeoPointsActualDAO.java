@@ -10,6 +10,10 @@ import com.aphex.mytourassistent.entities.GeoPointActual;
 @Dao
 public abstract class GeoPointsActualDAO {
 
+    @Transaction
+    @Query("SELECT geoPointActualId FROM GeoPointActual WHERE fk_tourId = :tourId ORDER BY geoPointActualId DESC LIMIT 1")
+    public abstract long getLastInsertedId(long tourId);
+
     @Insert
     public abstract void insert(GeoPointActual gpa);
 

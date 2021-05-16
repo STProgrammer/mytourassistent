@@ -114,4 +114,8 @@ public class ActiveTourViewModel extends AndroidViewModel {
     public double getCurrentZoomLevel() {
         return currentZoomLevel;
     }
+
+    public long getLastInsertedGeoPointActualId(long tourId) {
+        return repository.getLastInsertedGeoPointActualId(tourId);
+    }
 }

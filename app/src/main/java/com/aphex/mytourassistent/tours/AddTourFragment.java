@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
@@ -90,9 +91,27 @@ public class AddTourFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentAddTourBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (toursViewModel.getGeoPoints().getValue().isEmpty()) {
+//button will say choose tour on map
+            binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
+        } else{
+            //button will say edit tour on map
+            binding.btnChooseOnMap.setText(R.string.btn_edit_on_map);
+        }
+
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
-
 
         mSimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm", Locale.getDefault());
 
@@ -176,25 +195,16 @@ public class AddTourFragment extends Fragment {
             }
         });
 
-        return binding.getRoot();
-    }
+        Observer<Integer> observer = integer -> {
+            if (integer == 1) {
+                Toast.makeText(requireContext(), R.string.toast_tour_added, Toast.LENGTH_LONG).show();
+            } else if (integer == 2) {
+                Toast.makeText(requireContext(), R.string.toast_failed_to_add_tour, Toast.LENGTH_LONG).show();
+            }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (toursViewModel.getGeoPoints().getValue().isEmpty()) {
-//button will say choose tour on map
-            binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
-        } else{
-            //button will say edit tour on map
-            binding.btnChooseOnMap.setText(R.string.btn_edit_on_map);
-        }
-
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        };
+        toursViewModel.getStatusInteger().removeObserver(observer);
+        toursViewModel.getStatusInteger().observe(requireActivity(),observer);
 
 
     }

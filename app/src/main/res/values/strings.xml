@@ -109,6 +109,8 @@
     <string name="tours_list_view">View</string>
     <string name="tours_list_date_start">"Start time: "</string>
     <string name="tours_list_date_end">"Finish time: "</string>
+    <string name="toast_tour_added">New tour added</string>
+    <string name="toast_failed_to_add_tour">Failed to add tour</string>
 
 
 </resources>

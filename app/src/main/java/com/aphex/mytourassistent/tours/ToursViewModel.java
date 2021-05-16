@@ -76,4 +76,8 @@ public class ToursViewModel extends AndroidViewModel {
     public void setKmlDocument(KmlDocument kmlDocument) {
         this.kmlDocument = kmlDocument;
     }
+
+    public LiveData<Integer> getStatusInteger() {
+        return repository.getStatusInteger();
+    }
 }

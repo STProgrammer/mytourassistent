@@ -34,6 +34,8 @@ public class Repository {
 
     private LiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
 
+    private MutableLiveData<Integer> statusInteger;
+
 
 
     public Repository(Application application) {
@@ -44,6 +46,7 @@ public class Repository {
         toursList = new MutableLiveData<>();
         geoPointsPlanned = new MutableLiveData<>();
         tourWithAllGeoPoints = new MutableLiveData<>();
+        statusInteger = new MutableLiveData<>();
 
     }
 
@@ -65,12 +68,11 @@ public class Repository {
                     geoPointsPlannedDAO.insert(new GeoPointPlanned(gp.getLatitude(), gp.getLongitude(), tourId, order));
                     order++;
                     //update livedata here
-                    //TODO return some flag that data is successfully inserted
+                    statusInteger.postValue(1);
                 }
             } catch (SQLiteConstraintException e) {
-
+                statusInteger.postValue(2);
             }
-
         });
     }
 
@@ -161,5 +163,17 @@ public class Repository {
         return toursListCompleted;
 
         //they will observe live data value from here
+    }
+
+    public long getLastInsertedGeoPointActualId(long tourId) {
+         return geoPointsActualDAO.getLastInsertedId(tourId);
+    }
+
+    public LiveData<Integer> getStatusInteger() {
+        return statusInteger;
+    }
+
+    public void setStatusInteger(MutableLiveData<Integer> statusInteger) {
+        this.statusInteger = statusInteger;
     }
 }
