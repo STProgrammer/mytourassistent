@@ -82,7 +82,7 @@ public class ActiveTourViewModel extends AndroidViewModel {
     }
 
     public void addGeoPointsActual(GeoPointActual gpa) {
-        repository.addGeoPointActual(gpa);
+        repository.addGeoPointsActual(gpa);
     }
 
     public void startTour(long tourId, long startTime, int status) {

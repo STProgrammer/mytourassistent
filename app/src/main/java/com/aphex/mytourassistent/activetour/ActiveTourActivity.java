@@ -7,12 +7,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -91,6 +95,7 @@ import java.util.concurrent.Executors;
  */
 public class ActiveTourActivity extends AppCompatActivity {
 
+    public static final String STRING_ACTION = "END_SERVICE";
     private ActivityActiveTourBinding binding;
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(4);
@@ -102,7 +107,7 @@ public class ActiveTourActivity extends AppCompatActivity {
     private TourWithAllGeoPoints tourWithAllGeoPoints;
     private boolean trackingActive;
     private boolean trackingFinished;
-    private long travelOrder;
+    public static long travelOrder;
 
     private final int ACTIVE = TourStatus.ACTIVE.getValue();
 
@@ -151,6 +156,7 @@ public class ActiveTourActivity extends AppCompatActivity {
 
 
         activeTourViewModel = new ViewModelProvider(this).get(ActiveTourViewModel.class);
+
 
 
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
@@ -396,6 +402,8 @@ public class ActiveTourActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(myLocationReceiver, myBroadcastFilter);
+        stopService(new Intent(this,TourTrackingService.class));
         if (requestingLocationUpdates) {
             this.verifyPermissions();
         }
@@ -467,7 +475,7 @@ public class ActiveTourActivity extends AppCompatActivity {
     }
 
     // LocationRequest: Setter krav til posisjoneringa:
-    public LocationRequest createLocationRequest() {
+    public static LocationRequest createLocationRequest() {
         LocationRequest locationRequest = LocationRequest.create();
         // Hvor ofte ønskes lokasjonsoppdateringer (her: hvert 10.sekund)
         locationRequest.setInterval(5000);
@@ -687,7 +695,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         long lastGpId = activeTourViewModel.getLastInsertedGeoPointActualId(tourId);
         String imageFileName = lastGpId + "_" + tourId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir +"/"+
+        File image = new File(storageDir + "/" +
                 imageFileName + ".jpeg");
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -717,5 +725,33 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         }
     }
-    
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        Intent intent = new Intent(this,TourTrackingService.class);
+        intent.putExtra("TOUR_ID", tourId);
+        intent.putExtra("TOUR_STATUS", tourStatus);
+        intent.putExtra("TRAVEL_ORDER", travelOrder);
+
+        startForegroundService(intent);
+    }
+
+
+    // Inner broadcastmottaker-klasse:
+    private class MyLocationReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            tourStatus = intent.getIntExtra("TOUR_STATUS", 3);
+            travelOrder = intent.getLongExtra("TRAVEL_ORDER", 0L);
+        }
+    }
+
+    // Instans av inner broadcastmottaker-klasse:
+    private MyLocationReceiver myLocationReceiver = new MyLocationReceiver();
+
+    // Intentfilter for broadcastmottaker:
+    private IntentFilter myBroadcastFilter = new IntentFilter(STRING_ACTION);
+
+
 }

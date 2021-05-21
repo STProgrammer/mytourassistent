@@ -121,7 +121,7 @@ public class Repository {
 
     }
 
-    public void addGeoPointActual(GeoPointActual gpa) {
+    public void addGeoPointsActual(GeoPointActual gpa) {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 geoPointsActualDAO.insert(gpa);
