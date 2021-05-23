@@ -598,13 +598,13 @@ public class ActiveTourActivity extends AppCompatActivity {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
                 //Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
-                Marker marker = new Marker(binding.mapView);
-                marker.setPosition(geoPoint);
-                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                binding.mapView.getOverlays().add(marker);
-                marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                marker.setTitle("Klikkpunkt");
-                binding.mapView.getOverlays().add(marker);
+//                Marker marker = new Marker(binding.mapView);
+//                marker.setPosition(geoPoint);
+//                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+//                binding.mapView.getOverlays().add(marker);
+//                marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
+//                marker.setTitle("Klikkpunkt");
+//                binding.mapView.getOverlays().add(marker);
                 return false;
             }
 
@@ -658,8 +658,8 @@ public class ActiveTourActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        long lastGpId = activeTourViewModel.getLastInsertedGeoPointActualId(tourId);
-        String imageFileName = lastGpId + "_" + tourId;
+        long lastGpId = activeTourViewModel.getLastGeoPointRecorded().getValue().geoPointActualId;
+        String imageFileName = lastGpId + "_" + tourId + "_" + System.currentTimeMillis();
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = new File(storageDir + "/" +
                 imageFileName + ".jpeg");

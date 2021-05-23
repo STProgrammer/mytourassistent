@@ -102,8 +102,8 @@ public class CompletedToursListFragment extends Fragment {
                     recyclerView.setAdapter(myCompletedToursListRecyclerViewAdapter);
                     myCompletedToursListRecyclerViewAdapter.setOnClickButton(new MyCompletedToursListRecyclerViewAdapter.OnClickButton() {
                         @Override
-                        public void onClickToDetailsFragment() {
-                            Navigation.findNavController(view).navigate(R.id.completedToursListFragment_to_completedTourDetailsFragment);
+                        public void onClickToDetailsFragment(long tourId) {
+                            Navigation.findNavController(view).navigate(CompletedToursListFragmentDirections.completedToursListFragmentToCompletedTourDetailsFragment().setTOURID(tourId));
                         }
 
                         @Override

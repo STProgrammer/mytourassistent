@@ -38,7 +38,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
     }
 
     public interface OnClickButton {
-        public void onClickToDetailsFragment();
+        public void onClickToDetailsFragment(long tourId);
         public void onClickToDeleteTour(long tourId);
     }
 
@@ -111,7 +111,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
             binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onClickButton.onClickToDetailsFragment();
+                    onClickButton.onClickToDetailsFragment(tour.tourId);
                 }
             });
 

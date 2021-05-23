@@ -122,6 +122,9 @@
     <string name="toast_select_end_date_first">Please select end date first!</string>
     <string name="weather_settings">Weather settings</string>
     <string name="show_weather_checkbox">Show weather data</string>
+    <string name="comment_label">"Comment about tour: "</string>
+    <string name="btn_add_comment">Add comment</string>
+    <string name="btn_share_tour">Share tour</string>
 
 
 </resources>
