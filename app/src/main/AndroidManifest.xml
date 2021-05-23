@@ -60,6 +60,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <receiver android:name=".activetour.TourTrackingService$PauseRecordingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="ACTION_PAUSE_RECORDING" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".activetour.TourTrackingService$StopRecordingBroadcastReceiver">
+            <intent-filter>
+                <action android:name="ACTION_STOP_RECORDING" />
+            </intent-filter>
+        </receiver>
 
 
     </application>

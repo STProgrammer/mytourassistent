@@ -1,6 +1,7 @@
 package com.aphex.mytourassistent.repository;
 
 import android.app.Application;
+import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 
 import androidx.lifecycle.LiveData;
@@ -32,14 +33,17 @@ public class Repository {
 
     private LiveData<List<GeoPointPlanned>> geoPointsPlanned;
 
+    private MutableLiveData<Integer> tourStatusLiveData;
+
+
     private LiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
 
     private MutableLiveData<Integer> statusInteger;
+    private MutableLiveData<GeoPointActual> geoPointActualLiveData;
 
 
-
-    public Repository(Application application) {
-        MyTourAssistentDatabase db = MyTourAssistentDatabase.getDatabase(application);
+    public Repository(Context applicationContext) {
+        MyTourAssistentDatabase db = MyTourAssistentDatabase.getDatabase(applicationContext);
         toursDAO = db.toursDAO();
         geoPointsPlannedDAO = db.geoPointsPlannedDAO();
         geoPointsActualDAO = db.geoPointsActualDAO();
@@ -47,12 +51,13 @@ public class Repository {
         geoPointsPlanned = new MutableLiveData<>();
         tourWithAllGeoPoints = new MutableLiveData<>();
         statusInteger = new MutableLiveData<>();
-
+        geoPointActualLiveData = new MutableLiveData<>();
+        tourStatusLiveData = new MutableLiveData<>();
     }
 
-    public static Repository getInstance(Application application) {
+    public static Repository getInstance(Context applicationContext) {
         if (repository == null) {
-            repository = new Repository(application);
+            repository = new Repository(applicationContext);
         }
         return repository;
     }
@@ -125,9 +130,13 @@ public class Repository {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 geoPointsActualDAO.insert(gpa);
+                geoPointActualLiveData.postValue(gpa);
+                //set the gpa to our livedataobject
+                //start listen to livedata from ActiveTourActivity
             } catch (SQLiteConstraintException e) {
             }
         });
+
 
     }
 
@@ -151,6 +160,7 @@ public class Repository {
     public void updateTour(Tour tour) {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
             toursDAO.update(tour);
+            tourStatusLiveData.postValue(tour.tourStatus);
         });
     }
 
@@ -175,5 +185,17 @@ public class Repository {
 
     public void setStatusInteger(MutableLiveData<Integer> statusInteger) {
         this.statusInteger = statusInteger;
+    }
+
+    public LiveData<GeoPointActual> getLastGeoPointRecorded() {
+        return geoPointActualLiveData;
+    }
+
+    public LiveData<Integer> getTourStatus() {
+        return tourStatusLiveData;
+    }
+
+    public void checkIfActiveTourExists(long tourId) {
+
     }
 }

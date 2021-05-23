@@ -1,6 +1,7 @@
 package com.aphex.mytourassistent.tours;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,8 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.activetour.ActiveTourActivity;
+import com.aphex.mytourassistent.activetour.TourTrackingService;
 import com.aphex.mytourassistent.entities.Tour;
 
 import org.jetbrains.annotations.NotNull;
@@ -67,10 +71,6 @@ public class MyToursListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_tours_list, container, false);
-
-
-
-
         return view;
     }
 
@@ -86,8 +86,10 @@ public class MyToursListFragment extends Fragment {
         //fetch data
         toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
-            public void onChanged(List<Tour> tourWithGeoPointsPlanned) {
+            public void onChanged(List<Tour> tours) {
                 //we will have all the tours here when database returns values
+                //calculate the stuff once
+                toursViewModel.setCurrentActiveTour(tours);
                 // Set the adapter
                 if (view instanceof RecyclerView) {
                     Context context = view.getContext();
@@ -97,17 +99,42 @@ public class MyToursListFragment extends Fragment {
                     } else {
                         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
                     }
-                    MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tourWithGeoPointsPlanned);
+                    MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tours);
                     recyclerView.setAdapter(myMyTourRecyclerViewAdapter);
                     myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
                         @Override
                         public void onClickToDeleteTour(long tourId) {
                             toursViewModel.deleteTour(tourId);
+                            if (toursViewModel.getCurrentActiveTour() == tourId) {
+                                context.stopService(new Intent(requireContext(), TourTrackingService.class));
+                            }
+
+                        }
+
+                        @Override
+                        public void onClickStartActiveTourActivity(long tourId, int tourStatus) {
+                            //check if we can go futher or not
+                            //check db
+                            boolean tourStarted;
+                            if (toursViewModel.getCurrentActiveTour() == -1){
+                                startActiveTourActivity(tourId, tourStatus);
+                            } else if (toursViewModel.getCurrentActiveTour() == tourId) {
+                                startActiveTourActivity(tourId, tourStatus);
+                            } else {
+                                Toast.makeText(requireContext(), R.string.toast_alread_active_tour, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
             }
         });
 
+    }
+    public void startActiveTourActivity(long tourId, int tourStatus) {
+        Intent intent = new Intent(requireContext(), ActiveTourActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("TOUR_ID", tourId);
+        intent.putExtra("TOUR_STATUS", tourStatus);
+        requireContext().startActivity(intent);
     }
 }

@@ -16,6 +16,7 @@ public class Tour {
     public long finishTimePlanned;
     public long startTimeActual;
     public long finishTimeActual;
+    public long startTimeOfTour;
     public String comment;
 
     public int tourStatus;

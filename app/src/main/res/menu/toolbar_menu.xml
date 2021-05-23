@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/newTour"
+        android:id="@+id/addTourFragment"
         android:icon="@drawable/ic_baseline_add_circle_24"
         app:showAsAction="always"
         android:title="@string/btn_add_new_tour" />
 
     <item
-        android:id="@+id/toursList"
+        android:id="@+id/myToursListFragment"
         android:icon="@drawable/ic_baseline_view_list_24"
         app:showAsAction="always"
         android:title="@string/btn_tours_list" />
 
     <item
-        android:id="@+id/history"
+        android:id="@+id/completedToursListFragment"
         android:icon="@drawable/ic_baseline_history_24"
         app:showAsAction="always"
         android:title="@string/tours_history" />

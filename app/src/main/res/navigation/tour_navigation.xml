@@ -25,12 +25,22 @@
         <action
             android:id="@+id/addTourFragment_to_chooseTourOnMapFragment"
             app:destination="@id/chooseTourOnMapFragment" />
+        <action
+            android:id="@+id/action_addTourFragment_to_myToursListFragment"
+            app:destination="@id/myToursListFragment" />
+        <action
+            android:id="@+id/action_addTourFragment_to_myToursListFragment2"
+            app:destination="@id/myToursListFragment" />
     </fragment>
     <fragment
         android:id="@+id/chooseTourOnMapFragment"
         android:name="com.aphex.mytourassistent.tours.ChooseTourOnMapFragment"
         android:label="fragment_choose_tour_on_map"
-        tools:layout="@layout/fragment_choose_tour_on_map" />
+        tools:layout="@layout/fragment_choose_tour_on_map" >
+        <action
+            android:id="@+id/action_chooseTourOnMapFragment_to_addTourFragment"
+            app:destination="@id/addTourFragment" />
+    </fragment>
     <fragment
         android:id="@+id/completedToursListFragment"
         android:name="com.aphex.mytourassistent.tours.CompletedToursListFragment"
@@ -49,5 +59,8 @@
             android:name="TOUR_ID"
             app:argType="long"
             android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_completedTourDetailsFragment_to_completedToursListFragment"
+            app:destination="@id/completedToursListFragment" />
     </fragment>
 </navigation>

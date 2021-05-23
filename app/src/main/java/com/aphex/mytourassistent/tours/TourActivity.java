@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.SettingsActivity;
 import com.aphex.mytourassistent.activetour.ActiveTourActivity;
 import com.aphex.mytourassistent.databinding.ActivityTourBinding;
 import com.firebase.ui.auth.AuthUI;
@@ -64,12 +65,10 @@ public class TourActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) { ;
 
         NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-
-        /*NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-        return NavigationUI.onNavDestinationSelected(item, navController)
+        /*return NavigationUI.onNavDestinationSelected(item, navController)
                 || super.onOptionsItemSelected(item);*/
 
         switch (item.getItemId()) {
@@ -84,22 +83,37 @@ public class TourActivity extends AppCompatActivity {
                     }
                 }
             });
-            case R.id.newTour:
-                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.addTourFragment);
+            case R.id.addTourFragment:
+                //need to check if designation is same then simply return
+
                 navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
+                if (navController.getCurrentDestination().getLabel().equals("fragment_add_tour")){
+                    return false;
+                }
+                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.actionMyToursListFragment_to_addTourFragment);
                 return NavigationUI.onNavDestinationSelected(item, navController)
                         || super.onOptionsItemSelected(item);
 
-            case R.id.history:
-                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.completedToursListFragment);
+            case R.id.completedToursListFragment:
+                if (navController.getCurrentDestination().getLabel().equals("fragment_completed_tours_list")){
+                    return false;
+                }
+                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.myToursFragment_to_completedToursListFragment);
                 navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
                 return NavigationUI.onNavDestinationSelected(item, navController)
                         || super.onOptionsItemSelected(item);
-            case R.id.toursList:
+            case R.id.myToursListFragment:
+                if (navController.getCurrentDestination().getLabel().equals("fragment_my_tours_list")){
+                    return false;
+                }
                 Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.myToursListFragment);
                 navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
                 return NavigationUI.onNavDestinationSelected(item, navController)
                         || super.onOptionsItemSelected(item);
+            case R.id.settings:
+                Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
+                startActivity(intent);
+                return super.onOptionsItemSelected(item);
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.

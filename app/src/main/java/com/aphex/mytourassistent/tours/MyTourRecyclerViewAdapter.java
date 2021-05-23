@@ -42,6 +42,7 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
 
     public interface OnClickButton {
         public void onClickToDeleteTour(long tourId);
+        public void onClickStartActiveTourActivity(long tourId, int tourStatus);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
                     @Override
                     public void onClick(View v) {
                         //check if
-                        startActiveTourActivity(tour.tourId, tour.tourStatus);
+                        onClickButton.onClickStartActiveTourActivity(tour.tourId, tour.tourStatus);
                     }
                 });
             }
@@ -133,11 +134,7 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
         }
     }
 
-    public void startActiveTourActivity(long tourId, int tourStatus) {
-        Intent intent = new Intent(context, ActiveTourActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("TOUR_ID", tourId);
-        intent.putExtra("TOUR_STATUS", tourStatus);
-        context.startActivity(intent);
-    }
+
+
+
 }

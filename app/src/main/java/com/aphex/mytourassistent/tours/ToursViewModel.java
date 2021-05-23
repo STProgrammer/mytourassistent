@@ -25,6 +25,10 @@ public class ToursViewModel extends AndroidViewModel {
     private String tourName;
     private String tourType;
 
+
+
+    private long currentActiveTour = -1;
+
     private MutableLiveData<ArrayList<GeoPoint>> geoPoints;
     private MutableLiveData<ArrayList<GeoPointPlanned>> plannedGeoPoints;
     private KmlDocument kmlDocument;
@@ -32,7 +36,6 @@ public class ToursViewModel extends AndroidViewModel {
 
 
     private Repository repository;
-
 
 
 
@@ -58,7 +61,8 @@ public class ToursViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
-        return repository.getAllUncompletedTours(mIsFirstTime);
+        LiveData<List<Tour>> tours = repository.getAllUncompletedTours(mIsFirstTime);
+        return tours;
     }
 
     public void deleteTour(long tourId) {
@@ -79,5 +83,19 @@ public class ToursViewModel extends AndroidViewModel {
 
     public LiveData<Integer> getStatusInteger() {
         return repository.getStatusInteger();
+    }
+
+    public long getCurrentActiveTour() {
+        return currentActiveTour;
+    }
+
+    public void setCurrentActiveTour(List<Tour> tours) {
+        for (Tour tour: tours) {
+            if (tour.tourStatus == 2) {
+                currentActiveTour = tour.tourId;
+                break;
+            }
+            currentActiveTour = -1;
+        }
     }
 }

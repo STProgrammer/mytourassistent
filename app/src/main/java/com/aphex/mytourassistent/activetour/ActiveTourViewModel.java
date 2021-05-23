@@ -34,7 +34,6 @@ public class ActiveTourViewModel extends AndroidViewModel {
     private GeoPoint currentLocation;
     private double currentZoomLevel;
 
-
     public ActiveTourViewModel(@NonNull Application application) {
         super(application);
         repository = Repository.getInstance(application);
@@ -117,5 +116,14 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public long getLastInsertedGeoPointActualId(long tourId) {
         return repository.getLastInsertedGeoPointActualId(tourId);
+    }
+
+
+    public LiveData<GeoPointActual> getLastGeoPointRecorded() {
+        return repository.getLastGeoPointRecorded();
+    }
+
+    public LiveData<Integer> getTourStatus() {
+        return repository.getTourStatus();
     }
 }

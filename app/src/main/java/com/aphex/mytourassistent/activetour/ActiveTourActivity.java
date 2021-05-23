@@ -6,6 +6,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -55,6 +58,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.jetbrains.annotations.NotNull;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -131,14 +135,13 @@ public class ActiveTourActivity extends AppCompatActivity {
     // Indikerer om servicen er startet eller stoppet:
     private boolean requestingLocationUpdates = false;
 
-    private FusedLocationProviderClient fusedLocationClient;
-    private Location previousLocation = null;
-    private LocationCallback locationCallback;
-
+//query the data
     private Polyline mPolyline;
     private ActiveTourViewModel activeTourViewModel;
     private int tourStatus;
 
+
+    //START BUILDING ACTIVITY
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,6 +159,34 @@ public class ActiveTourActivity extends AppCompatActivity {
 
 
         activeTourViewModel = new ViewModelProvider(this).get(ActiveTourViewModel.class);
+
+
+        //listen to tour completion
+        activeTourViewModel.getTourStatus().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer status) {
+                switch (status) {
+                    case 1: //Not started
+                        break;
+                    case 2: //Active
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_started));
+                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
+                        break;
+                    case 3: //Paused
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
+                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                        break;
+                    case 4: //Completed
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
+                        binding.ivPlay.setVisibility(View.INVISIBLE);
+                        binding.btnReset.setVisibility(View.INVISIBLE);
+                        binding.ivPhoto.setVisibility(View.INVISIBLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
 
 
 
@@ -196,7 +227,6 @@ public class ActiveTourActivity extends AppCompatActivity {
                         case 2:
                             //lets change the play button to pause button
                             binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
-                            initLocationUpdates();
                             drawTheRoute(tourWithAllGeoPoints.geoPointsActual);
                             break;
                         case 3:
@@ -240,7 +270,7 @@ public class ActiveTourActivity extends AppCompatActivity {
                     //startMarker.setTextIcon("Startpunkt!");
 
                     binding.mapView.getOverlays().add(startMarker);
-                    binding.mapView.getController().setCenter(geoPointStart);
+                    //binding.mapView.getController().setCenter(geoPointStart);
                     // firstTimeLocation = true;
                 }
             }
@@ -255,54 +285,24 @@ public class ActiveTourActivity extends AppCompatActivity {
         //  activeTourViewModel.getTourWithGeoPointsPlanned()
 
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        //Callback for å fange opp LOKASJONsendringer:
-        locationCallback = new LocationCallback() {
+        activeTourViewModel.getLastGeoPointRecorded().observe(ActiveTourActivity.this, new Observer<GeoPointActual>() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-
+            public void onChanged(GeoPointActual geoPointActual) {
                 StringBuffer locationBuffer = new StringBuffer();
-                for (Location location : locationResult.getLocations()) {
-                    // Beregner avstand fra forrisge veipunkt:
-                    if (previousLocation == null)
-                        previousLocation = location;
-                    float distance = previousLocation.distanceTo(location);
-                    Log.d("MY-LOCATION-DISTANCE", String.valueOf(distance));
-                    Log.d("MY-LOCATION", location.toString());
+                // Beregner avstand fra forrisge veipunkt:
+                Log.d("MY-LOCATION-DRAWING", geoPointActual.lat + "latitude");
 
-                    previousLocation = location;
+                // Polyline: tegner stien.
+                GeoPoint gp = new GeoPoint(geoPointActual.lat, geoPointActual.lng);
+                activeTourViewModel.updateCurrentLocation(gp);
 
-                    locationBuffer.append(location.getLatitude() + ", " + location.getLongitude() + "\n");
+                mPolyline.addPoint(gp);
+                binding.mapView.getController().setCenter(gp);
+                binding.mapView.invalidate();  //tegner kartet på nytt.
 
-                    // Polyline: tegner stien.
-                    GeoPoint gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-                    activeTourViewModel.updateCurrentLocation(gp);
-                    //we keep on saving the updated location in our main memory
-                    //activeTourViewModel.addToGeoPointsActual(gp);
-
-                    mPolyline.addPoint(gp);
-                    binding.mapView.getController().setCenter(gp);
-
-                    //before storing it to db
-                    //check with the last location object
-                    //add the method here to check if distance is more than 5 meters then save it in
-                    //db
-                    //activeTourViewModel.addGeoPointsActual(gpa);
-                    if (distance > 10) {
-                        GeoPointActual gpa = new GeoPointActual(gp.getLatitude(), gp.getLongitude(), tourId, travelOrder++, null);
-                        Log.d("MY-LOCATION", "MER ENN 50 METER!!" + distance);
-                        activeTourViewModel.addGeoPointsActual(gpa);
-                    }
-
-                    binding.mapView.invalidate();  //tegner kartet på nytt.
-
-                }
+                updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
             }
-        };
+        });
 
 
         binding.btnReset.setOnClickListener(new View.OnClickListener() {
@@ -327,24 +327,23 @@ public class ActiveTourActivity extends AppCompatActivity {
                 Tour tour = tourWithAllGeoPoints.tour;
                 if (status == TourStatus.NOT_STARTED.getValue()) {
                     tour.startTimeActual = new Date().getTime();
+                    tour.startTimeOfTour = new Date().getTime();
                     tour.tourStatus = TourStatus.ACTIVE.getValue();
                     activeTourViewModel.updateTour(tour);
-
-                    initLocationUpdates();
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_started));
-                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
+                    startRecording();
+                    //initLocationUpdates();
                 } else if (status == TourStatus.ACTIVE.getValue()) {
-                    stopTracking();
+                    //stopTracking();//at here
+                    stopRecording();
                     tour.tourStatus = TourStatus.PAUSED.getValue();
                     activeTourViewModel.updateTour(tour);
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
-                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
                 } else if (status == TourStatus.PAUSED.getValue()) {
-                    initLocationUpdates();
+                    //initLocationUpdates();
+                    //again start the service
+                    startRecording();
+                    tour.startTimeOfTour = new Date().getTime();
                     tour.tourStatus = TourStatus.ACTIVE.getValue();
                     activeTourViewModel.updateTour(tour);
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_started));
-                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
                 }
 
             }
@@ -360,11 +359,9 @@ public class ActiveTourActivity extends AppCompatActivity {
                     tour.finishTimeActual = new Date().getTime();
                     tour.tourStatus = TourStatus.COMPLETED.getValue();
                     activeTourViewModel.updateTour(tour);
-                    stopTracking();
+                    stopRecording();
+                    //need to stop service here
                     //activeTourViewModel.completeTour()
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
-                    binding.ivPlay.setVisibility(View.INVISIBLE);
-                    binding.btnReset.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -383,12 +380,46 @@ public class ActiveTourActivity extends AppCompatActivity {
         binding.btnFindMyLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLastKnownLocation();
+                if (activeTourViewModel.getCurrentLocation() != null) {
+                    updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
         verifyPermissions();
     }
+
+    private void updateCurrentLocationIcon(GeoPoint gp) {
+        if (currentMarker != null) {
+            binding.mapView.getOverlays().remove(currentMarker);
+        }
+        currentMarker = new Marker(binding.mapView);
+        currentMarker.setPosition(gp);
+        currentMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        currentMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
+        binding.mapView.getOverlays().add(currentMarker);
+        binding.mapView.getController().setCenter(gp);
+        binding.mapView.getController().setZoom(17.0);
+        Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + gp.getLatitude());
+    }
+
+    private void stopRecording() {
+        stopService(new Intent(this, TourTrackingService.class));
+    }
+
+    private void startRecording() {
+        Intent intent = new Intent(this,TourTrackingService.class);
+        intent.putExtra("TOUR_ID", tourId);
+        intent.putExtra("TOUR_STATUS", tourStatus);
+        intent.putExtra("TRAVEL_ORDER", travelOrder);
+        startForegroundService(intent);
+    }
+
+    // END BUILDING ACTIVITY
 
     private void drawTheRoute(List<GeoPointActual> geoPointsActual) {
         //fetch records / geopoints from db
@@ -402,26 +433,23 @@ public class ActiveTourActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(myLocationReceiver, myBroadcastFilter);
-        stopService(new Intent(this,TourTrackingService.class));
-        if (requestingLocationUpdates) {
-            this.verifyPermissions();
-        }
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
-        this.stopTracking();
         activeTourViewModel.updateCurrentLocation((GeoPoint) binding.mapView.getMapCenter());
         activeTourViewModel.setCurrentZoom(binding.mapView.getZoomLevelDouble());
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putBoolean("requestingLocationUpdates", requestingLocationUpdates);
         super.onSaveInstanceState(outState);
     }
+
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -431,59 +459,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         } else {
             this.requestingLocationUpdates = false;
         }
-    }
-
-    private void stopTracking() {
-        if (fusedLocationClient != null && locationCallback != null)
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-    }
-
-
-    // Verifiserer kravene satt i locationRequest-objektet.
-    //   Dersom OK verifiseres fine-location-tillatelse start av lokasjonsforespørsler.
-    private void initLocationUpdates() {
-        final LocationRequest locationRequest = this.createLocationRequest();
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-
-        // NB! Sjekker om kravene satt i locationRequest kan oppfylles:
-        SettingsClient client = LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-            @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                // Alle lokasjopnsinnstillinger er OK, klienten kan nå initiere lokasjonsforespørsler her:
-                startLocationUpdates();
-            }
-        });
-        task.addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof ResolvableApiException) {
-                    // Lokasjopnsinnstillinger er IKKE OK, men det kan fikses ved å vise brukeren en dialog!!
-                    try {
-                        // Viser dialogen ved å kalle startResolutionForResult() OG SJEKKE resultatet i onActivityResult()
-                        ResolvableApiException resolvable = (ResolvableApiException) e;
-                        resolvable.startResolutionForResult(ActiveTourActivity.this, REQUEST_CHECK_SETTINGS);
-                    } catch (IntentSender.SendIntentException sendEx) {
-                        // Ignore the error.
-                    }
-                }
-            }
-        });
-    }
-
-    // LocationRequest: Setter krav til posisjoneringa:
-    public static LocationRequest createLocationRequest() {
-        LocationRequest locationRequest = LocationRequest.create();
-        // Hvor ofte ønskes lokasjonsoppdateringer (her: hvert 10.sekund)
-        locationRequest.setInterval(5000);
-        // Her settes intervallet for hvor raskt appen kan håndtere oppdateringer.
-        locationRequest.setFastestInterval(3000);
-        // Ulike verderi; Her: høyest mulig nøyaktighet som også normalt betyr bruk av GPS.
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        return locationRequest;
     }
 
     public boolean hasPermissions(String... permissions) {
@@ -511,13 +486,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void startLocationUpdates() {
-        LocationRequest locationRequest = this.createLocationRequest();
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null /* Looper */);
-        requestingLocationUpdates = true;
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -525,7 +493,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         switch (requestCode) {
             //Kalles når bruker har akseptert og gitt tillatelse til bruk av posisjon:
             case REQUEST_CHECK_SETTINGS:
-                initLocationUpdates();
+                //initLocationUpdates();
                 return;
             case REQUEST_IMAGE_CAPTURE:
                 if (resultCode == RESULT_OK) {
@@ -554,35 +522,6 @@ public class ActiveTourActivity extends AppCompatActivity {
     }
 
     Marker currentMarker;
-
-    // DEL 1: Finner siste kjente posisjon.
-    @SuppressLint("MissingPermission")
-    private void getLastKnownLocation() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener((Activity) this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            if (currentMarker != null) {
-                                binding.mapView.getOverlays().remove(currentMarker);
-                            }
-                            currentMarker = new Marker(binding.mapView);
-                            GeoPoint gp = new GeoPoint(location.getLatitude(), location.getLongitude());
-                            activeTourViewModel.updateCurrentLocation(gp);
-                            currentMarker.setPosition(gp);
-                            currentMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                            currentMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
-                            binding.mapView.getOverlays().add(currentMarker);
-                            binding.mapView.getController().setCenter(gp);
-                            binding.mapView.getController().setZoom(17.0);
-                            Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + location.toString());
-                        }
-                    }
-                });
-
-    }
 
 
     private void initMap() {
@@ -683,8 +622,14 @@ public class ActiveTourActivity extends AppCompatActivity {
                 binding.mapView.getOverlays().add(roadOverlay);
             });
         }*/
-
     }
+
+
+
+    //when we open this screen
+    // and tour is already in progress
+    //we will get all the previous geopointActual and draw them //TourWithAllGeoPoints
+    //we will listen to only the new geopointActual and append it with previous ones
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -725,33 +670,4 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         }
     }
-
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        Intent intent = new Intent(this,TourTrackingService.class);
-        intent.putExtra("TOUR_ID", tourId);
-        intent.putExtra("TOUR_STATUS", tourStatus);
-        intent.putExtra("TRAVEL_ORDER", travelOrder);
-
-        startForegroundService(intent);
-    }
-
-
-    // Inner broadcastmottaker-klasse:
-    private class MyLocationReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            tourStatus = intent.getIntExtra("TOUR_STATUS", 3);
-            travelOrder = intent.getLongExtra("TRAVEL_ORDER", 0L);
-        }
-    }
-
-    // Instans av inner broadcastmottaker-klasse:
-    private MyLocationReceiver myLocationReceiver = new MyLocationReceiver();
-
-    // Intentfilter for broadcastmottaker:
-    private IntentFilter myBroadcastFilter = new IntentFilter(STRING_ACTION);
-
-
 }
