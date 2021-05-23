@@ -4,19 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activetour.ActiveTourActivity">
+    tools:context=".views.activities.ActiveTourActivity">
 
-    <androidx.fragment.app.FragmentContainerView
+    <fragment
         android:id="@+id/tour_nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:name="com.aphex.mytourassistent.views.fragments.auth.LoginFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/login_navigation" />
+         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

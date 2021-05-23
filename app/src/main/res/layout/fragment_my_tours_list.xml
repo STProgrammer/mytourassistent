@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".tours.MyToursListFragment"
+    tools:context=".views.fragments.tours.MyToursListFragment"
     tools:listitem="@layout/item_my_tour" />

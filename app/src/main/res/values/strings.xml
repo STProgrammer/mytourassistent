@@ -118,6 +118,10 @@
     <string name="max_limit_header">Max time limit</string>
     <string name="max_time_checkbox">Enable auto-cancellation of tour tracking</string>
     <string name="settings_nr_of_hours">Number of hours</string>
+    <string name="toast_select_start_date_first">Select a start date first</string>
+    <string name="toast_select_end_date_first">Please select end date first!</string>
+    <string name="weather_settings">Weather settings</string>
+    <string name="show_weather_checkbox">Show weather data</string>
 
 
 </resources>

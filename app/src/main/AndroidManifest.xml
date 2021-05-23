@@ -26,23 +26,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTourAssistent">
         <service
-            android:name=".activetour.TourTrackingService"
+            android:name=".services.TourTrackingService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location" />
 
-        <activity android:name=".activetour.ActiveTourActivity" />
+        <activity android:name=".views.activities.ActiveTourActivity" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".views.activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".tours.TourActivity" />
+        <activity android:name=".views.activities.TourActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".views.activities.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -60,12 +60,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <receiver android:name=".activetour.TourTrackingService$PauseRecordingBroadcastReceiver">
+        <receiver android:name=".services.TourTrackingService$PauseRecordingBroadcastReceiver">
             <intent-filter>
                 <action android:name="ACTION_PAUSE_RECORDING" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".activetour.TourTrackingService$StopRecordingBroadcastReceiver">
+        <receiver android:name=".services.TourTrackingService$StopRecordingBroadcastReceiver">
             <intent-filter>
                 <action android:name="ACTION_STOP_RECORDING" />
             </intent-filter>
