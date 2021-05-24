@@ -136,7 +136,10 @@ dependencies {
     implementation "org.osmdroid:osmdroid-wms:6.1.10"
     implementation "org.osmdroid:osmdroid-geopackage:6.1.10"
 
-    //image picker library
+    //image picker library for taking photos
     implementation 'com.github.dhaval2404:imagepicker:2.0'
+
+    //for handling permissions
+    implementation 'com.karumi:dexter:6.2.2'
 
 }

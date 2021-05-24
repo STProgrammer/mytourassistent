@@ -125,6 +125,8 @@
     <string name="comment_label">"Comment about tour: "</string>
     <string name="btn_add_comment">Add comment</string>
     <string name="btn_share_tour">Share tour</string>
+    <string name="toast_photo_saved">Photo is saved</string>
+    <string name="toast_please_start_tour">Please start the tour first!</string>
 
 
 </resources>

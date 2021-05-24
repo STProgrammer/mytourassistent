@@ -58,7 +58,6 @@ public class TourTrackingService extends LifecycleService {
     private String channelId;
 
     private long tourId;
-    private int tourStatus;
     private long travelOrder;
 
 
@@ -86,7 +85,6 @@ public class TourTrackingService extends LifecycleService {
         pauseIntent.setAction(ACTION_PAUSE_RECORDING);
         pauseIntent.putExtra(EXTRA_NOTIFICATION_ID, LOCATION_NOTIFICATION_ID);
         pauseIntent.putExtra("TOUR_ID", tourId);
-        pauseIntent.putExtra("TOUR_STATUS", tourStatus);
         PendingIntent pausePendingIntent =
                 PendingIntent.getBroadcast(this, 0, pauseIntent, 0);
 
@@ -94,7 +92,6 @@ public class TourTrackingService extends LifecycleService {
         stopIntent.setAction(ACTION_STOP_RECORDING);
         stopIntent.putExtra(EXTRA_NOTIFICATION_ID, LOCATION_NOTIFICATION_ID);
         stopIntent.putExtra("TOUR_ID", tourId);
-        stopIntent.putExtra("TOUR_STATUS", tourStatus);
         PendingIntent stopPendingIntent =
                 PendingIntent.getBroadcast(this, 0, stopIntent, 0);
         Log.d("Debug",tourId+"");
@@ -140,7 +137,6 @@ public class TourTrackingService extends LifecycleService {
         Log.d("MY_SERVICE", "onStartCommand(...)");
         tourId = intent.getLongExtra("TOUR_ID", 0L);
         travelOrder = intent.getLongExtra("TRAVEL_ORDER", 0L);
-        tourStatus = intent.getIntExtra("TOUR_STATUS", 1);
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
@@ -167,13 +163,9 @@ public class TourTrackingService extends LifecycleService {
                         sendBroadcast(intent);
                         return;
                     }
-
-
-
                 }else{
                     Log.d("DebugTime","not checking time");
                 }
-
                 //do nothing
                 StringBuffer locationBuffer = new StringBuffer();
                 for (Location location : locationResult.getLocations()) {
@@ -201,6 +193,10 @@ public class TourTrackingService extends LifecycleService {
                     //add the method here to check if distance is more than 5 meters then save it in
                     //db
                     //activeTourViewModel.addGeoPointsActual(gpa);
+                    if (repository.getLastGeoPointRecorded().getValue() == null) {//work only
+                        GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
+                        repository.addGeoPointsActual(gpa);
+                    }
                     if (distance > 10) {
                         GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
                         Log.d("MY-LOCATION", "MER ENN 10 METER!!" + distance);
@@ -234,7 +230,6 @@ public class TourTrackingService extends LifecycleService {
         Intent intent = new Intent(ActiveTourActivity.STRING_ACTION);
         intent.putExtra("TOUR_ID", tourId);
         intent.putExtra("TRAVEL_ORDER", travelOrder);
-        intent.putExtra("TOUR_STATUS", tourStatus);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         Toast.makeText(this, "Stopper service", Toast.LENGTH_SHORT).show();
         super.onDestroy();

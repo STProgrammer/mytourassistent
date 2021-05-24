@@ -1,6 +1,7 @@
 package com.aphex.mytourassistent.viewmodels;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -34,7 +35,11 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     private Repository repository;
     private GeoPoint currentLocation;
+    private long currentGeoPointActualId = -1;
+
+    
     private double currentZoomLevel;
+
 
     public ActiveTourViewModel(@NonNull Application application) {
         super(application);
@@ -100,12 +105,20 @@ public class ActiveTourViewModel extends AndroidViewModel {
         repository.updateTour(tour);
     }
 
-    public void updateCurrentLocation(GeoPoint gp) {
+    public void setCurrentLocation(GeoPoint gp) {
         currentLocation = gp;
     }
 
     public GeoPoint getCurrentLocation() {
         return currentLocation;
+    }
+
+    public void setCurrentGeoPointActualId(long gpaId) {
+        currentGeoPointActualId = gpaId;
+    }
+
+    public long getCurrentGeoPointActualId() {
+        return currentGeoPointActualId;
     }
 
     public void setCurrentZoom(double zoomLevelDouble) {
@@ -125,7 +138,7 @@ public class ActiveTourViewModel extends AndroidViewModel {
         return repository.getLastGeoPointRecorded();
     }
 
-    public LiveData<Integer> getTourStatus() {
+    public MutableLiveData<Integer> getTourStatus() {
         return repository.getTourStatus();
     }
 
@@ -135,5 +148,10 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public LiveData<Data> getWeatherData() {
         return repository.getFirstWeatherLiveData();
+    }
+
+    public void savePhoto(String uri) {
+        repository.savePhoto(uri, currentGeoPointActualId);
+        Log.d("PhotoDebug", "current gp:" + currentGeoPointActualId);
     }
 }

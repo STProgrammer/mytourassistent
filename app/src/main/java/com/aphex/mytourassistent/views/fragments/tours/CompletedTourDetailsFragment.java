@@ -1,14 +1,20 @@
 package com.aphex.mytourassistent.views.fragments.tours;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +26,7 @@ import com.aphex.mytourassistent.databinding.FragmentCompletedTourDetailsBinding
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
+import com.aphex.mytourassistent.repository.db.entities.Photo;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +46,7 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -158,17 +166,34 @@ public class CompletedTourDetailsFragment extends Fragment {
                         break;
                 }
 
+                //Drawing the route
                 for (GeoPointActualWithPhotos gp : tourWithAllGeoPoints.geoPointsActual) {
                     GeoPoint geoPt = new GeoPoint(gp.geoPointActual.lat, gp.geoPointActual.lng);
                     toursViewModel.addToGeoPoints(geoPt);
                     mPolyline.addPoint(geoPt);
-                    //tegner kartet på nytt.
+
+                    //Iterate and add all images
+                    for (Photo ph: gp.photos) {
+                        try {
+                            Marker photoIcon = new Marker(binding.mapView);
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), Uri.parse(ph.imageUri));
+                            Drawable dr = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int) (48.0f * getResources().getDisplayMetrics().density), (int) (48.0f * getResources().getDisplayMetrics().density), true));
+                            photoIcon.setIcon(dr);
+                            photoIcon.setPosition(geoPt);
+                            photoIcon.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                            binding.mapView.getOverlays().add(photoIcon);
+                        } catch (IOException e) {
+
+
+                        }
+                    }
+
                 }
 
 
                 ArrayList<GeoPoint> geoPoints = toursViewModel.getGeoPoints().getValue();
 
-                if (!geoPoints.isEmpty()) {
+                if (!tourWithAllGeoPoints.geoPointsActual.isEmpty()) {
                     GeoPoint geoPointStart = Objects.requireNonNull(geoPoints).get(0);
 
                     // Markers:
@@ -177,6 +202,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                     startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     binding.mapView.getOverlays().add(startMarker);
                     startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
+
 
 
                     GeoPoint geoPointFinish = Objects.requireNonNull(geoPoints).get(geoPoints.size()-1);

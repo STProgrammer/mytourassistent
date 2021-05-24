@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
+import com.aphex.mytourassistent.repository.db.entities.Photo;
 import com.aphex.mytourassistent.repository.network.api.WeatherAPI;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsActualDAO;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsPlannedDAO;
@@ -162,7 +163,8 @@ public class Repository {
     public void addGeoPointsActual(GeoPointActual gpa) {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                geoPointsActualDAO.insert(gpa);
+                long id = geoPointsActualDAO.insert(gpa);
+                gpa.geoPointActualId=id;
                 geoPointActualLiveData.postValue(gpa);
                 //set the gpa to our livedataobject
                 //start listen to livedata from ActiveTourActivity
@@ -224,7 +226,7 @@ public class Repository {
         return geoPointActualLiveData;
     }
 
-    public LiveData<Integer> getTourStatus() {
+    public MutableLiveData<Integer> getTourStatus() {
         return tourStatusLiveData;
     }
 
@@ -314,5 +316,13 @@ public class Repository {
     }
     public LiveData<Data> getLastWeatherLiveData(){
         return weatherDataPlanningEndPoint;
+    }
+
+    public void savePhoto(String uri, long gpaId) {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            photoDAO.insert(new Photo(gpaId, uri));
+        });
+
+
     }
 }

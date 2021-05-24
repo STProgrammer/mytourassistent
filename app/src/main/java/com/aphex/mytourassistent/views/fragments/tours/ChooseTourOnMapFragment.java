@@ -3,14 +3,17 @@ package com.aphex.mytourassistent.views.fragments.tours;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -18,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +45,11 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -60,6 +69,8 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -111,10 +122,18 @@ private View view;
     private Polyline mPolyline;
 
     private boolean gotInitialLocation = false;
+    private Marker endMarker;
+    private boolean mIsFirstTime;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (savedInstanceState == null) {
+            mIsFirstTime = true;
+        } else {
+            mIsFirstTime = false;
+        }
 
         // Inflate the layout for this fragment
         binding = FragmentChooseTourOnMapBinding.inflate(inflater, container, false);
@@ -131,7 +150,6 @@ private View view;
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
 //sharedViewModels
-        verifyPermissions();
         initLocationUpdates();
 
         binding.mapView.getController().setZoom(7.0);
@@ -203,7 +221,9 @@ private View view;
                 binding.mapView.invalidate();
                 binding.mapView.getOverlays().clear();
                 toursViewModel.getGeoPoints().getValue().clear();
+                toursViewModel.getFirstGeoPoint().setValue(null);
                 initMap();
+
             }
         });
 
@@ -220,6 +240,12 @@ private View view;
                 Navigation.findNavController(getView()).popBackStack();
             }
         });
+
+        initMap();
+
+        if (mIsFirstTime) {
+            verifyPermissions();
+        }
 
     }
 
@@ -244,15 +270,14 @@ private View view;
                     }
                 });
 
+
+
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        if (requestingLocationUpdates) {
-            this.verifyPermissions();
-        }
     }
 
     @Override
@@ -346,12 +371,65 @@ private View view;
      * If the app does not has permission then the user will be prompted to grant permissions
      */
     public void verifyPermissions() {
-        // Kontrollerer om vi har tilgang til eksternt område:
-        if (!hasPermissions(requiredPermissions)) {
-            ActivityCompat.requestPermissions(requireActivity(), requiredPermissions, CALLBACK_ALL_PERMISSIONS);
-        } else {
-            initMap();
-        }
+
+        //This code is taken and partly edited from:
+        //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+        Dexter.withContext(requireActivity())
+                .withPermissions(
+                        requiredPermissions
+                ).withListener(new MultiplePermissionsListener() {
+            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
+                Log.d("TAG", "onPermissionsChecked: ");
+                // check if all permissions are granted
+                if (report.areAllPermissionsGranted()) {
+                   // initMap();
+                }
+
+                // check for permanent denial of any permission
+                if (report.isAnyPermissionPermanentlyDenied()) {
+                    // show alert dialog navigating to Settings
+                    showSettingsDialog();
+                }
+            }
+            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                token.continuePermissionRequest();
+            }
+        })
+                .check();
+    }
+
+
+
+    //This code is taken and partly edited from:
+    //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        builder.setTitle("Need Permissions");
+        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
+        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                openSettings();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+    }
+
+    //This code is taken and partly edited from:
+    //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+    private void openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+        intent.setData(uri);
+        startActivityForResult(intent, 101);
     }
 
 
@@ -366,18 +444,19 @@ private View view;
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case CALLBACK_ALL_PERMISSIONS:
-                if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED ) {
-                    this.initMap();
-                }
-                return;
-            default:
-                Toast.makeText(requireContext(), "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case CALLBACK_ALL_PERMISSIONS:
+//                if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED ) {
+//                    initMap();
+//                }
+//                return;
+//            default:
+//                Toast.makeText(requireContext(), "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void initMap() {
 
@@ -439,10 +518,25 @@ private View view;
             }
             @Override
             public boolean longPressHelper(GeoPoint geoPoint) {
+
                 if (toursViewModel.getFirstGeoPoint().getValue() == null) {
                     toursViewModel.getFirstGeoPoint().postValue(geoPoint);
+                    // Markers:
+                    Marker startMarker = new Marker(binding.mapView);
+                    startMarker.setPosition(geoPoint);
+                    startMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
+                    binding.mapView.getOverlays().add(startMarker);
+                    startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
                 } else {
+                    if (endMarker != null) {
+                        binding.mapView.getOverlays().remove(endMarker);
+                    }
                     toursViewModel.getLastGeoPoint().postValue(geoPoint);
+                    endMarker = new Marker(binding.mapView);
+                    endMarker.setPosition(geoPoint);
+                    endMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
+                    binding.mapView.getOverlays().add(endMarker);
+                    endMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_flag_24, null));
                 }
 
 
@@ -453,11 +547,17 @@ private View view;
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
 
 
+                //We are not driving here.
+                //Either we just make straight lines
+                //Or we should get the tourType, and draw depending on that.
+
+
 
 
                 databaseWriteExecutor.execute(() -> {
                     RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
                     Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
+                    roadManager.addRequestOption("routeType=pedestrian");
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -466,6 +566,8 @@ private View view;
                     kmlOverlay.add(marker);
                     binding.mapView.getOverlays().add(kmlOverlay);
                 });
+
+
 
                 return false;
             }

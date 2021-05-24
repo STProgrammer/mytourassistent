@@ -15,7 +15,7 @@ public abstract class GeoPointsActualDAO {
     public abstract long getLastInsertedId(long tourId);
 
     @Insert
-    public abstract void insert(GeoPointActual gpa);
+    public abstract long insert(GeoPointActual gpa);
 
     @Transaction
     @Query("DELETE FROM GeoPointActual WHERE GeoPointActual.fk_tourId = :tourId")

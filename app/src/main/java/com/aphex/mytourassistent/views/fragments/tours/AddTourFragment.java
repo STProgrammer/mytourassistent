@@ -198,9 +198,9 @@ public class AddTourFragment extends Fragment {
 
         Observer<Integer> observer = integer -> {
             if (integer == 1) {
-                Toast.makeText(requireContext(), R.string.toast_tour_added, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), R.string.toast_tour_added, Toast.LENGTH_SHORT).show();
             } else if (integer == 2) {
-                Toast.makeText(requireContext(), R.string.toast_failed_to_add_tour, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), R.string.toast_failed_to_add_tour, Toast.LENGTH_SHORT).show();
             }
 
         };

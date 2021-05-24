@@ -2,15 +2,16 @@ package com.aphex.mytourassistent.views.activities;
 
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,14 +21,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
-import com.aphex.mytourassistent.BuildConfig;
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.network.models.Data;
@@ -40,6 +40,14 @@ import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
 import com.aphex.mytourassistent.enums.TourStatus;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
@@ -61,6 +69,7 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,7 +130,6 @@ public class ActiveTourActivity extends AppCompatActivity {
 //query the data
     private Polyline mPolyline;
     private ActiveTourViewModel activeTourViewModel;
-    private int tourStatus;
     private SharedPreferences prefs;
     private boolean showWeatherIsSet;
 
@@ -135,8 +143,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         }
         Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
-        tourId = getIntent().getLongExtra("TOUR_ID", 0L);
-        tourStatus = getIntent().getIntExtra("TOUR_STATUS", 1);
+        tourId = getIntent().getLongExtra("TOUR_ID", 0L);getIntent().getIntExtra("TOUR_STATUS", 1);
 
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         binding = ActivityActiveTourBinding.inflate(layoutInflater);
@@ -147,43 +154,465 @@ public class ActiveTourActivity extends AppCompatActivity {
         showWeatherIsSet = prefs.getBoolean("show_weather_checkbox", true);
 
 
-
-
         activeTourViewModel = new ViewModelProvider(this).get(ActiveTourViewModel.class);
 
 
-        //listen to tour completion
-        activeTourViewModel.getTourStatus().observe(this, new Observer<Integer>() {
+
+
+        binding.btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChanged(Integer status) {
-                switch (status) {
-                    case 1: //Not started
-                        break;
-                    case 2: //Active
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_started));
-                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
-                        break;
-                    case 3: //Paused
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
-                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
-                        break;
-                    case 4: //Completed
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
-                        binding.ivPlay.setVisibility(View.INVISIBLE);
-                        binding.btnReset.setVisibility(View.INVISIBLE);
-                        binding.ivPhoto.setVisibility(View.INVISIBLE);
-                        break;
-                    default:
-                        break;
+            public void onClick(View v) {
+                int status = tourWithAllGeoPoints.tour.tourStatus;
+                if (status == TourStatus.ACTIVE.getValue() ||
+                        status == TourStatus.PAUSED.getValue()) {
+                    mPolyline.setPoints(new ArrayList<>());
+                    Objects.requireNonNull(activeTourViewModel.getGeoPointsActual().getValue()).clear();
+                    binding.mapView.invalidate();
+                    activeTourViewModel.clearGeoPoints(tourId);
+                    binding.tvInfo.setText(getString(R.string.tv_tracking_reset));
                 }
             }
         });
+
+        binding.ivPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!hasPermissions(requiredPermissions)) {
+                    verifyPermissions();
+                    return;
+                }
+                int status = tourWithAllGeoPoints.tour.tourStatus;
+                Tour tour = tourWithAllGeoPoints.tour;
+                if (status == TourStatus.NOT_STARTED.getValue()) {
+                    tour.startTimeActual = new Date().getTime();
+                    tour.startTimeOfTour = new Date().getTime();
+                    tour.tourStatus = TourStatus.ACTIVE.getValue();
+                    activeTourViewModel.updateTour(tour);
+                    startRecording();
+                    //initLocationUpdates();
+                } else if (status == TourStatus.ACTIVE.getValue()) {
+                    //stopTracking();//at here
+                    stopRecording();
+                    tour.tourStatus = TourStatus.PAUSED.getValue();
+                    activeTourViewModel.updateTour(tour);
+                } else if (status == TourStatus.PAUSED.getValue()) {
+                    //initLocationUpdates();
+                    //again start the service
+                    startRecording();
+                    tour.startTimeOfTour = new Date().getTime();
+                    tour.tourStatus = TourStatus.ACTIVE.getValue();
+                    activeTourViewModel.updateTour(tour);
+                }
+
+            }
+        });
+
+        binding.ivStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int status = tourWithAllGeoPoints.tour.tourStatus;
+                Tour tour = tourWithAllGeoPoints.tour;
+                if (status == TourStatus.ACTIVE.getValue() ||
+                        status == TourStatus.PAUSED.getValue()) {
+                    tour.finishTimeActual = new Date().getTime();
+                    tour.tourStatus = TourStatus.COMPLETED.getValue();
+                    activeTourViewModel.updateTour(tour);
+                    stopRecording();
+                    //need to stop service heref
+                    //activeTourViewModel.completeTour()
+                }
+            }
+        });
+
+        binding.ivPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ask permissions
+                //first check if we have permissions already if not then trigger
+
+                //Taken and partly edited from:
+                //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                    Dexter.withContext(ActiveTourActivity.this)
+                            .withPermission(Manifest.permission.CAMERA)
+                            .withListener(new PermissionListener() {
+                                @Override
+                                public void onPermissionGranted(PermissionGrantedResponse response) {
+                                    // permission is granted, open the camera
+                                    dispatchTakePictureIntent();
+                                }
+
+                                @Override
+                                public void onPermissionDenied(PermissionDeniedResponse response) {
+                                    // check for permanent denial of permission
+                                    if (response.isPermanentlyDenied()) {
+                                        showSettingsDialog();
+                                    }
+                                }
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                                    token.continuePermissionRequest();
+                                }
+                            }).check();
+
+                }
+
+
+            }
+        });
+
+        binding.btnFindMyLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!hasPermissions(requiredPermissions)) {
+                    verifyPermissions();
+                    return;
+                }
+                if (activeTourViewModel.getCurrentLocation() != null) {
+                    updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+//who is getting the current location ->Our service
+        //from service to repository
+        //from repo to our
+        if (mIsFirstTime) {
+            verifyPermissions();
+        }
+
+        initMap();
+
+
+
+    }
+
+
+
+    private void updateCurrentLocationIcon(GeoPoint gp) {
+        if (currentMarker != null) {
+            binding.mapView.getOverlays().remove(currentMarker);
+        }
+        currentMarker = new Marker(binding.mapView);
+        currentMarker.setPosition(gp);
+        currentMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+        currentMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
+        binding.mapView.getOverlays().add(currentMarker);
+        binding.mapView.getController().setCenter(gp);
+        binding.mapView.getController().setZoom(17.0);
+        Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + gp.getLatitude());
+    }
+
+    private void stopRecording() {
+        stopService(new Intent(this, TourTrackingService.class));
+    }
+
+    private void startRecording() {
+        Intent intent = new Intent(this,TourTrackingService.class);
+        intent.putExtra("TOUR_ID", tourId);
+        intent.putExtra("TRAVEL_ORDER", travelOrder);
+        startForegroundService(intent);
+    }
+
+    // END BUILDING ACTIVITY
+
+    private void drawTheRoute(List<GeoPointActualWithPhotos> geoPointsActual) {
+        //fetch records / geopoints from db
+        for (GeoPointActualWithPhotos gpa : geoPointsActual) {
+            mPolyline.addPoint(new GeoPoint(gpa.geoPointActual.lat, gpa.geoPointActual.lng));
+        }
+
+        // draw white lines on the map
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        activeTourViewModel.setCurrentLocation((GeoPoint) binding.mapView.getMapCenter());
+        activeTourViewModel.setCurrentZoom(binding.mapView.getZoomLevelDouble());
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("requestingLocationUpdates", requestingLocationUpdates);
+        super.onSaveInstanceState(outState);
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.keySet().contains("requestingLocationUpdates")) {
+            this.requestingLocationUpdates = savedInstanceState.getBoolean("requestingLocationUpdates");
+        } else {
+            this.requestingLocationUpdates = false;
+        }
+    }
+
+    public boolean hasPermissions(String... permissions) {
+        if (permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * SE: http://developer.android.com/training/permissions/requesting.html#handle-response
+     * <p>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     */
+    public void verifyPermissions() {
+        //This code is taken and partly edited from:
+        //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+        Dexter.withContext(this)
+                .withPermissions(
+                        requiredPermissions
+                ).withListener(new MultiplePermissionsListener() {
+            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
+                Log.d("TAG", "onPermissionsChecked: ");
+                // check if all permissions are granted
+                if (report.areAllPermissionsGranted()) {
+                    //initMap();
+                }
+
+                // check for permanent denial of any permission
+                if (report.isAnyPermissionPermanentlyDenied()) {
+                    // show alert dialog navigating to Settings
+                    showSettingsDialog();
+                }
+            }
+            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                token.continuePermissionRequest();
+            }
+        })
+                .check();
+//        if (!hasPermissions(requiredPermissions)) {
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
+//                Manifest.permission.ACCESS_FINE_LOCATION) ||
+//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
+//                        Manifest.permission.ACCESS_COARSE_LOCATION) ||
+//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
+//                        Manifest.permission.ACCESS_NETWORK_STATE) ||
+//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
+//                        Manifest.permission.ACCESS_WIFI_STATE) ||
+//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//            ActivityCompat.requestPermissions(this, requiredPermissions, CALLBACK_ALL_PERMISSIONS);
+//        } else {
+//            Toast.makeText(this, "User denied the permission permanently", Toast.LENGTH_SHORT).show();
+//
+//            //if(sh){
+//                // No explanation needed; request the permission
+//                // RESET PREFERENCE FLAG
+//
+//
+//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+//                // app-defined int constant. The callback method gets the
+//                // result of the request.
+//          //  } else {
+//                // User denied previously and has checked "Never ask again"
+//                // show a toast with steps to manually enable it via settings
+//         //   }
+//        }
+//        // Kontrollerer om vi har tilgang til eksternt område:
+//        } else {
+//            initMap();
+//        }
+    }
+
+
+    //This code is taken and partly edited from:
+    //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Need Permissions");
+        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
+        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                openSettings();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+    }
+
+    //This code is taken and partly edited from:
+    //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+    private void openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivityForResult(intent, 101);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+                if (resultCode == Activity.RESULT_OK) {
+                    //Image Uri will not be null for RESULT_OK
+                    Uri uri = data.getData();
+
+                    //Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    //imageView.setImageBitmap(imageBitmap);
+
+                    if (activeTourViewModel.getCurrentGeoPointActualId() < 0) {
+                        Toast.makeText(this, R.string.toast_please_start_tour, Toast.LENGTH_SHORT).show();
+                    } else {
+                        activeTourViewModel.savePhoto(uri.toString());
+                        Toast.makeText(this, R.string.toast_photo_saved, Toast.LENGTH_SHORT).show();
+                    }
+
+                } else if (resultCode == ImagePicker.RESULT_ERROR) {
+                    Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
+                }
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case CALLBACK_ALL_PERMISSIONS:
+//                if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+//                    initMap();
+//                }
+//                return;
+//            case MY_CAMERA_REQUEST_CODE:
+//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    dispatchTakePictureIntent();
+//                } else {
+//                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+//                }
+//                return;
+//            default:
+//                Toast.makeText(this, "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+    Marker currentMarker;
+
+
+    private void initMap() {
+
+        this.mPolyline = new Polyline(binding.mapView);
+        final Paint paintBorder = new Paint();
+        paintBorder.setStrokeWidth(20);
+        paintBorder.setStyle(Paint.Style.FILL_AND_STROKE);
+        paintBorder.setColor(Color.BLACK);
+        paintBorder.setStrokeCap(Paint.Cap.ROUND);
+        paintBorder.setAntiAlias(true);
+
+        final Paint paintInside = new Paint();
+        paintInside.setStrokeWidth(10);
+        paintInside.setStyle(Paint.Style.FILL);
+        paintInside.setColor(Color.WHITE);
+        paintInside.setStrokeCap(Paint.Cap.ROUND);
+        paintInside.setAntiAlias(true);
+
+        mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintBorder));
+        mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintInside));
+
+        binding.mapView.getOverlays().add(mPolyline);
+
+        //map_view.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+        binding.mapView.setTileSource(TileSourceFactory.MAPNIK);
+        binding.mapView.setBuiltInZoomControls(true);
+        binding.mapView.setMultiTouchControls(true);
+        binding.mapView.getController().setZoom(10.0);
+
+
+        // Compass overlay;
+        this.mCompassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), binding.mapView);
+        this.mCompassOverlay.enableCompass();
+        binding.mapView.getOverlays().add(this.mCompassOverlay);
+
+        // Multi touch:
+        mRotationGestureOverlay = new RotationGestureOverlay(this, binding.mapView);
+        mRotationGestureOverlay.setEnabled(true);
+        binding.mapView.setMultiTouchControls(true);
+        binding.mapView.getOverlays().add(this.mRotationGestureOverlay);
+
+        // Zoom-knapper;
+        final DisplayMetrics dm = getResources().getDisplayMetrics();
+        mScaleBarOverlay = new ScaleBarOverlay(binding.mapView);
+        mScaleBarOverlay.setCentred(true);
+        //play around with these values to get the location on screen in the right place for your application
+        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
+        binding.mapView.getOverlays().add(this.mScaleBarOverlay);
+
+        initRouteTracking();
+
+
+       /* if (!activeTourViewModel.getGeoPointsPlanned(tourId).isEmpty()) {
+            //this means user already have selected geopoints
+            //in this case, we will connect all waypoints when user come to this screen
+            //wen need to iterate over all the waypoints and connect them together
+            //waypint1
+            //waypint 2
+            //waypint 3
+            //iteration 1
+
+
+            databaseWriteExecutor.execute(() -> {
+
+                for (GeoPoint gp: activeTourViewModel.getGeoPoints()) {
+                    Marker marker = new Marker(binding.mapView);
+                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
+                    marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
+                    marker.setTitle("Klikkpunkt");
+                    marker.setPosition(gp);
+                    binding.mapView.getOverlays().add(marker);
+                }
+
+                RoadManager roadManager = new OSRMRoadManager(this, "Aaa");
+                Road road = roadManager.getRoad(activeTourViewModel.getGeoPoints());
+                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+                binding.mapView.getOverlays().add(roadOverlay);
+            });
+        }*/
+    }
+
+    public void initRouteTracking() {
+
+        //
+
+
+
 
 
 
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
             if (tourWithAllGeoPoints != null) {
+                activeTourViewModel.getTourStatus().postValue(tourWithAllGeoPoints.tour.tourStatus);
+
                 StringBuilder sb = new StringBuilder();
                 String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
                         .format(new Date(tourWithAllGeoPoints.tour.startTimePlanned));
@@ -193,7 +622,6 @@ public class ActiveTourActivity extends AppCompatActivity {
                 String tourStatus = "";
 
                 this.tourWithAllGeoPoints = tourWithAllGeoPoints;
-                this.tourStatus = tourWithAllGeoPoints.tour.tourStatus;
 
                 switch (tourWithAllGeoPoints.tour.tourType) {
                     case 1:
@@ -267,6 +695,43 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         });
 
+        //listen to tour completion
+        activeTourViewModel.getTourStatus().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer status) {
+                switch (status) {
+                    case 1: //Not started
+                        binding.ivPlay.setVisibility(View.VISIBLE);
+                        binding.btnReset.setVisibility(View.VISIBLE);
+                        binding.ivPhoto.setVisibility(View.VISIBLE);
+                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                        break;
+                    case 2: //Active
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_started));
+                        binding.ivPlay.setVisibility(View.VISIBLE);
+                        binding.btnReset.setVisibility(View.VISIBLE);
+                        binding.ivPhoto.setVisibility(View.VISIBLE);
+                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
+                        break;
+                    case 3: //Paused
+                        binding.ivPlay.setVisibility(View.VISIBLE);
+                        binding.btnReset.setVisibility(View.VISIBLE);
+                        binding.ivPhoto.setVisibility(View.VISIBLE);
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
+                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                        break;
+                    case 4: //Completed
+                        binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
+                        binding.ivPlay.setVisibility(View.INVISIBLE);
+                        binding.btnReset.setVisibility(View.INVISIBLE);
+                        binding.ivPhoto.setVisibility(View.INVISIBLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
         if (!mIsFirstTime) {
             binding.mapView.getController().setCenter(activeTourViewModel.getCurrentLocation());
             binding.mapView.getController().setZoom(activeTourViewModel.getCurrentZoomLevel());
@@ -311,7 +776,9 @@ public class ActiveTourActivity extends AppCompatActivity {
 
                 // Polyline: tegner stien.
                 GeoPoint gp = new GeoPoint(geoPointActual.lat, geoPointActual.lng);
-                activeTourViewModel.updateCurrentLocation(gp);
+                activeTourViewModel.setCurrentLocation(gp);
+
+                activeTourViewModel.setCurrentGeoPointActualId(geoPointActual.geoPointActualId);
 
                 mPolyline.addPoint(gp);
                 binding.mapView.getController().setCenter(gp);
@@ -327,342 +794,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         });
 
 
-        binding.btnReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int status = tourWithAllGeoPoints.tour.tourStatus;
-                if (status == TourStatus.ACTIVE.getValue() ||
-                        status == TourStatus.PAUSED.getValue()) {
-                    mPolyline.setPoints(new ArrayList<>());
-                    Objects.requireNonNull(activeTourViewModel.getGeoPointsActual().getValue()).clear();
-                    binding.mapView.invalidate();
-                    activeTourViewModel.clearGeoPoints(tourId);
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_reset));
-                }
-            }
-        });
 
-        binding.ivPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int status = tourWithAllGeoPoints.tour.tourStatus;
-                Tour tour = tourWithAllGeoPoints.tour;
-                if (status == TourStatus.NOT_STARTED.getValue()) {
-                    tour.startTimeActual = new Date().getTime();
-                    tour.startTimeOfTour = new Date().getTime();
-                    tour.tourStatus = TourStatus.ACTIVE.getValue();
-                    activeTourViewModel.updateTour(tour);
-                    startRecording();
-                    //initLocationUpdates();
-                } else if (status == TourStatus.ACTIVE.getValue()) {
-                    //stopTracking();//at here
-                    stopRecording();
-                    tour.tourStatus = TourStatus.PAUSED.getValue();
-                    activeTourViewModel.updateTour(tour);
-                } else if (status == TourStatus.PAUSED.getValue()) {
-                    //initLocationUpdates();
-                    //again start the service
-                    startRecording();
-                    tour.startTimeOfTour = new Date().getTime();
-                    tour.tourStatus = TourStatus.ACTIVE.getValue();
-                    activeTourViewModel.updateTour(tour);
-                }
-
-            }
-        });
-
-        binding.ivStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int status = tourWithAllGeoPoints.tour.tourStatus;
-                Tour tour = tourWithAllGeoPoints.tour;
-                if (status == TourStatus.ACTIVE.getValue() ||
-                        status == TourStatus.PAUSED.getValue()) {
-                    tour.finishTimeActual = new Date().getTime();
-                    tour.tourStatus = TourStatus.COMPLETED.getValue();
-                    activeTourViewModel.updateTour(tour);
-                    stopRecording();
-                    //need to stop service here
-                    //activeTourViewModel.completeTour()
-                }
-            }
-        });
-
-        binding.ivPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ask permissions
-                //first check if we have permissions already if not then trigger
-                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                    if (ContextCompat.checkSelfPermission(ActiveTourActivity.this, Manifest.permission.CAMERA)
-                            == PackageManager.PERMISSION_GRANTED){
-                        dispatchTakePictureIntent();
-                    } else {
-                        requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
-                    }
-
-
-                }
-
-
-            }
-        });
-
-        binding.btnFindMyLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activeTourViewModel.getCurrentLocation() != null) {
-                    updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-
-        activeTourViewModel.getCurrentLocation();
-
-
-        verifyPermissions();
-    }
-
-    private void updateCurrentLocationIcon(GeoPoint gp) {
-        if (currentMarker != null) {
-            binding.mapView.getOverlays().remove(currentMarker);
-        }
-        currentMarker = new Marker(binding.mapView);
-        currentMarker.setPosition(gp);
-        currentMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-        currentMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_location_on_24, null));
-        binding.mapView.getOverlays().add(currentMarker);
-        binding.mapView.getController().setCenter(gp);
-        binding.mapView.getController().setZoom(17.0);
-        Log.d("MY-LOCATION", "SIST KJENTE POSISJON: " + gp.getLatitude());
-    }
-
-    private void stopRecording() {
-        stopService(new Intent(this, TourTrackingService.class));
-    }
-
-    private void startRecording() {
-        Intent intent = new Intent(this,TourTrackingService.class);
-        intent.putExtra("TOUR_ID", tourId);
-        intent.putExtra("TOUR_STATUS", tourStatus);
-        intent.putExtra("TRAVEL_ORDER", travelOrder);
-        startForegroundService(intent);
-    }
-
-    // END BUILDING ACTIVITY
-
-    private void drawTheRoute(List<GeoPointActualWithPhotos> geoPointsActual) {
-        //fetch records / geopoints from db
-        for (GeoPointActualWithPhotos gpa : geoPointsActual) {
-            mPolyline.addPoint(new GeoPoint(gpa.geoPointActual.lat, gpa.geoPointActual.lng));
-        }
-
-        // draw white lines on the map
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        activeTourViewModel.updateCurrentLocation((GeoPoint) binding.mapView.getMapCenter());
-        activeTourViewModel.setCurrentZoom(binding.mapView.getZoomLevelDouble());
-    }
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("requestingLocationUpdates", requestingLocationUpdates);
-        super.onSaveInstanceState(outState);
-    }
-
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.keySet().contains("requestingLocationUpdates")) {
-            this.requestingLocationUpdates = savedInstanceState.getBoolean("requestingLocationUpdates");
-        } else {
-            this.requestingLocationUpdates = false;
-        }
-    }
-
-    public boolean hasPermissions(String... permissions) {
-        if (permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * SE: http://developer.android.com/training/permissions/requesting.html#handle-response
-     * <p>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     */
-    public void verifyPermissions() {
-        // Kontrollerer om vi har tilgang til eksternt område:
-        if (!hasPermissions(requiredPermissions)) {
-            ActivityCompat.requestPermissions(this, requiredPermissions, CALLBACK_ALL_PERMISSIONS);
-        } else {
-            initMap();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-                if (resultCode == Activity.RESULT_OK) {
-                    //Image Uri will not be null for RESULT_OK
-                    Uri uri = data.getData();
-                    //Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    //imageView.setImageBitmap(imageBitmap);
-                    //TODO save to database
-                    //activeTourViewModel.saveImage();
-
-                } else if (resultCode == ImagePicker.RESULT_ERROR) {
-                    Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
-                }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CALLBACK_ALL_PERMISSIONS:
-                if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                    this.initMap();
-                }
-                return;
-            case MY_CAMERA_REQUEST_CODE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
-                } else {
-                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-                }
-                return;
-            default:
-                Toast.makeText(this, "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    Marker currentMarker;
-
-
-    private void initMap() {
-
-        this.mPolyline = new Polyline(binding.mapView);
-        final Paint paintBorder = new Paint();
-        paintBorder.setStrokeWidth(20);
-        paintBorder.setStyle(Paint.Style.FILL_AND_STROKE);
-        paintBorder.setColor(Color.BLACK);
-        paintBorder.setStrokeCap(Paint.Cap.ROUND);
-        paintBorder.setAntiAlias(true);
-
-        final Paint paintInside = new Paint();
-        paintInside.setStrokeWidth(10);
-        paintInside.setStyle(Paint.Style.FILL);
-        paintInside.setColor(Color.WHITE);
-        paintInside.setStrokeCap(Paint.Cap.ROUND);
-        paintInside.setAntiAlias(true);
-
-        mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintBorder));
-        mPolyline.getOutlinePaintLists().add(new MonochromaticPaintList(paintInside));
-
-        binding.mapView.getOverlays().add(mPolyline);
-
-        //map_view.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
-        binding.mapView.setTileSource(TileSourceFactory.MAPNIK);
-        binding.mapView.setBuiltInZoomControls(true);
-        binding.mapView.setMultiTouchControls(true);
-        binding.mapView.getController().setZoom(10.0);
-
-
-        // Compass overlay;
-        this.mCompassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), binding.mapView);
-        this.mCompassOverlay.enableCompass();
-        binding.mapView.getOverlays().add(this.mCompassOverlay);
-
-        // Multi touch:
-        mRotationGestureOverlay = new RotationGestureOverlay(this, binding.mapView);
-        mRotationGestureOverlay.setEnabled(true);
-        binding.mapView.setMultiTouchControls(true);
-        binding.mapView.getOverlays().add(this.mRotationGestureOverlay);
-
-        // Zoom-knapper;
-        final DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScaleBarOverlay = new ScaleBarOverlay(binding.mapView);
-        mScaleBarOverlay.setCentred(true);
-        //play around with these values to get the location on screen in the right place for your application
-        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
-        binding.mapView.getOverlays().add(this.mScaleBarOverlay);
-
-        // Fange opp posisjon i klikkpunkt på kartet:
-        final MapEventsReceiver mReceive = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
-                //Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
-//                Marker marker = new Marker(binding.mapView);
-//                marker.setPosition(geoPoint);
-//                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-//                binding.mapView.getOverlays().add(marker);
-//                marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-//                marker.setTitle("Klikkpunkt");
-//                binding.mapView.getOverlays().add(marker);
-                return false;
-            }
-
-            @Override
-            public boolean longPressHelper(GeoPoint p) {
-                return false;
-            }
-        };
-        binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
-
-
-       /* if (!activeTourViewModel.getGeoPointsPlanned(tourId).isEmpty()) {
-            //this means user already have selected geopoints
-            //in this case, we will connect all waypoints when user come to this screen
-            //wen need to iterate over all the waypoints and connect them together
-            //waypint1
-            //waypint 2
-            //waypint 3
-            //iteration 1
-
-
-            databaseWriteExecutor.execute(() -> {
-
-                for (GeoPoint gp: activeTourViewModel.getGeoPoints()) {
-                    Marker marker = new Marker(binding.mapView);
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                    marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
-                    marker.setPosition(gp);
-                    binding.mapView.getOverlays().add(marker);
-                }
-
-                RoadManager roadManager = new OSRMRoadManager(this, "Aaa");
-                Road road = roadManager.getRoad(activeTourViewModel.getGeoPoints());
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                binding.mapView.getOverlays().add(roadOverlay);
-            });
-        }*/
     }
 
 
