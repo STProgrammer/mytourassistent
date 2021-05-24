@@ -135,4 +135,8 @@ dependencies {
     implementation "org.osmdroid:osmdroid-android:6.1.10"
     implementation "org.osmdroid:osmdroid-wms:6.1.10"
     implementation "org.osmdroid:osmdroid-geopackage:6.1.10"
+
+    //image picker library
+    implementation 'com.github.dhaval2404:imagepicker:2.0'
+
 }

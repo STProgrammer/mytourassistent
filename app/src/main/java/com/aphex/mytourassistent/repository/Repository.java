@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
 import com.aphex.mytourassistent.repository.network.api.WeatherAPI;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsActualDAO;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsPlannedDAO;
@@ -40,9 +41,12 @@ public class Repository {
     private final Retrofit retrofit;
     private final WeatherAPI weatherApi;
 
+
     private ToursDAO toursDAO;
     private GeoPointsPlannedDAO geoPointsPlannedDAO;
     private GeoPointsActualDAO geoPointsActualDAO;
+    private PhotoDAO photoDAO;
+
 
     private LiveData<List<Tour>> toursList;
     private LiveData<List<Tour>> toursListCompleted;
@@ -65,6 +69,8 @@ public class Repository {
         toursDAO = db.toursDAO();
         geoPointsPlannedDAO = db.geoPointsPlannedDAO();
         geoPointsActualDAO = db.geoPointsActualDAO();
+        photoDAO = db.photoDAO();
+
         toursList = new MutableLiveData<>();
         geoPointsPlanned = new MutableLiveData<>();
         tourWithAllGeoPoints = new MutableLiveData<>();

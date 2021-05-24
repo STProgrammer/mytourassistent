@@ -4,11 +4,13 @@ package com.aphex.mytourassistent.views.activities;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 
 import com.aphex.mytourassistent.BuildConfig;
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.viewmodels.ActiveTourViewModel;
 import com.aphex.mytourassistent.services.TourTrackingService;
@@ -36,6 +39,7 @@ import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
 import com.aphex.mytourassistent.enums.TourStatus;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
@@ -78,6 +82,7 @@ import java.util.concurrent.Executors;
 public class ActiveTourActivity extends AppCompatActivity {
 
     public static final String STRING_ACTION = "END_SERVICE";
+    private static final int MY_CAMERA_REQUEST_CODE = 456;
     private ActivityActiveTourBinding binding;
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(4);
@@ -386,8 +391,17 @@ public class ActiveTourActivity extends AppCompatActivity {
         binding.ivPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //ask permissions
+                //first check if we have permissions already if not then trigger
                 if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                    dispatchTakePictureIntent();
+                    if (ContextCompat.checkSelfPermission(ActiveTourActivity.this, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED){
+                        dispatchTakePictureIntent();
+                    } else {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+                    }
+
+
                 }
 
 
@@ -442,10 +456,10 @@ public class ActiveTourActivity extends AppCompatActivity {
 
     // END BUILDING ACTIVITY
 
-    private void drawTheRoute(List<GeoPointActual> geoPointsActual) {
+    private void drawTheRoute(List<GeoPointActualWithPhotos> geoPointsActual) {
         //fetch records / geopoints from db
-        for (GeoPointActual gpa : geoPointsActual) {
-            mPolyline.addPoint(new GeoPoint(gpa.lat, gpa.lng));
+        for (GeoPointActualWithPhotos gpa : geoPointsActual) {
+            mPolyline.addPoint(new GeoPoint(gpa.geoPointActual.lat, gpa.geoPointActual.lng));
         }
 
         // draw white lines on the map
@@ -511,21 +525,20 @@ public class ActiveTourActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode) {
-            //Kalles når bruker har akseptert og gitt tillatelse til bruk av posisjon:
-            case REQUEST_CHECK_SETTINGS:
-                //initLocationUpdates();
-                return;
-            case REQUEST_IMAGE_CAPTURE:
-                if (resultCode == RESULT_OK) {
-//                    Bundle extras = data.getExtras();
+
+                if (resultCode == Activity.RESULT_OK) {
+                    //Image Uri will not be null for RESULT_OK
+                    Uri uri = data.getData();
                     //Bitmap imageBitmap = (Bitmap) extras.get("data");
                     //imageView.setImageBitmap(imageBitmap);
                     //TODO save to database
                     //activeTourViewModel.saveImage();
+
+                } else if (resultCode == ImagePicker.RESULT_ERROR) {
+                    Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
                 }
-                return;
-        }
     }
 
     @Override
@@ -535,6 +548,13 @@ public class ActiveTourActivity extends AppCompatActivity {
             case CALLBACK_ALL_PERMISSIONS:
                 if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                     this.initMap();
+                }
+                return;
+            case MY_CAMERA_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    dispatchTakePictureIntent();
+                } else {
+                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             default:
@@ -670,25 +690,34 @@ public class ActiveTourActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+        ImagePicker.with(this)
+                .cameraOnly()
+                .crop()	    			//Crop image(Optional), Check Customization for more option
+                .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
+                .start();
 
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        }
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                // Error occurred while creating the File
+//            }
+//            // Continue only if the File was successfully created
+//            if (photoFile != null) {
+//                Uri photoURI = FileProvider.getUriForFile(this,
+//                        BuildConfig.APPLICATION_ID + ".provider",
+//                        photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//
+//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//            }
+//        }
     }
+
 }

@@ -18,6 +18,7 @@ import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
 import com.aphex.mytourassistent.databinding.FragmentCompletedTourDetailsBinding;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
+import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 
@@ -157,8 +158,8 @@ public class CompletedTourDetailsFragment extends Fragment {
                         break;
                 }
 
-                for (GeoPointActual gp : tourWithAllGeoPoints.geoPointsActual) {
-                    GeoPoint geoPt = new GeoPoint(gp.lat, gp.lng);
+                for (GeoPointActualWithPhotos gp : tourWithAllGeoPoints.geoPointsActual) {
+                    GeoPoint geoPt = new GeoPoint(gp.geoPointActual.lat, gp.geoPointActual.lng);
                     toursViewModel.addToGeoPoints(geoPt);
                     mPolyline.addPoint(geoPt);
                     //tegner kartet på nytt.

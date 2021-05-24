@@ -18,16 +18,15 @@ public class GeoPointActual {
 
     public double lat;
     public double lng;
-    public String imageUri;
+
 
     public long travelOrder;
 
-    public GeoPointActual(double lat, double lng, long fk_tourId, long travelOrder, @Nullable String imageUri) {
+    public GeoPointActual(double lat, double lng, long fk_tourId, long travelOrder) {
         this.lat = lat;
         this.lng = lng;
         this.fk_tourId = fk_tourId;
         this.travelOrder = travelOrder;
-        this.imageUri = imageUri;
     }
 }
 //background service

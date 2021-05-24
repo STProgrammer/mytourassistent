@@ -14,7 +14,7 @@ public class TourWithAllGeoPoints {
             parentColumn = "tourId",
             entityColumn = "fk_tourId"
     )
-    public List<GeoPointActual> geoPointsActual;
+    public List<GeoPointActualWithPhotos> geoPointsActual;
 
     @Relation(
             entity = GeoPointPlanned.class,

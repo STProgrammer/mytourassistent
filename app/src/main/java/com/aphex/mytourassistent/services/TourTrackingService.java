@@ -202,7 +202,7 @@ public class TourTrackingService extends LifecycleService {
                     //db
                     //activeTourViewModel.addGeoPointsActual(gpa);
                     if (distance > 10) {
-                        GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++, null);
+                        GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
                         Log.d("MY-LOCATION", "MER ENN 10 METER!!" + distance);
                         repository.addGeoPointsActual(gpa);
                     }
