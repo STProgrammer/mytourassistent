@@ -141,6 +141,12 @@
     <string name="toast_wrong_password">Incorrect password!</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete_tour">Delete tour</string>
+    <string name="tours_list_duration">"Duration: "</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="no_completed_tours">There are no completed tours currently!</string>
+    <string name="no_tours">There are no tours!</string>
 
 
 </resources>

@@ -183,6 +183,25 @@ public class CompletedTourDetailsFragment extends Fragment {
                 String finishDateActual = new SimpleDateFormat("yyyy_MM_dd HH")
                         .format(new Date(tourWithAllGeoPoints.tour.finishTimeActual));
 
+                long difference = tourWithAllGeoPoints.tour.finishTimeActual - tourWithAllGeoPoints.tour.startTimeActual;
+
+                long secondsInMilli = 1000;
+                long minutesInMilli = secondsInMilli * 60;
+                long hoursInMilli = minutesInMilli * 60;
+                long daysInMilli = hoursInMilli * 24;
+
+                long elapsedDays = difference / daysInMilli;
+                difference = difference % daysInMilli;
+
+                long elapsedHours = difference / hoursInMilli;
+
+                String duration = elapsedDays
+                        + " " + getString(R.string.days) + " ";
+                duration += elapsedHours + " " + getString(R.string.hours);
+
+
+
+
 
 
                 switch (tourWithAllGeoPoints.tour.tourType) {
@@ -196,6 +215,15 @@ public class CompletedTourDetailsFragment extends Fragment {
                         tourType = getString(R.string.tour_type_skiing);
                         break;
                 }
+
+                binding.tvTourTitle.setText(new StringBuilder().append(getString(R.string.tours_list_title)).append(tourWithAllGeoPoints.tour.title).toString());
+                binding.tvTourType.setText(new StringBuilder().append(getString(R.string.tours_list_type)).append(tourType).toString());
+                binding.tvTourDatePlanStart.setText(new StringBuilder().append(getString(R.string.tours_list_date_start_plan)).append(startDatePlanned).toString());
+                binding.tvTourDatePlanEnd.setText(new StringBuilder().append(getString(R.string.tours_list_date_end_plan)).append(finishDatePlanned).toString());
+                binding.tvTourDateStart.setText(new StringBuilder().append(getString(R.string.tours_list_date_start)).append(startDateActual).toString());
+                binding.tvTourDateEnd.setText(new StringBuilder().append(getString(R.string.tours_list_date_end)).append(finishDateActual).toString());
+                binding.tvTourDuration.setText(new StringBuilder().append(getString(R.string.tours_list_duration)).append(duration).toString());
+
 
                 //Drawing the route
                 for (GeoPointActualWithPhotos gp : tourWithAllGeoPoints.geoPointsActual) {
@@ -323,6 +351,14 @@ public class CompletedTourDetailsFragment extends Fragment {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    }
+                });
+
+                binding.btnDeleteTour.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toursViewModel.deleteTour(tourId);
+                        requireActivity().onBackPressed();
                     }
                 });
 

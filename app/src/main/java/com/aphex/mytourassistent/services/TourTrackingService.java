@@ -197,7 +197,7 @@ public class TourTrackingService extends LifecycleService {
                         GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
                         repository.addGeoPointsActual(gpa);
                     }
-                    if (distance > 10) {
+                    if (distance > getResources().getInteger(R.integer.distance_difference)) {
                         GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
                         Log.d("MY-LOCATION", "MER ENN 10 METER!!" + distance);
                         repository.addGeoPointsActual(gpa);

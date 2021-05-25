@@ -76,7 +76,7 @@
                 android:textAppearance="?attr/textAppearanceListItem" />
 
             <TextView
-                android:id="@+id/tv_tour_date_plan_start"
+                android:id="@+id/tv_tour_date_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -99,7 +99,7 @@
                 android:textAppearance="?attr/textAppearanceListItem" />
 
             <TextView
-                android:id="@+id/tv_tour_date_plan_end"
+                android:id="@+id/tv_tour_date_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -114,20 +114,20 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_label_status"
+                android:id="@+id/tv_label_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/tours_list_status"
+                android:text="@string/tours_list_duration"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
             <TextView
-                android:id="@+id/tv_tour_status"
+                android:id="@+id/tv_tour_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="?attr/textAppearanceListItem"
-                tools:text="Tour status" />
+                tools:text="40 days 15 hours" />
 
         </LinearLayout>
 

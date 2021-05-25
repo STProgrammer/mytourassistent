@@ -1,28 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".views.fragments.tours.CompletedTourDetailsFragment">
 
+    <org.osmdroid.views.MapView
+        android:id="@+id/map_view"
+        android:layout_width="wrap_content"
+        android:layout_height="422dp"
+        android:layout_margin="10dp"
+        android:background="#DDD" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <org.osmdroid.views.MapView
-                android:id="@+id/map_view"
-                android:layout_width="wrap_content"
-                android:layout_height="422dp"
-                android:layout_margin="10dp"
-                android:background="#DDD" />
+                <TextView
+                    android:id="@+id/tv_tour_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:text="Tour title" />
+
+                <TextView
+                    android:id="@+id/tv_tour_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:text="Tour type" />
 
             <TextView
-                android:id="@+id/tv_tour_details"
+                android:id="@+id/tv_tour_date_plan_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
+
+
+            <TextView
+                android:id="@+id/tv_tour_date_plan_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
+
+                <TextView
+                    android:id="@+id/tv_tour_date_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:text="9/5/2021" />
+
+
+                <TextView
+                    android:id="@+id/tv_tour_date_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:text="9/5/2021" />
+
+                <TextView
+                    android:id="@+id/tv_tour_duration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    tools:text="40 days 15 hours" />
+
 
             <TextView
                 android:id="@+id/tv_comment_label"
@@ -54,8 +111,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/sw_include_photos" />
 
-
+            <Button
+                android:id="@+id/btnDeleteTour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_delete_tour" />
         </LinearLayout>
+    </ScrollView>
 
 
-</ScrollView>
+</LinearLayout>

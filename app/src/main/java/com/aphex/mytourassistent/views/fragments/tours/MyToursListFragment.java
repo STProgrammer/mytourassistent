@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.databinding.FragmentMyToursListBinding;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.views.activities.ActiveTourActivity;
 import com.aphex.mytourassistent.services.TourTrackingService;
@@ -39,6 +40,7 @@ public class MyToursListFragment extends Fragment {
     private int mColumnCount = 1;
     private ToursViewModel toursViewModel;
     private boolean mIsFirstTime;
+    private FragmentMyToursListBinding binding;
 
 
     /**
@@ -70,8 +72,8 @@ public class MyToursListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_my_tours_list, container, false);
-        return view;
+        binding = FragmentMyToursListBinding.inflate(LayoutInflater.from(container.getContext()));
+        return binding.getRoot();
     }
 
     @Override
@@ -87,26 +89,29 @@ public class MyToursListFragment extends Fragment {
         toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
             public void onChanged(List<Tour> tours) {
+                if (tours.isEmpty()) {
+                    binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
+                    binding.list.setVisibility(View.GONE);
+                    return;
+                }
                 //we will have all the tours here when database returns values
                 //calculate the stuff once
                 toursViewModel.setCurrentActiveTour(tours);
                 // Set the adapter
-                if (view instanceof RecyclerView) {
-                    Context context = view.getContext();
-                    RecyclerView recyclerView = (RecyclerView) view;
-                    if (mColumnCount <= 1) {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+                      if (mColumnCount <= 1) {
+                        binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
                     } else {
-                        recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+                        binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));
                     }
                     MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tours);
-                    recyclerView.setAdapter(myMyTourRecyclerViewAdapter);
+                    binding.list.setAdapter(myMyTourRecyclerViewAdapter);
                     myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
                         @Override
                         public void onClickToDeleteTour(long tourId) {
                             toursViewModel.deleteTour(tourId);
                             if (toursViewModel.getCurrentActiveTour() == tourId) {
-                                context.stopService(new Intent(requireContext(), TourTrackingService.class));
+                                requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
                             }
 
                         }
@@ -125,7 +130,7 @@ public class MyToursListFragment extends Fragment {
                             }
                         }
                     });
-                }
+
             }
         });
 

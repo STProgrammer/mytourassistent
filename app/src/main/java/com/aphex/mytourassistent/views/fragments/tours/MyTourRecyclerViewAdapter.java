@@ -108,8 +108,8 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
 
             binding.tvTourType.setText(tourType);
             binding.tvTourStatus.setText(tourStatus);
-            binding.tvTourDatePlanStart.setText(startDatePlanned);
-            binding.tvTourDatePlanEnd.setText(startDatePlanned);
+            binding.tvLabelDateStart.setText(startDatePlanned);
+            binding.tvTourDateEnd.setText(startDatePlanned);
             if (tour.tourStatus == TourStatus.COMPLETED.getValue()) {
                 binding.btnTourStart.setVisibility(View.INVISIBLE);
             } else {

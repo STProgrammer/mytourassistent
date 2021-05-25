@@ -71,6 +71,24 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
                     .format(new Date(tour.startTimeActual));
             String finishTimeActual = new SimpleDateFormat("yyyy-MM-dd HH:mm")
                     .format(new Date(tour.finishTimeActual));
+
+            long difference = tour.finishTimeActual - tour.startTimeActual;
+
+            long secondsInMilli = 1000;
+            long minutesInMilli = secondsInMilli * 60;
+            long hoursInMilli = minutesInMilli * 60;
+            long daysInMilli = hoursInMilli * 24;
+
+            long elapsedDays = difference / daysInMilli;
+            difference = difference % daysInMilli;
+
+            long elapsedHours = difference / hoursInMilli;
+
+            String duration = elapsedDays
+                    + " " + binding.tvLabelDuration.getContext().getString(R.string.days) + " ";
+            duration += elapsedHours + " " + binding.tvLabelDuration.getContext().getString(R.string.hours);
+
+
             binding.tvTourTitle.setText(tour.title);
             String tourType = "";
             String tourStatus = "";
@@ -88,25 +106,10 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
                     break;
             }
 
-            switch(tour.tourStatus) {
-                case 1:
-                    tourStatus = itemView.getContext().getString(R.string.status_not_started);
-                    break;
-                case 2:
-                    tourStatus = itemView.getContext().getString(R.string.status_active);
-                    break;
-                case 3:
-                    tourStatus = itemView.getContext().getString(R.string.status_paused);
-                    break;
-                case 4:
-                    tourStatus = itemView.getContext().getString(R.string.status_completed);
-                    break;
-            }
-
             binding.tvTourType.setText(tourType);
-            binding.tvTourStatus.setText(tourStatus);
-            binding.tvTourDatePlanStart.setText(startTimeActual);
-            binding.tvTourDatePlanEnd.setText(finishTimeActual);
+            binding.tvTourDateStart.setText(startTimeActual);
+            binding.tvTourDateEnd.setText(finishTimeActual);
+            binding.tvLabelDuration.setText(duration);
 
             binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
                 @Override
