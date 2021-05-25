@@ -109,7 +109,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
             binding.tvTourType.setText(tourType);
             binding.tvTourDateStart.setText(startTimeActual);
             binding.tvTourDateEnd.setText(finishTimeActual);
-            binding.tvLabelDuration.setText(duration);
+            binding.tvTourDuration.setText(duration);
 
             binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
                 @Override

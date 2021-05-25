@@ -148,6 +148,10 @@
     <string name="no_completed_tours">There are no completed tours currently!</string>
     <string name="no_tours">There are no tours!</string>
     <string name="toast_press_back_again_to_finish">Press back button again to close the application</string>
+    <string name="temperature_label">"Air temperature in Celcius: "</string>
+    <string name="relative_humidity_label">\"\n Relative humidity: \"</string>
+    <string name="no_weather_information">No weather information!</string>
+    <string name="are_you_sure_to_delete_tour">Are you sure to delete the tour?</string>
 
 
 </resources>

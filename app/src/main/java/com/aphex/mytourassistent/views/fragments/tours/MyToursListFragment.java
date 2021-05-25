@@ -1,5 +1,6 @@
 package com.aphex.mytourassistent.views.fragments.tours;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -109,10 +110,18 @@ public class MyToursListFragment extends Fragment {
                     myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
                         @Override
                         public void onClickToDeleteTour(long tourId) {
-                            toursViewModel.deleteTour(tourId);
-                            if (toursViewModel.getCurrentActiveTour() == tourId) {
-                                requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
-                            }
+                            AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                            builder.setTitle(R.string.btn_delete_tour);
+                            builder.setMessage(R.string.are_you_sure_to_delete_tour);
+                            builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> {
+                                if (toursViewModel.getCurrentActiveTour() == tourId) {
+                                    requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
+                                }
+                                toursViewModel.deleteTour(tourId);
+                            });
+                            builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
+                            builder.show();
+
 
                         }
 

@@ -164,16 +164,16 @@ private View view;
                     @Override
                     public void onChanged(Data data) {
                             if (data == null) {
-                                binding.tvWeatherPlanningStart.setText("No weather information");
+                                binding.tvWeatherPlanningStart.setText(getString(R.string.no_weather_information));
                             }
                             else {
-                                String valueToShow = "Air Temperature: ";
+                                String valueToShow = getString(R.string.temperature_label);
                                 valueToShow += data.getInstant().getDetails().getAirTemperature();
-                                valueToShow += "\n Relative humidity: ";
+                                valueToShow += getString(R.string.relative_humidity_label);
                                 valueToShow += data.getInstant().getDetails().getRelativeHumidity();
-                                valueToShow += "\n Weather summary: ";
                                 if (data.getNext1Hours() != null) {
-                                    valueToShow += data.getNext1Hours().getSummary().getSymbolCode();
+                                    int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
+                                    binding.ivWeatherIconStart.setImageResource(resId);
                                 }
                                 binding.tvWeatherPlanningStart.setText(valueToShow);
                             }
@@ -184,16 +184,16 @@ private View view;
             @Override
             public void onChanged(Data data) {
                 if (data == null) {
-                    binding.tvWeatherPlanningEnd.setText("No weather information");
+                    binding.tvWeatherPlanningEnd.setText(getString(R.string.no_weather_information));
                 }
                 else {
-                    String valueToShow = "Air Temperature: ";
+                    String valueToShow = getString(R.string.temperature_label);
                     valueToShow += data.getInstant().getDetails().getAirTemperature();
-                    valueToShow += "\n Relative humidity: ";
+                    valueToShow += getString(R.string.relative_humidity_label);
                     valueToShow += data.getInstant().getDetails().getRelativeHumidity();
-                    valueToShow += "\n Weather summary: ";
                     if (data.getNext1Hours() != null) {
-                        valueToShow += data.getNext1Hours().getSummary().getSymbolCode();
+                        int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
+                        binding.ivWeatherIconEnd.setImageResource(resId);
                     }
                     binding.tvWeatherPlanningEnd.setText(valueToShow);
                 }
@@ -253,6 +253,11 @@ private View view;
 
     private void getWeatherData(GeoPoint geoPoint, boolean isFirstGp) {
         toursViewModel.getWeatherData(geoPoint.getLatitude(), geoPoint.getLongitude(), isFirstGp);
+    }
+
+    private int mappingWeathersymbolAndCode(String symbolCode) {
+        int resID = getResources().getIdentifier(symbolCode, "drawable", requireActivity().getPackageName());
+        return resID;
     }
 
     // DEL 1: Finner siste kjente posisjon.

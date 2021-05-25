@@ -354,12 +354,17 @@ public class CompletedTourDetailsFragment extends Fragment {
                     }
                 });
 
-                binding.btnDeleteTour.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                binding.btnDeleteTour.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                    builder.setTitle(R.string.btn_delete_tour);
+                    builder.setMessage(R.string.are_you_sure_to_delete_tour);
+                    builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                         toursViewModel.deleteTour(tourId);
                         requireActivity().onBackPressed();
-                    }
+                    });
+                    builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
+                    builder.show();
+
                 });
 
             }

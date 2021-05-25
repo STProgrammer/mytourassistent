@@ -767,17 +767,17 @@ public class ActiveTourActivity extends AppCompatActivity {
             public void onChanged(Data data) {
                 Log.d("DebugDate", "inside getWeatherDataObserver");
                 if (data == null) {
-                    binding.tvWeather.setText("No weather information");
+                    binding.tvWeather.setText(getString(R.string.no_weather_information));
                 }
                 else {
                     Log.d("DebugDate", "inside getWeatherDataObserver data not null");
-                    String valueToShow = "Air Temperature: ";
+                    String valueToShow = getString(R.string.temperature_label);
                     valueToShow += data.getInstant().getDetails().getAirTemperature();
-                    valueToShow += "\n Relative humidity: ";
+                    valueToShow += getString(R.string.relative_humidity_label);
                     valueToShow += data.getInstant().getDetails().getRelativeHumidity();
-                    valueToShow += "\n Weather summary: ";
                     if (data.getNext1Hours() != null) {
-                        valueToShow += data.getNext1Hours().getSummary().getSymbolCode();
+                        int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
+                        binding.ivWeatherIcon.setImageDrawable(getDrawable(resId));
                     }
                     binding.tvWeather.setText(valueToShow);
                 }
@@ -814,6 +814,10 @@ public class ActiveTourActivity extends AppCompatActivity {
 
     }
 
+    private int mappingWeathersymbolAndCode(String symbolCode) {
+        int resID = getResources().getIdentifier(symbolCode, "drawable", getPackageName());
+        return resID;
+    }
 
 
     //when we open this screen
