@@ -22,5 +22,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory>
+        <Preference
+            app:key="delete_user"
+            app:title="@string/delete_your_account"
+            >
+
+        </Preference>
+
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

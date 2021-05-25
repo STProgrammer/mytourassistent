@@ -29,7 +29,10 @@ public class ToursViewModel extends AndroidViewModel {
     private Calendar mCalendarStart;
     private Calendar mCalendarFinish;
     private String tourName;
-    private String tourType;
+
+
+
+    private int tourType = -1;
 
 
 
@@ -165,5 +168,13 @@ public class ToursViewModel extends AndroidViewModel {
     public void addComment(String comment, Tour tour) {
         tour.comment = comment;
         repository.updateTour(tour);
+    }
+
+    public int getTourType() {
+        return tourType;
+    }
+
+    public void setTourType(int tourType) {
+        this.tourType = tourType;
     }
 }

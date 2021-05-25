@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
+import com.aphex.mytourassistent.enums.TourType;
 import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -52,6 +53,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.jetbrains.annotations.NotNull;
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -487,7 +489,8 @@ private View view;
         });
         binding.mapView.getOverlays().add(startMarker);*/
 
-        //binding.mapView.getController().setCenter(geoPointStart);
+        //TODO: delete this later
+        binding.mapView.getController().setCenter(new GeoPoint(59.74, 10.21));
 
         // Compass overlay;
         this.mCompassOverlay = new CompassOverlay(requireContext(), new InternalCompassOrientationProvider(requireContext()), binding.mapView);
@@ -555,9 +558,22 @@ private View view;
 
 
                 databaseWriteExecutor.execute(() -> {
-                    RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
+                    //RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
+
+
+                    RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
+                    if (toursViewModel.getTourType() == TourType.WALKING.getValue()) {
+                        roadManager.addRequestOption("vehicle=foot");
+                        roadManager.addRequestOption("optimize=true");
+                    }
+                    else if (toursViewModel.getTourType() == TourType.BIKING.getValue()) {
+                        roadManager.addRequestOption("vehicle=bike");
+                        roadManager.addRequestOption("optimize=true");
+                    } else if (toursViewModel.getTourType() == TourType.SKIING.getValue()) {
+                        roadManager.addRequestOption("vehicle=hike");
+                        roadManager.addRequestOption("optimize=true");
+                    }
                     Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
-                    roadManager.addRequestOption("routeType=pedestrian");
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -595,9 +611,20 @@ private View view;
                     binding.mapView.getOverlays().add(marker);
                 }
 
-
-                RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
-                roadManager.addRequestOption("");
+//"routeType=pedestrian"
+                //"engine=fossgis_osrm_foot"
+                RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
+                if (toursViewModel.getTourType() == TourType.WALKING.getValue()) {
+                    roadManager.addRequestOption("vehicle=foot");
+                    roadManager.addRequestOption("optimize=true");
+                }
+                else if (toursViewModel.getTourType() == TourType.BIKING.getValue()) {
+                    roadManager.addRequestOption("vehicle=bike");
+                    roadManager.addRequestOption("optimize=true");
+                } else if (toursViewModel.getTourType() == TourType.SKIING.getValue()) {
+                    roadManager.addRequestOption("vehicle=hike");
+                    roadManager.addRequestOption("optimize=true");
+                }
                 Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 binding.mapView.getOverlays().add(roadOverlay);

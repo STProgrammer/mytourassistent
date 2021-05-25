@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.enums.TourType;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.viewmodels.ActiveTourViewModel;
@@ -50,6 +51,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -672,7 +674,18 @@ public class ActiveTourActivity extends AppCompatActivity {
                 }
 
                 databaseWriteExecutor.execute(() -> {
-                    RoadManager roadManager = new OSRMRoadManager(this, "Aaa");
+                    RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
+                    if (tourWithAllGeoPoints.tour.tourType == TourType.WALKING.getValue()) {
+                        roadManager.addRequestOption("vehicle=foot");
+                        roadManager.addRequestOption("optimize=true");
+                    }
+                    else if (tourWithAllGeoPoints.tour.tourType == TourType.BIKING.getValue()) {
+                        roadManager.addRequestOption("vehicle=bike");
+                        roadManager.addRequestOption("optimize=true");
+                    } else if (tourWithAllGeoPoints.tour.tourType == TourType.SKIING.getValue()) {
+                        roadManager.addRequestOption("vehicle=hike");
+                        roadManager.addRequestOption("optimize=true");
+                    }
                     Road road = roadManager.getRoad(activeTourViewModel.getGeoPointsPlanned().getValue());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.RadioGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -121,6 +122,15 @@ public class AddTourFragment extends Fragment {
         binding.etTourFinishTime.setInputType(InputType.TYPE_NULL);
         binding.etTourFinishTime.setOnClickListener(textListenerFinish);
 
+
+        binding.rgTourType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                toursViewModel.setTourType(getTourType());
+            }
+        });
+
+
         /*binding.etTourStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,6 +164,9 @@ public class AddTourFragment extends Fragment {
                     Toast.makeText(requireActivity(), R.string.toast_select_end_date_first, Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (toursViewModel.getTourType() == -1) {
+                    Toast.makeText(requireActivity(), R.string.toast_select_tour_type_first, Toast.LENGTH_SHORT).show();
+                }
                 Navigation.findNavController(getView()).navigate(R.id.chooseTourOnMapFragment);
             }
         });
@@ -180,19 +193,11 @@ public class AddTourFragment extends Fragment {
 
                 long startTime = toursViewModel.getmCalendarStart().getTimeInMillis();
                 long endTime = toursViewModel.getmCalendarFinish().getTimeInMillis();
-                int tourType = 0;
-                if( binding.rbBicycling.isSelected()) {
-                    tourType = TourType.BIKING.getValue();
-                }
-                else if ( binding.rbSkiing.isSelected()) {
-                    tourType = TourType.SKIING.getValue();
-                }
-                else {
-                    tourType = TourType.WALKING.getValue();
-                }
+                toursViewModel.setTourType(getTourType());
+
 //show some progress bar
                 toursViewModel.addNewTour(binding.etTourName.getText().toString(),
-                        startTime, endTime, tourType, TourStatus.NOT_STARTED.getValue());
+                        startTime, endTime, toursViewModel.getTourType(), TourStatus.NOT_STARTED.getValue());
             }
         });
 
@@ -208,6 +213,20 @@ public class AddTourFragment extends Fragment {
         toursViewModel.getStatusInteger().observe(requireActivity(),observer);
 
 
+    }
+
+    private int getTourType() {
+        int tourType = 0;
+        if( binding.rbBicycling.isSelected()) {
+            tourType = TourType.BIKING.getValue();
+        }
+        else if ( binding.rbSkiing.isSelected()) {
+            tourType = TourType.SKIING.getValue();
+        }
+        else {
+            tourType = TourType.WALKING.getValue();
+        }
+        return tourType;
     }
 
 

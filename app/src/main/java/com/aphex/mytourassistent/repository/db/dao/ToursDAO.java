@@ -54,6 +54,10 @@ public abstract class ToursDAO {
     @Update
     public abstract void update(Tour tour);
 
+    @Transaction
+    @Query("DELETE FROM Tour WHERE 1")
+    public abstract void deleteAll();
+
 
     // public abstract void startTour(long tourId);
 }

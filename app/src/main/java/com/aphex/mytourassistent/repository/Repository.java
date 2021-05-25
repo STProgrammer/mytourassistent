@@ -336,4 +336,10 @@ public class Repository {
         });
         return photos;
     }
+
+    public void clearDatabase() {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            toursDAO.deleteAll();
+        });
+    }
 }
