@@ -210,9 +210,12 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
         });
 
-        binding.ivStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        binding.ivStop.setOnClickListener(v -> {
+
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ActiveTourActivity.this);
+            builder.setTitle(R.string.btn_stop_tracking);
+            builder.setMessage(R.string.are_you_sure_to_complete_tour);
+            builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                 int status = tourWithAllGeoPoints.tour.tourStatus;
                 Tour tour = tourWithAllGeoPoints.tour;
                 if (status == TourStatus.ACTIVE.getValue() ||
@@ -224,7 +227,10 @@ public class ActiveTourActivity extends AppCompatActivity {
                     //need to stop service heref
                     //activeTourViewModel.completeTour()
                 }
-            }
+            });
+            builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
+            builder.show();
+
         });
 
         binding.ivPhoto.setOnClickListener(new View.OnClickListener() {
@@ -618,6 +624,8 @@ public class ActiveTourActivity extends AppCompatActivity {
         activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
             if (tourWithAllGeoPoints != null) {
                 activeTourViewModel.getTourStatus().postValue(tourWithAllGeoPoints.tour.tourStatus);
+
+                binding.tvActiveTourTitle.setText(getString(R.string.tours_list_title) + " " + tourWithAllGeoPoints.tour.title);
 
                 StringBuilder sb = new StringBuilder();
                 String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")

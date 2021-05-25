@@ -92,7 +92,7 @@
     <string name="tour_list_status_new">Not started</string>
     <string name="btn_reset_route">Reset</string>
     <string name="btn_start_tracking">Start</string>
-    <string name="btn_stop_tracking">Stop</string>
+    <string name="btn_stop_tracking">Complete tour</string>
     <string name="btn_pause_tracking">Pause</string>
     <string name="btn_take_picture">Take photo</string>
     <string name="tour_detail_start_date_planned">Start date planned:</string>
@@ -152,6 +152,7 @@
     <string name="relative_humidity_label">\"\n Relative humidity: \"</string>
     <string name="no_weather_information">No weather information!</string>
     <string name="are_you_sure_to_delete_tour">Are you sure to delete the tour?</string>
+    <string name="are_you_sure_to_complete_tour">Are you sure to complete tour? (You can\'t start it again)</string>
 
 
 </resources>

@@ -4,4 +4,5 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="title_text">25sp</dimen>
     <dimen name="weather_icon_size">48dp</dimen>
+    <dimen name="active_tour_btn_size">64dp</dimen>
 </resources>
