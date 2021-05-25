@@ -1,5 +1,12 @@
 package com.aphex.mytourassistent.views.fragments.tours;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,15 +17,20 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
@@ -27,7 +39,10 @@ import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
+import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
+import com.aphex.mytourassistent.views.activities.photos.PhotosActivity;
+import com.bumptech.glide.Glide;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -35,7 +50,9 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.util.StorageUtils;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
@@ -46,10 +63,15 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import static com.aphex.mytourassistent.repository.db.MyTourAssistentDatabase.databaseWriteExecutor;
@@ -79,6 +101,7 @@ public class CompletedTourDetailsFragment extends Fragment {
     private CompassOverlay mCompassOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private ScaleBarOverlay mScaleBarOverlay;
+    private TourWithAllGeoPoints tourWithAllGeoPoints;
 
     public CompletedTourDetailsFragment() {
         // Required empty public constructor
@@ -139,6 +162,14 @@ public class CompletedTourDetailsFragment extends Fragment {
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         toursViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(requireActivity(), tourWithAllGeoPoints -> {
             if (tourWithAllGeoPoints != null) {
+                this.tourWithAllGeoPoints = tourWithAllGeoPoints;
+                if (tourWithAllGeoPoints.tour.comment != null) {
+                    binding.tvComment.setText(tourWithAllGeoPoints.tour.comment);
+                    binding.btnAddComment.setText(R.string.btn_edit_comment);
+                } else {
+                    binding.btnAddComment.setText(R.string.btn_add_comment);
+                }
+
                 StringBuilder sb = new StringBuilder();
                 String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
                         .format(new Date(tourWithAllGeoPoints.tour.startTimePlanned));
@@ -180,6 +211,15 @@ public class CompletedTourDetailsFragment extends Fragment {
                             Drawable dr = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int) (48.0f * getResources().getDisplayMetrics().density), (int) (48.0f * getResources().getDisplayMetrics().density), true));
                             photoIcon.setIcon(dr);
                             photoIcon.setPosition(geoPt);
+                            photoIcon.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                                @Override
+                                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                                    Intent intent = new Intent(requireContext(), PhotosActivity.class);
+                                    intent.putExtra("GPA_ID", gp.geoPointActual.geoPointActualId);
+                                    startActivity(intent);
+                                    return true;
+                                }
+                            });
                             photoIcon.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                             binding.mapView.getOverlays().add(photoIcon);
                         } catch (IOException e) {
@@ -219,16 +259,155 @@ public class CompletedTourDetailsFragment extends Fragment {
 
 
 
-                //startMarker.setTextIcon("Startpunkt!");
+                binding.btnAddComment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                        builder.setTitle(R.string.add_comment_dialog_title);
+                        EditText editText = new EditText(requireActivity());
+                        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                        builder.setView(editText);
+                        builder.setPositiveButton(R.string.btn_save_comment, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                binding.tvComment.setText(editText.getText());
+                                if (tourWithAllGeoPoints != null) {
+                                    toursViewModel.addComment(editText.getText().toString(), tourWithAllGeoPoints.tour);
+                                }
+                            }
+                        });
+                        builder.setNegativeButton(R.string.btn_cancel_comment, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builder.show();
+                    }
+                });
 
-                //binding.mapView.getController().setCenter(geoPointStart);
-                // firstTimeLocation = true;
+                binding.btnShareTour.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ArrayList<Uri> photosUri = new ArrayList<>();
+                        Intent intent = new Intent();
+                        try {
+                            Bitmap mapScreenShot = getMapScreenShot();
+                            Uri uriMapScreenShot = saveImageToExternalStorage(requireActivity(), mapScreenShot);
+                            photosUri.add(uriMapScreenShot);
+                            if (binding.swIncludePhotos.isChecked()) {
+                                for (GeoPointActualWithPhotos gpa: tourWithAllGeoPoints.geoPointsActual) {
+                                    for (Photo photo: gpa.photos) {
+                                        photosUri.add(Uri.parse(photo.imageUri));
+                                    }
+                                }
+                                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, photosUri);
+                            } else {
+                                intent.setAction(Intent.ACTION_SEND);
+                                intent.putExtra(Intent.EXTRA_STREAM,uriMapScreenShot);
+                            }
+
+
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            intent.setType("image/*");
+                            Intent shareIntent = Intent.createChooser(intent, getString(R.string.share_with));
+
+                            List<ResolveInfo> resInfoList = requireActivity().getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
+
+                            for (ResolveInfo resolveInfo : resInfoList) {
+                                String packageName = resolveInfo.activityInfo.packageName;
+                                requireActivity().grantUriPermission(packageName, uriMapScreenShot, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            }
+                            startActivity(shareIntent);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
             }
         });
 
 
     }
 
+    //https://stackoverflow.com/questions/10753969/how-to-take-a-screenshot-of-the-current-mapview
+    private Bitmap getMapScreenShot() throws IOException {
+        boolean enabled = binding.mapView.isDrawingCacheEnabled();
+        binding.mapView.setDrawingCacheEnabled(true);
+        Bitmap bm = binding.mapView.getDrawingCache();
+        return bm;
+//
+//        /* now you've got the bitmap - go save it */
+//
+//        File path = requireContext().getFilesDir();
+//        path = new File(path, "Pictures");
+//        path.mkdirs();  // make sure the Pictures folder exists.
+//        File file = new File(path, "filename.png");
+//        BufferedOutputStream outStream = null;
+//        try {
+//            outStream = new BufferedOutputStream(new FileOutputStream(file));
+//            boolean success = bm.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+//            outStream.flush();
+//            outStream.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+//        Uri uri = Uri.fromFile(file);
+//
+//        Glide.with(this)
+//                .load(Uri.fromFile(file))
+//                .into(binding.imageView);
+////get bitmap from uri
+//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uri);
+//
+
+
+
+
+       // return Uri.fromFile(file);
+
+    }
+
+    public Uri saveImageToExternalStorage(
+            Activity activity,
+            Bitmap bitmap
+    ) {
+        FileOutputStream outputStream = null;
+        Uri uri=null;
+        try {
+            File picturesDirectory = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File tempFile = File.createTempFile(
+                    "map_" + System.currentTimeMillis(),
+                    ".jpg",
+                    picturesDirectory
+            );
+            outputStream = new FileOutputStream(tempFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            uri = FileProvider.getUriForFile(
+                    activity, requireActivity().getPackageName()+".provider", tempFile
+            );
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e("Error", "Exception while saving image to external storage: ${e.message}"
+);
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return uri;
+    }
 
     private void initMap() {
 

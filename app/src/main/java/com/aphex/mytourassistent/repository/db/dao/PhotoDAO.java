@@ -29,6 +29,10 @@ public abstract class PhotoDAO {
     @Update
     public abstract void update(Photo photo);
 
+    @Transaction
+    @Query("SELECT * FROM Photo WHERE Photo.fk_geoPointActualId = :geoPointId")
+    public abstract List<Photo> getPhotos(long geoPointId);
+
 
     // public abstract void startTour(long tourId);
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aphex.mytourassistent">
-
     <!-- PROTECTION_NORMAL permissions, automatically granted -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -25,6 +24,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyTourAssistent">
+        <activity android:name=".views.activities.photos.PhotosActivity"></activity>
+
         <service
             android:name=".services.TourTrackingService"
             android:enabled="true"
@@ -60,6 +61,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
         <receiver android:name=".services.TourTrackingService$PauseRecordingBroadcastReceiver">
             <intent-filter>
                 <action android:name="ACTION_PAUSE_RECORDING" />
@@ -70,8 +72,6 @@
                 <action android:name="ACTION_STOP_RECORDING" />
             </intent-filter>
         </receiver>
-
-
     </application>
 
 </manifest>

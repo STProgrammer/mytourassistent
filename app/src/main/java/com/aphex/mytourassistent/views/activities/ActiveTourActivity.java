@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -476,7 +477,9 @@ public class ActiveTourActivity extends AppCompatActivity {
 
                 if (resultCode == Activity.RESULT_OK) {
                     //Image Uri will not be null for RESULT_OK
+
                     Uri uri = data.getData();
+                    Uri uriForFile = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", new File(uri.getPath()));
 
                     //Bitmap imageBitmap = (Bitmap) extras.get("data");
                     //imageView.setImageBitmap(imageBitmap);
@@ -484,7 +487,7 @@ public class ActiveTourActivity extends AppCompatActivity {
                     if (activeTourViewModel.getCurrentGeoPointActualId() < 0) {
                         Toast.makeText(this, R.string.toast_please_start_tour, Toast.LENGTH_SHORT).show();
                     } else {
-                        activeTourViewModel.savePhoto(uri.toString());
+                        activeTourViewModel.savePhoto(uriForFile.toString());
                         Toast.makeText(this, R.string.toast_photo_saved, Toast.LENGTH_SHORT).show();
                     }
 
@@ -494,6 +497,7 @@ public class ActiveTourActivity extends AppCompatActivity {
                     Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
                 }
     }
+
 
 //    @Override
 //    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -808,7 +812,7 @@ public class ActiveTourActivity extends AppCompatActivity {
 
     String currentPhotoPath;
 
-    private File createImageFile() throws IOException {
+    private File createImageFile() {
         // Create an image file name
         long lastGpId = activeTourViewModel.getLastGeoPointRecorded().getValue().geoPointActualId;
         String imageFileName = lastGpId + "_" + tourId + "_" + System.currentTimeMillis();
@@ -824,6 +828,7 @@ public class ActiveTourActivity extends AppCompatActivity {
     private void dispatchTakePictureIntent() {
         ImagePicker.with(this)
                 .cameraOnly()
+                .saveDir(getExternalFilesDir(Environment.DIRECTORY_PICTURES))
                 .crop()	    			//Crop image(Optional), Check Customization for more option
                 .compress(1024)			//Final image size will be less than 1 MB(Optional)
                 .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)

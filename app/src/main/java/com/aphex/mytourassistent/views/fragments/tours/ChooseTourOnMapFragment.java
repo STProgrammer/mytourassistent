@@ -597,6 +597,7 @@ private View view;
 
 
                 RoadManager roadManager = new OSRMRoadManager(requireContext(), "Aaa");
+                roadManager.addRequestOption("");
                 Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 binding.mapView.getOverlays().add(roadOverlay);

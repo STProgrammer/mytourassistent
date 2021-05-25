@@ -1,6 +1,7 @@
 package com.aphex.mytourassistent.viewmodels;
 
 import android.app.Application;
+import android.text.Editable;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -159,5 +160,10 @@ public class ToursViewModel extends AndroidViewModel {
 
     public LiveData<Data> getLastWeatherGeopointResponse() {
         return repository.getLastWeatherLiveData();
+    }
+
+    public void addComment(String comment, Tour tour) {
+        tour.comment = comment;
+        repository.updateTour(tour);
     }
 }

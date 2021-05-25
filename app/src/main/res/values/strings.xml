@@ -127,6 +127,12 @@
     <string name="btn_share_tour">Share tour</string>
     <string name="toast_photo_saved">Photo is saved</string>
     <string name="toast_please_start_tour">Please start the tour first!</string>
+    <string name="add_comment_dialog_title">Write your comment here</string>
+    <string name="btn_save_comment">Save comment</string>
+    <string name="btn_cancel_comment">Cancel</string>
+    <string name="btn_edit_comment">Edit comment</string>
+    <string name="share_with">Share Tour</string>
+    <string name="sw_include_photos">Include all photos from tour when sharing</string>
 
 
 </resources>

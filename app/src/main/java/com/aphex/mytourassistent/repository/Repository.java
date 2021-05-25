@@ -63,6 +63,7 @@ public class Repository {
     private MutableLiveData<GeoPointActual> geoPointActualLiveData;
     private MutableLiveData<Data> weatherDataPlannginStartPoint;
     private MutableLiveData<Data> weatherDataPlanningEndPoint;
+    private MutableLiveData<List<Photo>> photos;
 
 
     public Repository(Context applicationContext) {
@@ -80,6 +81,7 @@ public class Repository {
         tourStatusLiveData = new MutableLiveData<>();
         weatherDataPlannginStartPoint = new MutableLiveData<>();
         weatherDataPlanningEndPoint = new MutableLiveData<>();
+        photos = new MutableLiveData<>();
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -147,6 +149,7 @@ public class Repository {
         if (!mIsFirstTime) {
             return tourWithAllGeoPoints;
         }
+        //TODO: fix this
         //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
         tourWithAllGeoPoints = toursDAO.getTourWithAllGeoPoints(tourId);
         //});
@@ -324,5 +327,13 @@ public class Repository {
         });
 
 
+    }
+
+    public LiveData<List<Photo>> getPhotos(long geoPointId) {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            photos.postValue(photoDAO.getPhotos(geoPointId));
+
+        });
+        return photos;
     }
 }
