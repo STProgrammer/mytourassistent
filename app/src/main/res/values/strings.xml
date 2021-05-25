@@ -147,6 +147,7 @@
     <string name="hours">hours</string>
     <string name="no_completed_tours">There are no completed tours currently!</string>
     <string name="no_tours">There are no tours!</string>
+    <string name="toast_press_back_again_to_finish">Press back button again to close the application</string>
 
 
 </resources>

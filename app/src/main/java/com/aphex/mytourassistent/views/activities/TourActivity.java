@@ -11,6 +11,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +29,8 @@ public class TourActivity extends AppCompatActivity {
     private ActivityTourBinding binding;
     private int backButtonCount;
     private ToursViewModel toursViewModel;
-
+    private NavController navController;
+    private NavHostFragment navHostFragment;
 
 
     @Override
@@ -47,14 +49,14 @@ public class TourActivity extends AppCompatActivity {
         // Gjøres ulikt avhengig av om man bruker <fragment../> eller <FragmentContainerView.../>
         // i activity_main.xml. Her brukes vi FragmentContainerView i activity_main.xml
         // og finner derfor objektet slik:
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+         navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(binding.tourNavHostFragment.getId());
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
 
         // Kopler til nav drawer:
-        // NB! Kopler til Toolbar (søreger for hamburger-menyknapp og tilbakeknapper):
+        // NB! Kopler til Toolbar (sørger for tilbakeknapper):
         NavigationUI.setupWithNavController(binding.myToolbar, navController, appBarConfiguration);
     }
 
@@ -65,10 +67,6 @@ public class TourActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { ;
-
-        NavController navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-        /*return NavigationUI.onNavDestinationSelected(item, navController)
-                || super.onOptionsItemSelected(item);*/
 
         switch (item.getItemId()) {
             case R.id.logout:
@@ -84,61 +82,33 @@ public class TourActivity extends AppCompatActivity {
                 }
             });
                 break;
-            case R.id.addTourFragment:
-                //need to check if designation is same then simply return
-
-                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-                if (navController.getCurrentDestination().getLabel().equals("fragment_add_tour")){
-                    return false;
-                }
-                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.actionMyToursListFragment_to_addTourFragment);
-                return NavigationUI.onNavDestinationSelected(item, navController)
-                        || super.onOptionsItemSelected(item);
-
-            case R.id.completedToursListFragment:
-                if (navController.getCurrentDestination().getLabel().equals("fragment_completed_tours_list")){
-                    return false;
-                }
-                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.myToursFragment_to_completedToursListFragment);
-                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-                return NavigationUI.onNavDestinationSelected(item, navController)
-                        || super.onOptionsItemSelected(item);
-            case R.id.myToursListFragment:
-                if (navController.getCurrentDestination().getLabel().equals("fragment_my_tours_list")){
-                    return false;
-                }
-                Navigation.findNavController(binding.tourNavHostFragment).navigate(R.id.myToursListFragment);
-                navController = Navigation.findNavController(this, binding.tourNavHostFragment.getId());
-                return NavigationUI.onNavDestinationSelected(item, navController)
-                        || super.onOptionsItemSelected(item);
             case R.id.settings:
                 Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
                 startActivity(intent);
                 return super.onOptionsItemSelected(item);
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
+                Log.d("DebugNav", "On menu selected:"+navController.getCurrentDestination().getLabel());
+                return NavigationUI.onNavDestinationSelected(item, navController)
+                    || super.onOptionsItemSelected(item);
 
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if(Navigation.findNavController(binding.tourNavHostFragment).popBackStack()) {
-        } else {
-            if(backButtonCount >= 1)
-            {
+    public void onBackPressed() {
+        if (navHostFragment.getChildFragmentManager().getBackStackEntryCount() == 0) {
+            Log.d("DebugNav", "onBackPressed:stack is 0 ");
+            if (backButtonCount >= 1) {
                 finishAffinity();
                 System.exit(0);
-            }
-            else
-            {
-                Toast.makeText(this, "Press bak knappen igjen for å avslutte applikasjonen", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.toast_press_back_again_to_finish), Toast.LENGTH_SHORT).show();
                 backButtonCount++;
             }
+        } else {
+            navController.popBackStack();
+            backButtonCount = 0;
         }
     }
 }
