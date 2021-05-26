@@ -40,52 +40,15 @@ import static org.osmdroid.tileprovider.util.StorageUtils.getStorage;
 public class AddTourFragment extends Fragment {
 
     private FragmentAddTourBinding binding;
-    DatePickerDialog picker;
     AddTourViewModel addTourViewModel;
 
     private SimpleDateFormat mSimpleDateFormat;
 
 
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public AddTourFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddTourFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddTourFragment newInstance(String param1, String param2) {
-        AddTourFragment fragment = new AddTourFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,9 +62,9 @@ public class AddTourFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (addTourViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
-//button will say choose tour on map
+            //button will say choose tour on map
             binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
-        } else{
+        } else {
             //button will say edit tour on map
             binding.btnChooseOnMap.setText(R.string.btn_edit_on_map);
         }
@@ -116,41 +79,12 @@ public class AddTourFragment extends Fragment {
 
         mSimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm", Locale.getDefault());
 
-
         binding.etTourStartTime.setInputType(InputType.TYPE_NULL);
         binding.etTourStartTime.setOnClickListener(textListenerStart);
         binding.etTourFinishTime.setInputType(InputType.TYPE_NULL);
         binding.etTourFinishTime.setOnClickListener(textListenerFinish);
 
-
-        binding.rgTourType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                addTourViewModel.setTourType(getTourType());
-            }
-        });
-
-
-        /*binding.etTourStartTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar cldr = Calendar.getInstance();
-                int day = cldr.get(Calendar.DAY_OF_MONTH);
-                int month = cldr.get(Calendar.MONTH);
-                int year = cldr.get(Calendar.YEAR);
-                // date picker dialog
-                picker = new DatePickerDialog(getContext(),
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                binding.etTourStartTime.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-                            }
-                        }, year, month, day);
-                picker.show();
-            }
-        });*/
-
-
+        binding.rgTourType.setOnCheckedChangeListener((group, checkedId) -> addTourViewModel.setTourType(getTourType()));
 
 
         binding.btnChooseOnMap.setOnClickListener(new View.OnClickListener() {
@@ -176,15 +110,15 @@ public class AddTourFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (addTourViewModel.getCalendarStart() == null || addTourViewModel.getCalendarFinish() == null) {
-                    Toast.makeText(requireContext(),R.string.toast_empty_date, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.toast_empty_date, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (binding.etTourName.getText().toString().isEmpty()) {
-                    Toast.makeText(requireContext(),R.string.toast_empty_name, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.toast_empty_name, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (binding.rgTourType.getCheckedRadioButtonId() == -1) {
-                    Toast.makeText(requireContext(),R.string.toast_empty_tourtype, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.toast_empty_tourtype, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (addTourViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
@@ -196,7 +130,6 @@ public class AddTourFragment extends Fragment {
                 long endTime = addTourViewModel.getCalendarFinish().getTimeInMillis();
                 addTourViewModel.setTourType(getTourType());
 
-//show some progress bar
                 addTourViewModel.addNewTour(binding.etTourName.getText().toString(),
                         startTime, endTime, addTourViewModel.getTourType(), TourStatus.NOT_STARTED.getValue());
             }
@@ -211,20 +144,18 @@ public class AddTourFragment extends Fragment {
 
         };
         addTourViewModel.getStatusOnAddTour().removeObserver(observer);
-        addTourViewModel.getStatusOnAddTour().observe(requireActivity(),observer);
+        addTourViewModel.getStatusOnAddTour().observe(requireActivity(), observer);
 
 
     }
 
     private int getTourType() {
         int tourType = 0;
-        if( binding.rbBicycling.isSelected()) {
+        if (binding.rbBicycling.isSelected()) {
             tourType = TourType.BIKING.getValue();
-        }
-        else if ( binding.rbSkiing.isSelected()) {
+        } else if (binding.rbSkiing.isSelected()) {
             tourType = TourType.SKIING.getValue();
-        }
-        else {
+        } else {
             tourType = TourType.WALKING.getValue();
         }
         return tourType;

@@ -20,10 +20,6 @@ public abstract class PhotoDAO {
     public abstract long insert(Photo photo);
 
     @Transaction
-    @Query("SELECT * FROM Photo WHERE 1")
-    public abstract LiveData<List<Photo>> getAllPhotos();
-
-    @Transaction
     @Update
     public abstract void update(Photo photo);
 

@@ -18,14 +18,10 @@ import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link com.aphex.mytourassistent.repository.db.entities.Tour}.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecyclerViewAdapter.ViewHolder> {
 
     private final List<Tour> mTours;
-    private ItemMyTourBinding binding;
-
-    private Context context;
 
     public MyTourRecyclerViewAdapter(List<Tour> items) {
         mTours = items;
@@ -40,12 +36,12 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
 
     public interface OnClickButton {
         public void onClickToDeleteTour(long tourId);
+
         public void onClickStartActiveTourActivity(long tourId, int tourStatus);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        context = parent.getContext();
         return new ViewHolder(ItemMyTourBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
@@ -68,15 +64,15 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
         }
 
         void bind(Tour tour) {
-            String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-                    .format(new Date(tour.startTimePlanned));
-            String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-                    .format(new Date(tour.finishTimePlanned));
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(binding.tvTourTitle.getContext().getString(R.string.date_format_simple));
+            String startDatePlanned = simpleDateFormat.format(new Date(tour.startTimePlanned));
+            String finishDatePlanned = simpleDateFormat.format(new Date(tour.finishTimePlanned));
             binding.tvTourTitle.setText(tour.title);
             String tourType = "";
             String tourStatus = "";
 
-            switch(tour.tourType) {
+            switch (tour.tourType) {
                 case 1:
                     tourType = itemView.getContext().getString(R.string.tour_type_walking);
                     break;
@@ -88,7 +84,7 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
                     break;
             }
 
-            switch(tour.tourStatus) {
+            switch (tour.tourStatus) {
                 case 1:
                     tourStatus = itemView.getContext().getString(R.string.status_not_started);
                     break;
@@ -105,23 +101,16 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
             binding.tvTourType.setText(tourType);
             binding.tvTourStatus.setText(tourStatus);
             binding.tvTourDateStart.setText(startDatePlanned);
-            binding.tvTourDateEnd.setText(startDatePlanned);
+            binding.tvTourDateEnd.setText(finishDatePlanned);
             if (tour.tourStatus == TourStatus.COMPLETED.getValue()) {
                 binding.btnTourStart.setVisibility(View.INVISIBLE);
             } else {
                 binding.btnTourStart.setOnClickListener(v -> {
-                    //check if
                     onClickButton.onClickStartActiveTourActivity(tour.tourId, tour.tourStatus);
                 });
             }
 
-            binding.ivDeleteTour.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onClickButton.onClickToDeleteTour(tour.tourId);
-
-                }
-            });
+            binding.ivDeleteTour.setOnClickListener(v -> onClickButton.onClickToDeleteTour(tour.tourId));
         }
     }
 }

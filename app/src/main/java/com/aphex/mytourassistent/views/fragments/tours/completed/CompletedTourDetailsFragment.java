@@ -2,7 +2,6 @@ package com.aphex.mytourassistent.views.fragments.tours.completed;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -13,13 +12,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -30,20 +22,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentCompletedTourDetailsBinding;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
-import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.views.activities.photos.PhotosActivity;
 
 import org.jetbrains.annotations.NotNull;
-import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
@@ -51,7 +45,6 @@ import org.osmdroid.views.overlay.advancedpolyline.MonochromaticPaintList;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -64,61 +57,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link CompletedTourDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class CompletedTourDetailsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private FragmentCompletedTourDetailsBinding binding;
     private ToursViewModel toursViewModel;
 
-    private CompletedTourDetailsFragmentArgs completedTourDetailsFragmentArgs;
     private long tourId;
     private boolean mIsFirstTime;
     private Polyline mPolyline;
     private CompassOverlay mCompassOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private ScaleBarOverlay mScaleBarOverlay;
-    private TourWithGeoPointsActual tourWithAllGeoPoints;
 
     public CompletedTourDetailsFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CompletedTourDetailsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CompletedTourDetailsFragment newInstance(String param1, String param2) {
-        CompletedTourDetailsFragment fragment = new CompletedTourDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -129,7 +83,6 @@ public class CompletedTourDetailsFragment extends Fragment {
         binding = FragmentCompletedTourDetailsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
-
 
 
     @Override
@@ -148,8 +101,10 @@ public class CompletedTourDetailsFragment extends Fragment {
 
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         toursViewModel.getTourWithGeoPointsActual(tourId, mIsFirstTime).observe(requireActivity(), tourWithGeoPointsActual -> {
+            if (!isAdded()) {
+                return;
+            }
             if (tourWithGeoPointsActual != null) {
-                this.tourWithAllGeoPoints = tourWithGeoPointsActual;
                 if (tourWithGeoPointsActual.tour.comment != null) {
                     binding.tvComment.setText(tourWithGeoPointsActual.tour.comment);
                     binding.btnAddComment.setText(R.string.btn_edit_comment);
@@ -157,18 +112,13 @@ public class CompletedTourDetailsFragment extends Fragment {
                     binding.btnAddComment.setText(R.string.btn_add_comment);
                 }
 
-                StringBuilder sb = new StringBuilder();
-                String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithGeoPointsActual.tour.startTimePlanned));
-                String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithGeoPointsActual.tour.finishTimePlanned));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(getString(R.string.date_format_detailed));
+                String startDatePlanned = simpleDateFormat.format(new Date(tourWithGeoPointsActual.tour.startTimePlanned));
+                String finishDatePlanned = simpleDateFormat.format(new Date(tourWithGeoPointsActual.tour.finishTimePlanned));
                 String tourType = "";
-                String tourStatus = "";
 
-                String startDateActual = new SimpleDateFormat("yyyy_MM_dd HH")
-                        .format(new Date(tourWithGeoPointsActual.tour.startTimeActual));
-                String finishDateActual = new SimpleDateFormat("yyyy_MM_dd HH")
-                        .format(new Date(tourWithGeoPointsActual.tour.finishTimeActual));
+                String startDateActual = simpleDateFormat.format(new Date(tourWithGeoPointsActual.tour.startTimeActual));
+                String finishDateActual = simpleDateFormat.format(new Date(tourWithGeoPointsActual.tour.finishTimeActual));
 
                 long difference = tourWithGeoPointsActual.tour.finishTimeActual - tourWithGeoPointsActual.tour.startTimeActual;
 
@@ -185,11 +135,6 @@ public class CompletedTourDetailsFragment extends Fragment {
                 String duration = elapsedDays
                         + " " + getString(R.string.days) + " ";
                 duration += elapsedHours + " " + getString(R.string.hours);
-
-
-
-
-
 
                 switch (tourWithGeoPointsActual.tour.tourType) {
                     case 1:
@@ -210,6 +155,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                 binding.tvTourDateStart.setText(new StringBuilder().append(getString(R.string.tours_list_date_start)).append(startDateActual).toString());
                 binding.tvTourDateEnd.setText(new StringBuilder().append(getString(R.string.tours_list_date_end)).append(finishDateActual).toString());
                 binding.tvTourDuration.setText(new StringBuilder().append(getString(R.string.tours_list_duration)).append(duration).toString());
+                toursViewModel.getGeoPointsOnCompleted().getValue().clear();
 
 
                 //Drawing the route
@@ -219,26 +165,23 @@ public class CompletedTourDetailsFragment extends Fragment {
                     mPolyline.addPoint(geoPt);
 
                     //Iterate and add all images
-                    for (Photo ph: gp.photos) {
+                    for (Photo ph : gp.photos) {
                         try {
                             Marker photoIcon = new Marker(binding.mapView);
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), Uri.parse(ph.imageUri));
                             Drawable dr = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int) (48.0f * getResources().getDisplayMetrics().density), (int) (48.0f * getResources().getDisplayMetrics().density), true));
                             photoIcon.setIcon(dr);
                             photoIcon.setPosition(geoPt);
-                            photoIcon.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                                @Override
-                                public boolean onMarkerClick(Marker marker, MapView mapView) {
-                                    Intent intent = new Intent(requireContext(), PhotosActivity.class);
-                                    intent.putExtra("GPA_ID", gp.geoPointActual.geoPointActualId);
-                                    startActivity(intent);
-                                    return true;
-                                }
+                            photoIcon.setOnMarkerClickListener((marker, mapView) -> {
+                                Intent intent = new Intent(requireContext(), PhotosActivity.class);
+                                intent.putExtra("GPA_ID", gp.geoPointActual.geoPointActualId);
+                                startActivity(intent);
+                                return true;
                             });
                             photoIcon.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                             binding.mapView.getOverlays().add(photoIcon);
                         } catch (IOException e) {
-
+                            e.printStackTrace();
 
                         }
                     }
@@ -259,8 +202,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                     startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
 
 
-
-                    GeoPoint geoPointFinish = Objects.requireNonNull(geoPoints).get(geoPoints.size()-1);
+                    GeoPoint geoPointFinish = Objects.requireNonNull(geoPoints).get(geoPoints.size() - 1);
                     Marker endMarker = new Marker(binding.mapView);
                     endMarker.setPosition(geoPointFinish);
                     endMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
@@ -272,72 +214,55 @@ public class CompletedTourDetailsFragment extends Fragment {
                 }
 
 
-
-
-                binding.btnAddComment.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-                        builder.setTitle(R.string.add_comment_dialog_title);
-                        EditText editText = new EditText(requireActivity());
-                        editText.setInputType(InputType.TYPE_CLASS_TEXT);
-                        builder.setView(editText);
-                        builder.setPositiveButton(R.string.btn_save_comment, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                binding.tvComment.setText(editText.getText());
-                                if (tourWithGeoPointsActual != null) {
-                                    toursViewModel.addComment(editText.getText().toString(), tourWithGeoPointsActual.tour);
-                                }
-                            }
-                        });
-                        builder.setNegativeButton(R.string.btn_cancel_comment, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                        builder.show();
-                    }
+                binding.btnAddComment.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                    builder.setTitle(R.string.add_comment_dialog_title);
+                    EditText editText = new EditText(requireActivity());
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                    builder.setView(editText);
+                    builder.setPositiveButton(R.string.btn_save_comment, (dialog, which) -> {
+                        binding.tvComment.setText(editText.getText());
+                        if (tourWithGeoPointsActual != null) {
+                            toursViewModel.addComment(editText.getText().toString(), tourWithGeoPointsActual.tour);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.btn_cancel_comment, (dialog, which) -> dialog.cancel());
+                    builder.show();
                 });
 
-                binding.btnShareTour.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ArrayList<Uri> photosUri = new ArrayList<>();
-                        Intent intent = new Intent();
-                        try {
-                            Bitmap mapScreenShot = getMapScreenShot();
-                            Uri uriMapScreenShot = saveImageToExternalStorage(requireActivity(), mapScreenShot);
-                            photosUri.add(uriMapScreenShot);
-                            if (binding.swIncludePhotos.isChecked()) {
-                                for (GeoPointActualWithPhotos gpa: tourWithGeoPointsActual.geoPointsActual) {
-                                    for (Photo photo: gpa.photos) {
-                                        photosUri.add(Uri.parse(photo.imageUri));
-                                    }
+                binding.btnShareTour.setOnClickListener(v -> {
+                    ArrayList<Uri> photosUri = new ArrayList<>();
+                    Intent intent = new Intent();
+                    try {
+                        Bitmap mapScreenShot = getMapScreenShot();
+                        Uri uriMapScreenShot = saveImageToExternalStorage(requireActivity(), mapScreenShot);
+                        photosUri.add(uriMapScreenShot);
+                        if (binding.swIncludePhotos.isChecked()) {
+                            for (GeoPointActualWithPhotos gpa : tourWithGeoPointsActual.geoPointsActual) {
+                                for (Photo photo : gpa.photos) {
+                                    photosUri.add(Uri.parse(photo.imageUri));
                                 }
-                                intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                                intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, photosUri);
-                            } else {
-                                intent.setAction(Intent.ACTION_SEND);
-                                intent.putExtra(Intent.EXTRA_STREAM,uriMapScreenShot);
                             }
-
-
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            intent.setType("image/*");
-                            Intent shareIntent = Intent.createChooser(intent, getString(R.string.share_with));
-
-                            List<ResolveInfo> resInfoList = requireActivity().getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
-
-                            for (ResolveInfo resolveInfo : resInfoList) {
-                                String packageName = resolveInfo.activityInfo.packageName;
-                                requireActivity().grantUriPermission(packageName, uriMapScreenShot, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            }
-                            startActivity(shareIntent);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, photosUri);
+                        } else {
+                            intent.setAction(Intent.ACTION_SEND);
+                            intent.putExtra(Intent.EXTRA_STREAM, uriMapScreenShot);
                         }
+
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        intent.setType("image/*");
+                        Intent shareIntent = Intent.createChooser(intent, getString(R.string.share_with));
+
+                        List<ResolveInfo> resInfoList = requireActivity().getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
+
+                        for (ResolveInfo resolveInfo : resInfoList) {
+                            String packageName = resolveInfo.activityInfo.packageName;
+                            requireActivity().grantUriPermission(packageName, uriMapScreenShot, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        }
+                        startActivity(shareIntent);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
 
@@ -360,47 +285,12 @@ public class CompletedTourDetailsFragment extends Fragment {
 
     }
 
-    //https://stackoverflow.com/questions/10753969/how-to-take-a-screenshot-of-the-current-mapview
+    //These codes are taken and edited partly from https://stackoverflow.com/questions/10753969/how-to-take-a-screenshot-of-the-current-mapview
     private Bitmap getMapScreenShot() throws IOException {
         boolean enabled = binding.mapView.isDrawingCacheEnabled();
         binding.mapView.setDrawingCacheEnabled(true);
         Bitmap bm = binding.mapView.getDrawingCache();
         return bm;
-//
-//        /* now you've got the bitmap - go save it */
-//
-//        File path = requireContext().getFilesDir();
-//        path = new File(path, "Pictures");
-//        path.mkdirs();  // make sure the Pictures folder exists.
-//        File file = new File(path, "filename.png");
-//        BufferedOutputStream outStream = null;
-//        try {
-//            outStream = new BufferedOutputStream(new FileOutputStream(file));
-//            boolean success = bm.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-//            outStream.flush();
-//            outStream.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
-
-//        Uri uri = Uri.fromFile(file);
-//
-//        Glide.with(this)
-//                .load(Uri.fromFile(file))
-//                .into(binding.imageView);
-////get bitmap from uri
-//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uri);
-//
-
-
-
-
-       // return Uri.fromFile(file);
-
     }
 
     public Uri saveImageToExternalStorage(
@@ -408,7 +298,7 @@ public class CompletedTourDetailsFragment extends Fragment {
             Bitmap bitmap
     ) {
         FileOutputStream outputStream = null;
-        Uri uri=null;
+        Uri uri = null;
         try {
             File picturesDirectory = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             File tempFile = File.createTempFile(
@@ -419,13 +309,13 @@ public class CompletedTourDetailsFragment extends Fragment {
             outputStream = new FileOutputStream(tempFile);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             uri = FileProvider.getUriForFile(
-                    activity, requireActivity().getPackageName()+".provider", tempFile
+                    activity, requireActivity().getPackageName() + ".provider", tempFile
             );
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             Log.e("Error", "Exception while saving image to external storage: ${e.message}"
-);
+            );
         } finally {
             try {
                 outputStream.close();
@@ -433,7 +323,6 @@ public class CompletedTourDetailsFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-
         return uri;
     }
 
@@ -459,7 +348,6 @@ public class CompletedTourDetailsFragment extends Fragment {
 
         binding.mapView.getOverlays().add(mPolyline);
 
-        //map_view.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
         binding.mapView.setTileSource(TileSourceFactory.MAPNIK);
         binding.mapView.setBuiltInZoomControls(true);
         binding.mapView.setMultiTouchControls(true);
@@ -481,51 +369,8 @@ public class CompletedTourDetailsFragment extends Fragment {
         final DisplayMetrics dm = getResources().getDisplayMetrics();
         mScaleBarOverlay = new ScaleBarOverlay(binding.mapView);
         mScaleBarOverlay.setCentred(true);
-        //play around with these values to get the location on screen in the right place for your application
+
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
         binding.mapView.getOverlays().add(this.mScaleBarOverlay);
-
-        // Fange opp posisjon i klikkpunkt på kartet:
-        final MapEventsReceiver mReceive = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
-                return false;
-            }
-
-            @Override
-            public boolean longPressHelper(GeoPoint p) {
-                return false;
-            }
-        };
-        binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
-
-
-       /* if (!activeTourViewModel.getGeoPointsPlanned(tourId).isEmpty()) {
-            //this means user already have selected geopoints
-            //in this case, we will connect all waypoints when user come to this screen
-            //wen need to iterate over all the waypoints and connect them together
-            //waypint1
-            //waypint 2
-            //waypint 3
-            //iteration 1
-
-
-            databaseWriteExecutor.execute(() -> {
-
-                for (GeoPoint gp: activeTourViewModel.getGeoPoints()) {
-                    Marker marker = new Marker(binding.mapView);
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                    marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
-                    marker.setPosition(gp);
-                    binding.mapView.getOverlays().add(marker);
-                }
-
-                RoadManager roadManager = new OSRMRoadManager(this, "Aaa");
-                Road road = roadManager.getRoad(activeTourViewModel.getGeoPoints());
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                binding.mapView.getOverlays().add(roadOverlay);
-            });
-        }*/
     }
 }

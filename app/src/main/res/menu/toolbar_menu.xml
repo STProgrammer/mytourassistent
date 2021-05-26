@@ -5,31 +5,31 @@
     <item
         android:id="@+id/addTourFragment"
         android:icon="@drawable/ic_baseline_add_circle_24"
-        app:showAsAction="always"
-        android:title="@string/btn_add_new_tour" />
+        android:title="@string/btn_add_new_tour"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/myToursListFragment"
         android:icon="@drawable/ic_baseline_view_list_24"
-        app:showAsAction="always"
-        android:title="@string/btn_tours_list" />
+        android:title="@string/btn_tours_list"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/completedToursListFragment"
         android:icon="@drawable/ic_baseline_history_24"
-        app:showAsAction="always"
-        android:title="@string/tours_history" />
+        android:title="@string/tours_history"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/settings"
         android:icon="@drawable/ic_baseline_settings_24"
-        app:showAsAction="always"
-        android:title="@string/action_settings" />
+        android:title="@string/action_settings"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/logout"
         android:icon="@drawable/ic_baseline_logout_24"
-        app:showAsAction="always"
-        android:title="@string/logout" />
+        android:title="@string/logout"
+        app:showAsAction="always" />
 
 </menu>

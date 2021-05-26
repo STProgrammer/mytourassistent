@@ -6,7 +6,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
@@ -31,11 +30,9 @@ import android.widget.Toast;
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.enums.TourType;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
-import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.viewmodels.ActiveTourViewModel;
 import com.aphex.mytourassistent.services.TourTrackingService;
 import com.aphex.mytourassistent.databinding.ActivityActiveTourBinding;
-import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
@@ -51,17 +48,12 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
-import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.MinimapOverlay;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.advancedpolyline.MonochromaticPaintList;
@@ -131,7 +123,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         }
         Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
-        tourId = getIntent().getLongExtra("TOUR_ID", 0L);getIntent().getIntExtra("TOUR_STATUS", 1);
 
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         binding = ActivityActiveTourBinding.inflate(layoutInflater);
@@ -144,7 +135,8 @@ public class ActiveTourActivity extends AppCompatActivity {
 
         activeTourViewModel = new ViewModelProvider(this).get(ActiveTourViewModel.class);
 
-
+        tourId = activeTourViewModel.getActivityTourId();
+        Log.d("Debug", "onCreate: "+tourId);
 
 
         binding.btnReset.setOnClickListener(v -> {
@@ -248,8 +240,7 @@ public class ActiveTourActivity extends AppCompatActivity {
             }
             if (activeTourViewModel.getCurrentLocation() != null) {
                 updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
-            }
-            else {
+            } else {
                 Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
             }
 
@@ -262,7 +253,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         initMap();
 
     }
-
 
 
     private void updateCurrentLocationIcon(GeoPoint gp) {
@@ -284,7 +274,8 @@ public class ActiveTourActivity extends AppCompatActivity {
     }
 
     private void startRecording() {
-        Intent intent = new Intent(this,TourTrackingService.class);
+        Intent intent = new Intent(this, TourTrackingService.class);
+        Log.d("Debug", "startRecording:" +tourId);
         intent.putExtra("TOUR_ID", tourId);
         intent.putExtra("TRAVEL_ORDER", travelOrder);
         startForegroundService(intent);
@@ -311,7 +302,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         activeTourViewModel.setCurrentZoom(binding.mapView.getZoomLevelDouble());
     }
 
-    
 
     public boolean hasPermissions(String... permissions) {
         if (permissions != null) {
@@ -325,7 +315,7 @@ public class ActiveTourActivity extends AppCompatActivity {
     }
 
     /**
-     * SE: http://developer.android.com/training/permissions/requesting.html#handle-response
+     * SEE: http://developer.android.com/training/permissions/requesting.html#handle-response
      * <p>
      * If the app does not has permission then the user will be prompted to grant permissions
      */
@@ -336,7 +326,8 @@ public class ActiveTourActivity extends AppCompatActivity {
                 .withPermissions(
                         requiredPermissions
                 ).withListener(new MultiplePermissionsListener() {
-            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
+            @Override
+            public void onPermissionsChecked(MultiplePermissionsReport report) {
                 Log.d("TAG", "onPermissionsChecked: ");
                 // check if all permissions are granted
                 if (report.areAllPermissionsGranted()) {
@@ -349,43 +340,13 @@ public class ActiveTourActivity extends AppCompatActivity {
                     showSettingsDialog();
                 }
             }
-            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                 token.continuePermissionRequest();
             }
         })
                 .check();
-//        if (!hasPermissions(requiredPermissions)) {
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
-//                Manifest.permission.ACCESS_FINE_LOCATION) ||
-//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
-//                        Manifest.permission.ACCESS_COARSE_LOCATION) ||
-//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
-//                        Manifest.permission.ACCESS_NETWORK_STATE) ||
-//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
-//                        Manifest.permission.ACCESS_WIFI_STATE) ||
-//                ActivityCompat.shouldShowRequestPermissionRationale(ActiveTourActivity.this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//            ActivityCompat.requestPermissions(this, requiredPermissions, CALLBACK_ALL_PERMISSIONS);
-//        } else {
-//            Toast.makeText(this, "User denied the permission permanently", Toast.LENGTH_SHORT).show();
-//
-//            //if(sh){
-//                // No explanation needed; request the permission
-//                // RESET PREFERENCE FLAG
-//
-//
-//                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-//                // app-defined int constant. The callback method gets the
-//                // result of the request.
-//          //  } else {
-//                // User denied previously and has checked "Never ask again"
-//                // show a toast with steps to manually enable it via settings
-//         //   }
-//        }
-//        // Kontrollerer om vi har tilgang til eksternt område:
-//        } else {
-//            initMap();
-//        }
     }
 
 
@@ -393,16 +354,16 @@ public class ActiveTourActivity extends AppCompatActivity {
     //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Need Permissions");
-        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
-        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+        builder.setTitle(R.string.need_permissions);
+        builder.setMessage(R.string.need_permissions_message);
+        builder.setPositiveButton(getString(R.string.dialog_go_to_settings), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
                 openSettings();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.btn_cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -424,52 +385,28 @@ public class ActiveTourActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            //Image Uri will not be null for RESULT_OK
 
+            Uri uri = data.getData();
+            Uri uriForFile = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", new File(uri.getPath()));
 
-                if (resultCode == Activity.RESULT_OK) {
-                    //Image Uri will not be null for RESULT_OK
+            //Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //imageView.setImageBitmap(imageBitmap);
 
-                    Uri uri = data.getData();
-                    Uri uriForFile = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", new File(uri.getPath()));
+            if (activeTourViewModel.getCurrentGeoPointActualId() < 0) {
+                Toast.makeText(this, R.string.toast_please_start_tour, Toast.LENGTH_SHORT).show();
+            } else {
+                activeTourViewModel.savePhoto(uriForFile.toString());
+                Toast.makeText(this, R.string.toast_photo_saved, Toast.LENGTH_SHORT).show();
+            }
 
-                    //Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    //imageView.setImageBitmap(imageBitmap);
-
-                    if (activeTourViewModel.getCurrentGeoPointActualId() < 0) {
-                        Toast.makeText(this, R.string.toast_please_start_tour, Toast.LENGTH_SHORT).show();
-                    } else {
-                        activeTourViewModel.savePhoto(uriForFile.toString());
-                        Toast.makeText(this, R.string.toast_photo_saved, Toast.LENGTH_SHORT).show();
-                    }
-
-                } else if (resultCode == ImagePicker.RESULT_ERROR) {
-                    Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
-                }
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ImagePicker.getError(data), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, getString(R.string.task_cancelled), Toast.LENGTH_SHORT).show();
+        }
     }
-
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        switch (requestCode) {
-//            case CALLBACK_ALL_PERMISSIONS:
-//                if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-//                    initMap();
-//                }
-//                return;
-//            case MY_CAMERA_REQUEST_CODE:
-//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    dispatchTakePictureIntent();
-//                } else {
-//                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-//                }
-//                return;
-//            default:
-//                Toast.makeText(this, "Feil ...! Ingen tilgang!!", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     Marker currentMarker;
 
@@ -524,71 +461,21 @@ public class ActiveTourActivity extends AppCompatActivity {
 
         initRouteTracking();
 
-
-       /* if (!activeTourViewModel.getGeoPointsPlanned(tourId).isEmpty()) {
-            //this means user already have selected geopoints
-            //in this case, we will connect all waypoints when user come to this screen
-            //wen need to iterate over all the waypoints and connect them together
-            //waypint1
-            //waypint 2
-            //waypint 3
-            //iteration 1
-
-
-            databaseWriteExecutor.execute(() -> {
-
-                for (GeoPoint gp: activeTourViewModel.getGeoPoints()) {
-                    Marker marker = new Marker(binding.mapView);
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                    marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
-                    marker.setPosition(gp);
-                    binding.mapView.getOverlays().add(marker);
-                }
-
-                RoadManager roadManager = new OSRMRoadManager(this, "Aaa");
-                Road road = roadManager.getRoad(activeTourViewModel.getGeoPoints());
-                Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                binding.mapView.getOverlays().add(roadOverlay);
-            });
-        }*/
     }
 
     public void initRouteTracking() {
-
-        //
-
-
+        Log.d("Debug", "initRouteTracking: "+tourId);
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
+
             if (tourWithAllGeoPoints != null) {
-                binding.progressBar.setVisibility(View.GONE);
+                this.tourWithAllGeoPoints = tourWithAllGeoPoints;
+
+                Log.d("ActiveDebug", "Here tour is not null");
 
                 activeTourViewModel.getTourStatus().postValue(tourWithAllGeoPoints.tour.tourStatus);
 
                 binding.tvActiveTourTitle.setText(getString(R.string.tours_list_title) + " " + tourWithAllGeoPoints.tour.title);
-
-                StringBuilder sb = new StringBuilder();
-                String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.startTimePlanned));
-                String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.finishTimePlanned));
-                String tourType = "";
-                String tourStatus = "";
-
-                this.tourWithAllGeoPoints = tourWithAllGeoPoints;
-
-                switch (tourWithAllGeoPoints.tour.tourType) {
-                    case 1:
-                        tourType = getString(R.string.tour_type_walking);
-                        break;
-                    case 2:
-                        tourType = getString(R.string.tour_type_bicycling);
-                        break;
-                    case 3:
-                        tourType = getString(R.string.tour_type_skiing);
-                        break;
-                }
 
                 if (!firstTimeLocation) {
                     //Start drawing based on tour status:
@@ -615,7 +502,6 @@ public class ActiveTourActivity extends AppCompatActivity {
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     marker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
                     GeoPoint geoPt = new GeoPoint(gp.lat, gp.lng);
                     marker.setPosition(geoPt);
                     activeTourViewModel.addToGeoPointsPlanned(geoPt);
@@ -623,24 +509,24 @@ public class ActiveTourActivity extends AppCompatActivity {
                 }
 
                 databaseWriteExecutor.execute(() -> {
-                    RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
+                    RoadManager roadManager = new GraphHopperRoadManager(getString(R.string.graphhopper_api_key), true);
                     if (tourWithAllGeoPoints.tour.tourType == TourType.WALKING.getValue()) {
-                        roadManager.addRequestOption("vehicle=foot");
-                        roadManager.addRequestOption("optimize=true");
-                    }
-                    else if (tourWithAllGeoPoints.tour.tourType == TourType.BIKING.getValue()) {
-                        roadManager.addRequestOption("vehicle=bike");
-                        roadManager.addRequestOption("optimize=true");
+                        roadManager.addRequestOption(getString(R.string.api_param_vehicle_foot));
+                        roadManager.addRequestOption(getString(R.string.api_param_optimize_true));
+                    } else if (tourWithAllGeoPoints.tour.tourType == TourType.BIKING.getValue()) {
+                        roadManager.addRequestOption(getString(R.string.api_param_vehicle_bike));
+                        roadManager.addRequestOption(getString(R.string.api_param_optimize_true));
                     } else if (tourWithAllGeoPoints.tour.tourType == TourType.SKIING.getValue()) {
-                        roadManager.addRequestOption("vehicle=hike");
-                        roadManager.addRequestOption("optimize=true");
+                        roadManager.addRequestOption(getString(R.string.api_param_vehicle_hike));
+                        roadManager.addRequestOption(getString(R.string.api_param_optimize_true));
                     }
                     Road road = roadManager.getRoad(activeTourViewModel.getGeoPointsPlanned().getValue());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                 });
 
-                // Punkter:
+
+                // Points:
                 if (mIsFirstTime && tourWithAllGeoPoints.tour.tourStatus == 2) {
 
                     GeoPoint geoPointStart = Objects.requireNonNull(activeTourViewModel.getGeoPointsPlanned().getValue()).get(0);
@@ -651,50 +537,44 @@ public class ActiveTourActivity extends AppCompatActivity {
                     startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     binding.mapView.getOverlays().add(startMarker);
                     startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
-                    startMarker.setTitle("Start point");
-                    //startMarker.setTextIcon("Startpunkt!");
 
                     binding.mapView.getOverlays().add(startMarker);
-                    //binding.mapView.getController().setCenter(geoPointStart);
-                    // firstTimeLocation = true;
+
                 }
             }
         });
 
         //listen to tour completion
-        activeTourViewModel.getTourStatus().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer status) {
-                switch (status) {
-                    case 1: //Not started
-                        binding.ivPlay.setVisibility(View.VISIBLE);
-                        binding.btnReset.setVisibility(View.VISIBLE);
-                        binding.ivPhoto.setVisibility(View.VISIBLE);
-                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
-                        break;
-                    case 2: //Active
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_started));
-                        binding.ivPlay.setVisibility(View.VISIBLE);
-                        binding.btnReset.setVisibility(View.VISIBLE);
-                        binding.ivPhoto.setVisibility(View.VISIBLE);
-                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
-                        break;
-                    case 3: //Paused
-                        binding.ivPlay.setVisibility(View.VISIBLE);
-                        binding.btnReset.setVisibility(View.VISIBLE);
-                        binding.ivPhoto.setVisibility(View.VISIBLE);
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
-                        binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
-                        break;
-                    case 4: //Completed
-                        binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
-                        binding.ivPlay.setVisibility(View.INVISIBLE);
-                        binding.btnReset.setVisibility(View.INVISIBLE);
-                        binding.ivPhoto.setVisibility(View.INVISIBLE);
-                        break;
-                    default:
-                        break;
-                }
+        activeTourViewModel.getTourStatus().observe(this, status -> {
+            switch (status) {
+                case 1: //Not started
+                    binding.ivPlay.setVisibility(View.VISIBLE);
+                    binding.btnReset.setVisibility(View.VISIBLE);
+                    binding.ivPhoto.setVisibility(View.VISIBLE);
+                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                    break;
+                case 2: //Active
+                    binding.tvInfo.setText(getString(R.string.tv_tracking_started));
+                    binding.ivPlay.setVisibility(View.VISIBLE);
+                    binding.btnReset.setVisibility(View.VISIBLE);
+                    binding.ivPhoto.setVisibility(View.VISIBLE);
+                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_pause_24));
+                    break;
+                case 3: //Paused
+                    binding.ivPlay.setVisibility(View.VISIBLE);
+                    binding.btnReset.setVisibility(View.VISIBLE);
+                    binding.ivPhoto.setVisibility(View.VISIBLE);
+                    binding.tvInfo.setText(getString(R.string.tv_tracking_paused));
+                    binding.ivPlay.setImageDrawable(getDrawable(R.drawable.ic_baseline_play_arrow_24));
+                    break;
+                case 4: //Completed
+                    binding.tvInfo.setText(getString(R.string.tv_tracking_completed));
+                    binding.ivPlay.setVisibility(View.INVISIBLE);
+                    binding.btnReset.setVisibility(View.INVISIBLE);
+                    binding.ivPhoto.setVisibility(View.INVISIBLE);
+                    break;
+                default:
+                    break;
             }
         });
 
@@ -703,124 +583,66 @@ public class ActiveTourActivity extends AppCompatActivity {
             binding.mapView.getController().setZoom(activeTourViewModel.getCurrentZoomLevel());
         }
 
-
-        //  activeTourViewModel.getTourWithGeoPointsPlanned()
-
-
         if (!showWeatherIsSet) {
             binding.tvWeather.setVisibility(View.GONE);
         }
 
-        activeTourViewModel.getWeatherData().observe(this, new Observer<Data>() {
-            @Override
-            public void onChanged(Data data) {
-                Log.d("DebugDate", "inside getWeatherDataObserver");
-                if (data == null) {
-                    binding.tvWeather.setText(getString(R.string.no_weather_information));
+        activeTourViewModel.getWeatherData().observe(this, data -> {
+            Log.d("DebugDate", "inside getWeatherDataObserver");
+            if (data == null) {
+                binding.tvWeather.setText(getString(R.string.no_weather_information));
+            } else {
+                Log.d("DebugDate", "inside getWeatherDataObserver data not null");
+                String valueToShow = getString(R.string.temperature_label);
+                valueToShow += data.getInstant().getDetails().getAirTemperature();
+                valueToShow += getString(R.string.relative_humidity_label);
+                valueToShow += data.getInstant().getDetails().getRelativeHumidity();
+                if (data.getNext1Hours() != null) {
+                    int resId = mappingWeatherSymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
+                    binding.ivWeatherIcon.setImageDrawable(getDrawable(resId));
                 }
-                else {
-                    Log.d("DebugDate", "inside getWeatherDataObserver data not null");
-                    String valueToShow = getString(R.string.temperature_label);
-                    valueToShow += data.getInstant().getDetails().getAirTemperature();
-                    valueToShow += getString(R.string.relative_humidity_label);
-                    valueToShow += data.getInstant().getDetails().getRelativeHumidity();
-                    if (data.getNext1Hours() != null) {
-                        int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
-                        binding.ivWeatherIcon.setImageDrawable(getDrawable(resId));
-                    }
-                    binding.tvWeather.setText(valueToShow);
-                }
+                binding.tvWeather.setText(valueToShow);
             }
         });
 
-        activeTourViewModel.getLastGeoPointRecorded().observe(ActiveTourActivity.this, new Observer<GeoPointActual>() {
-            @Override
-            public void onChanged(GeoPointActual geoPointActual) {
-                StringBuffer locationBuffer = new StringBuffer();
-                // Beregner avstand fra forrisge veipunkt:
-                Log.d("MY-LOCATION-DRAWING", geoPointActual.lat + "latitude");
+        activeTourViewModel.getLastGeoPointRecorded().observe(ActiveTourActivity.this, geoPointActual -> {
 
-                // Polyline: tegner stien.
-                GeoPoint gp = new GeoPoint(geoPointActual.lat, geoPointActual.lng);
-                activeTourViewModel.setCurrentLocation(gp);
+            Log.d("MY-LOCATION-DRAWING", geoPointActual.lat + "latitude");
 
-                activeTourViewModel.setCurrentGeoPointActualId(geoPointActual.geoPointActualId);
+            // Polyline: drwaing route.
+            GeoPoint gp = new GeoPoint(geoPointActual.lat, geoPointActual.lng);
+            activeTourViewModel.setCurrentLocation(gp);
 
-                mPolyline.addPoint(gp);
-                binding.mapView.getController().setCenter(gp);
-                binding.mapView.invalidate();  //tegner kartet på nytt.
+            activeTourViewModel.setCurrentGeoPointActualId(geoPointActual.geoPointActualId);
 
-                updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
+            mPolyline.addPoint(gp);
+            binding.mapView.getController().setCenter(gp);
+            binding.mapView.invalidate();  //drawing map again
 
-                //get weather data
-                if (showWeatherIsSet) {
-                    activeTourViewModel.updateWeatherData(geoPointActual.lat, geoPointActual.lng, new Date());
-                }
+            updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
+
+            //get weather data
+            if (showWeatherIsSet) {
+                activeTourViewModel.updateWeatherData(geoPointActual.lat, geoPointActual.lng, new Date());
             }
         });
-
 
 
     }
 
-    private int mappingWeathersymbolAndCode(String symbolCode) {
+    private int mappingWeatherSymbolAndCode(String symbolCode) {
         int resID = getResources().getIdentifier(symbolCode, "drawable", getPackageName());
         return resID;
-    }
-
-
-    //when we open this screen
-    // and tour is already in progress
-    //we will get all the previous geopointActual and draw them //TourWithAllGeoPoints
-    //we will listen to only the new geopointActual and append it with previous ones
-
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    String currentPhotoPath;
-
-    private File createImageFile() {
-        // Create an image file name
-        long lastGpId = activeTourViewModel.getLastGeoPointRecorded().getValue().geoPointActualId;
-        String imageFileName = lastGpId + "_" + tourId + "_" + System.currentTimeMillis();
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir + "/" +
-                imageFileName + ".jpeg");
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
     }
 
     private void dispatchTakePictureIntent() {
         ImagePicker.with(this)
                 .cameraOnly()
                 .saveDir(getExternalFilesDir(Environment.DIRECTORY_PICTURES))
-                .crop()	    			//Crop image(Optional), Check Customization for more option
-                .compress(1024)			//Final image size will be less than 1 MB(Optional)
-                .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
+                .crop()                    //Crop image(Optional), Check Customization for more option
+                .compress(1024)            //Final image size will be less than 1 MB(Optional)
+                .maxResultSize(1080, 1080)    //Final image resolution will be less than 1080 x 1080(Optional)
                 .start();
-
-//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//
-//        // Ensure that there's a camera activity to handle the intent
-//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//            // Create the File where the photo should go
-//            File photoFile = null;
-//            try {
-//                photoFile = createImageFile();
-//            } catch (IOException ex) {
-//                // Error occurred while creating the File
-//            }
-//            // Continue only if the File was successfully created
-//            if (photoFile != null) {
-//                Uri photoURI = FileProvider.getUriForFile(this,
-//                        BuildConfig.APPLICATION_ID + ".provider",
-//                        photoFile);
-//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-//
-//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-//            }
-//        }
     }
 
 }

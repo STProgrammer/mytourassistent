@@ -13,8 +13,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -141,17 +139,17 @@
                 android:id="@+id/btnTourDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="end"
                 android:layout_margin="5dp"
+                android:layout_weight="1"
                 android:text="@string/tours_list_details" />
 
             <ImageView
                 android:id="@+id/iv_delete_tour"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_gravity="end"
+                android:layout_weight="1"
                 app:srcCompat="@drawable/ic_baseline_delete_24" />
 
         </LinearLayout>

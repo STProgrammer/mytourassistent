@@ -42,7 +42,6 @@ public class MyToursListFragment extends Fragment {
     private ToursViewModel toursViewModel;
     private boolean mIsFirstTime;
     private FragmentMyToursListBinding binding;
-    private MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter;
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
@@ -81,68 +80,62 @@ public class MyToursListFragment extends Fragment {
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
         toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), tours -> {
-            if (!isAdded()){
+            if (!isAdded()) {
                 return;
             }
             binding.progressBar.setVisibility(View.GONE);
             if (tours.isEmpty()) {
-                    binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
-                    binding.list.setVisibility(View.GONE);
-                    return;
-                }
-                //we will have all the tours here when database returns values
-                //calculate the stuff once
-                toursViewModel.setCurrentActiveTour(tours);
-                // Set the adapter
-
-                if (mColumnCount <= 1) {
-                        binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
-                    } else {
-                        binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));
-                    }
-                    MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tours);
-                    binding.list.setAdapter(myMyTourRecyclerViewAdapter);
-                    myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
-                        @Override
-                        public void onClickToDeleteTour(long tourId) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-                            builder.setTitle(R.string.btn_delete_tour);
-                            builder.setMessage(R.string.are_you_sure_to_delete_tour);
-                            builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> {
-                                if (toursViewModel.getCurrentActiveTour() == tourId) {
-                                    requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
-                                }
-                                toursViewModel.deleteTour(tourId);
-                                //update the screen
-
-                            });
-                            builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
-                            builder.show();
+                binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
+                binding.list.setVisibility(View.GONE);
+                return;
+            }
 
 
-                    }
+            toursViewModel.setCurrentActiveTour(tours);
+            // Set the adapter
 
-                    @Override
-                    public void onClickStartActiveTourActivity(long tourId, int tourStatus) {
-                        //check if we can go further or not
-                        //check db
-                        if (toursViewModel.getCurrentActiveTour() == -1){
-                            startActiveTourActivity(tourId, tourStatus);
-                        } else if (toursViewModel.getCurrentActiveTour() == tourId) {
-                            startActiveTourActivity(tourId, tourStatus);
-                        } else {
-                            Toast.makeText(requireContext(), R.string.toast_alread_active_tour, Toast.LENGTH_SHORT).show();
+            if (mColumnCount <= 1) {
+                binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+            } else {
+                binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));
+            }
+            MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter = new MyTourRecyclerViewAdapter(tours);
+            binding.list.setAdapter(myMyTourRecyclerViewAdapter);
+            myMyTourRecyclerViewAdapter.setOnClickButton(new MyTourRecyclerViewAdapter.OnClickButton() {
+                @Override
+                public void onClickToDeleteTour(long tourId) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                    builder.setTitle(R.string.btn_delete_tour);
+                    builder.setMessage(R.string.are_you_sure_to_delete_tour);
+                    builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> {
+                        if (toursViewModel.getCurrentActiveTour() == tourId) {
+                            requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
                         }
+                        toursViewModel.deleteTour(tourId);
+                    });
+                    builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
+                    builder.show();
+                }
+
+                @Override
+                public void onClickStartActiveTourActivity(long tourId, int tourStatus) {
+                    if (toursViewModel.getCurrentActiveTour() == -1) {
+                        startActiveTourActivity(tourId, tourStatus);
+                    } else if (toursViewModel.getCurrentActiveTour() == tourId) {
+                        startActiveTourActivity(tourId, tourStatus);
+                    } else {
+                        Toast.makeText(requireContext(), R.string.toast_alread_active_tour, Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+            });
 
         });
     }
+
     public void startActiveTourActivity(long tourId, int tourStatus) {
         Intent intent = new Intent(requireContext(), ActiveTourActivity.class);
+        toursViewModel.setActivityTourId(tourId);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("TOUR_ID", tourId);
-        intent.putExtra("TOUR_STATUS", tourStatus);
         requireContext().startActivity(intent);
     }
 }

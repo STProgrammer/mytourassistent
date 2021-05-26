@@ -22,16 +22,12 @@ import java.util.List;
 public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapter<MyCompletedToursListRecyclerViewAdapter.ViewHolder> {
 
     private final List<Tour> mTours;
-    private ItemMyCompletedTourBinding binding;
-
-    private Context context;
+    public OnClickButton onClickButton;
 
     public MyCompletedToursListRecyclerViewAdapter(List<Tour> items) {
         mTours = items;
     }
 
-
-    public OnClickButton onClickButton;
 
     public void setOnClickButton(OnClickButton onClickButton) {
         this.onClickButton = onClickButton;
@@ -39,12 +35,12 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
 
     public interface OnClickButton {
         public void onClickToDetailsFragment(long tourId);
+
         public void onClickToDeleteTour(long tourId);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        context = parent.getContext();
         return new ViewHolder(ItemMyCompletedTourBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
@@ -67,10 +63,9 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
         }
 
         void bind(Tour tour) {
-            String startTimeActual = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-                    .format(new Date(tour.startTimeActual));
-            String finishTimeActual = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-                    .format(new Date(tour.finishTimeActual));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(binding.tvTourTitle.getContext().getString(R.string.date_format_simple));
+            String startTimeActual = simpleDateFormat.format(new Date(tour.startTimeActual));
+            String finishTimeActual = simpleDateFormat.format(new Date(tour.finishTimeActual));
 
             long difference = tour.finishTimeActual - tour.startTimeActual;
 
@@ -94,7 +89,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
             String tourStatus = "";
 
 
-            switch(tour.tourType) {
+            switch (tour.tourType) {
                 case 1:
                     tourType = itemView.getContext().getString(R.string.tour_type_walking);
                     break;
@@ -113,12 +108,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
 
             binding.btnTourDetails.setOnClickListener(v -> onClickButton.onClickToDetailsFragment(tour.tourId));
 
-            binding.ivDeleteTour.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onClickButton.onClickToDeleteTour(tour.tourId);
-                }
-            });
+            binding.ivDeleteTour.setOnClickListener(v -> onClickButton.onClickToDeleteTour(tour.tourId));
         }
     }
 }

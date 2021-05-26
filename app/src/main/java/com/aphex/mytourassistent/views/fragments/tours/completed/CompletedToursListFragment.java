@@ -31,9 +31,8 @@ import java.util.List;
  */
 public class CompletedToursListFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
+
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private ToursViewModel toursViewModel;
     private boolean mIsFirstTime;
@@ -45,16 +44,6 @@ public class CompletedToursListFragment extends Fragment {
      * fragment (e.g. upon screen orientation changes).
      */
     public CompletedToursListFragment() {
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static MyToursListFragment newInstance(int columnCount) {
-        MyToursListFragment fragment = new MyToursListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -85,45 +74,42 @@ public class CompletedToursListFragment extends Fragment {
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
-        toursViewModel.getAllCompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
-            @Override
-            public void onChanged(List<Tour> tours) {
-                if (!isAdded()){
-                    return;
-                }
-                if (tours.isEmpty()) {
-                    binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
-                    binding.list.setVisibility(View.GONE);
-                    return;
-                }
-                //we will have all the tours here when database returns values
-                // Set the adapter
-                    if (mColumnCount <= 1) {
-                        binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
-                    } else {
-                        binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));
-                    }
-                    MyCompletedToursListRecyclerViewAdapter myCompletedToursListRecyclerViewAdapter = new MyCompletedToursListRecyclerViewAdapter(tours);
-                    binding.list.setAdapter(myCompletedToursListRecyclerViewAdapter);
-                    myCompletedToursListRecyclerViewAdapter.setOnClickButton(new MyCompletedToursListRecyclerViewAdapter.OnClickButton() {
-                        @Override
-                        public void onClickToDetailsFragment(long tourId) {
-                            Navigation.findNavController(view).navigate(CompletedToursListFragmentDirections.completedToursListFragmentToCompletedTourDetailsFragment().setTOURID(tourId));
-                        }
-
-                        @Override
-                        public void onClickToDeleteTour(long tourId) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-                            builder.setTitle(R.string.btn_delete_tour);
-                            builder.setMessage(R.string.are_you_sure_to_delete_tour);
-                            builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> toursViewModel.deleteTour(tourId));
-                            builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
-                            builder.show();
-
-                        }
-                    });
-
+        toursViewModel.getAllCompletedTours(mIsFirstTime).observe(requireActivity(), tours -> {
+            if (!isAdded()) {
+                return;
             }
+            if (tours.isEmpty()) {
+                binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
+                binding.list.setVisibility(View.GONE);
+                return;
+            }
+            //we will have all the tours here when database returns values
+            // Set the adapter
+            if (mColumnCount <= 1) {
+                binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
+            } else {
+                binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));
+            }
+            MyCompletedToursListRecyclerViewAdapter myCompletedToursListRecyclerViewAdapter = new MyCompletedToursListRecyclerViewAdapter(tours);
+            binding.list.setAdapter(myCompletedToursListRecyclerViewAdapter);
+            myCompletedToursListRecyclerViewAdapter.setOnClickButton(new MyCompletedToursListRecyclerViewAdapter.OnClickButton() {
+                @Override
+                public void onClickToDetailsFragment(long tourId) {
+                    Navigation.findNavController(view).navigate(CompletedToursListFragmentDirections.completedToursListFragmentToCompletedTourDetailsFragment().setTOURID(tourId));
+                }
+
+                @Override
+                public void onClickToDeleteTour(long tourId) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+                    builder.setTitle(R.string.btn_delete_tour);
+                    builder.setMessage(R.string.are_you_sure_to_delete_tour);
+                    builder.setPositiveButton(R.string.btn_yes, (dialog, which) -> toursViewModel.deleteTour(tourId));
+                    builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
+                    builder.show();
+
+                }
+            });
+
         });
 
     }

@@ -1,37 +1,23 @@
 <resources>
+
+    <!--Login related strings-->
     <string name="app_name">My Tour Assistent</string>
     <string name="brukernavn">Username</string>
     <string name="passord">Password</string>
     <string name="login">Login</string>
-    <string name="glemt_passord">Forgot password</string>
     <string name="registrere">Register</string>
-    <string name="rediger">Edit user</string>
     <string name="epost">Email</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="register_first_name">Firstname</string>
     <string name="register_last_name">Lastname</string>
     <string name="already_registered_login">Already registered?</string>
-    <string name="title_activity_tour">My tours</string>
+    <string name="logout">Logout</string>
+
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
-
-        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
-    </string>
     <string name="action_settings">Settings</string>
-
     <string name="title_activity_settings">Settings</string>
 
 
@@ -49,6 +35,20 @@
     <string name="toast_empty_date">Date is empty</string>
     <string name="toast_empty_name">Name is empty</string>
     <string name="toast_empty_tourtype">Please choose tour type</string>
+    <string name="toast_tour_added">New tour added</string>
+    <string name="toast_failed_to_add_tour">Failed to add tour</string>
+    <string name="toast_select_start_date_first">Select a start date first</string>
+    <string name="toast_select_end_date_first">Please select end date first!</string>
+    <string name="weather_start_point_label">Start point weather: \n</string>
+    <string name="weather_end_point_label">End point weather: \n</string>
+    <string name="btn_clear">Clear plan</string>
+    <string name="btn_finished">Finished</string>
+    <string name="toast_empty_geopoints">Please select some points</string>
+    <string name="tour_detail_start_date_planned">Start date planned:</string>
+    <string name="tour_detail_finish_date_planned">"Finish date planned: "</string>
+    <string name="tour_detail_tour_type">"Tour type: "</string>
+    <string name="tours_list_date_end_plan">Planned end date</string>
+    <string name="toast_select_tour_type_first">Please select tour type first!</string>
 
     <!-- Tours list -->
     <string name="tours_list_title">Title: </string>
@@ -57,7 +57,14 @@
     <string name="tours_list_type">Tour type: </string>
     <string name="tours_list_details">Details</string>
     <string name="tours_list_start">Start</string>
-
+    <string name="toast_alread_active_tour">There\'s already active tour, you can\'t have more than one active tours</string>
+    <string name="tours_history">Completed tours list</string>
+    <string name="btn_tours_list">Uncompleted tours</string>
+    <string name="tours_list_view">View</string>
+    <string name="tours_list_date_start">"Start time: "</string>
+    <string name="tours_list_date_end">"Finish time: "</string>
+    <string name="no_completed_tours">There are no completed tours currently!</string>
+    <string name="no_tours">There are no tours!</string>
 
     <!-- Preference Titles -->
     <string name="settings_header">Tour settings</string>
@@ -81,12 +88,16 @@
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
     <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="btn_clear">Clear plan</string>
-    <string name="btn_finished">Finished</string>
-    <string name="toast_empty_geopoints">Please select some points</string>
+
+
+    <!--Active Tour-->
+    <string name="notification_pause">Pause tour</string>
+    <string name="notification_stop">End the tour</string>
+    <string name="toast_please_start_tour">Please start the tour first!</string>
+    <string name="toast_photo_saved">Photo is saved</string>
+    <string name="are_you_sure_to_complete_tour">Are you sure to complete tour? (You can\'t start it again)</string>
     <string name="tour_list_status_completed">Completed</string>
     <string name="tour_list_status_started">Started</string>
     <string name="tour_list_status_new">Not started</string>
@@ -95,66 +106,63 @@
     <string name="btn_stop_tracking">Complete tour</string>
     <string name="btn_pause_tracking">Pause</string>
     <string name="btn_take_picture">Take photo</string>
-    <string name="tour_detail_start_date_planned">Start date planned:</string>
-    <string name="tour_detail_finish_date_planned">"Finish date planned: "</string>
-    <string name="tour_detail_tour_type">"Tour type: "</string>
     <string name="tv_tracking_started">Tracking going on</string>
     <string name="tv_tracking_paused">Tracking paused</string>
     <string name="tv_tracking_completed">Tracking completed</string>
     <string name="tv_tracking_reset">Tracking restarted</string>
-    <string name="tours_list_date_end_plan">Planned end date</string>
-    <string name="tours_history">Completed tours list</string>
-    <string name="logout">Logout</string>
-    <string name="btn_tours_list">Uncompleted tours</string>
-    <string name="tours_list_view">View</string>
-    <string name="tours_list_date_start">"Start time: "</string>
-    <string name="tours_list_date_end">"Finish time: "</string>
-    <string name="toast_tour_added">New tour added</string>
-    <string name="toast_failed_to_add_tour">Failed to add tour</string>
-    <string name="toast_cant_find_my_location">Can\'t find current location</string>
-    <string name="notification_pause">Pause tour</string>
-    <string name="notification_stop">End the tour</string>
-    <string name="toast_alread_active_tour">There\'s already active tour, you can\'t have more than one active tours</string>
+
+    <!--setting-->
     <string name="max_limit_header">Max time limit</string>
     <string name="max_time_checkbox">Enable auto-cancellation of tour tracking</string>
     <string name="settings_nr_of_hours">Number of hours</string>
-    <string name="toast_select_start_date_first">Select a start date first</string>
-    <string name="toast_select_end_date_first">Please select end date first!</string>
-    <string name="weather_settings">Weather settings</string>
-    <string name="show_weather_checkbox">Show weather data</string>
-    <string name="comment_label">"Comment about tour: "</string>
-    <string name="btn_add_comment">Add comment</string>
-    <string name="btn_share_tour">Share tour</string>
-    <string name="toast_photo_saved">Photo is saved</string>
-    <string name="toast_please_start_tour">Please start the tour first!</string>
-    <string name="add_comment_dialog_title">Write your comment here</string>
-    <string name="btn_save_comment">Save comment</string>
-    <string name="btn_cancel_comment">Cancel</string>
-    <string name="btn_edit_comment">Edit comment</string>
-    <string name="share_with">Share Tour</string>
-    <string name="sw_include_photos">Include all photos from tour when sharing</string>
-    <string name="toast_select_tour_type_first">Please select tour type first!</string>
     <string name="delete_your_account">Delete your account</string>
     <string name="delete_user_dialog_title">Warning!</string>
     <string name="are_you_sure_to_delete">Are you sure to delete your account?</string>
     <string name="toast_user_deleted">The user is deleted!</string>
     <string name="toast_wrong_password">Incorrect password!</string>
-    <string name="btn_yes">Yes</string>
-    <string name="btn_cancel">Cancel</string>
+    <string name="sw_include_photos">Include all photos from tour when sharing</string>
+    <string name="toast_failed_to_delete_user">Failed to delete user!</string>
+
+    <!--Tour details-->
+    <string name="comment_label">"Comment about tour: "</string>
+    <string name="btn_add_comment">Add comment</string>
+    <string name="btn_share_tour">Share tour</string>
+    <string name="btn_save_comment">Save comment</string>
+    <string name="btn_cancel_comment">Cancel</string>
+    <string name="btn_edit_comment">Edit comment</string>
+    <string name="share_with">Share Tour</string>
+    <string name="are_you_sure_to_delete_tour">Are you sure to delete the tour?</string>
     <string name="btn_delete_tour">Delete tour</string>
     <string name="tours_list_duration">"Duration: "</string>
-    <string name="days">days</string>
-    <string name="hours">hours</string>
-    <string name="no_completed_tours">There are no completed tours currently!</string>
-    <string name="no_tours">There are no tours!</string>
-    <string name="toast_press_back_again_to_finish">Press back button again to close the application</string>
+    <string name="add_comment_dialog_title">Write your comment here</string>
+
+    <!--Weather stuff -->
+    <string name="weather_settings">Weather settings</string>
+    <string name="toast_cant_find_my_location">Can\'t find current location</string>
+    <string name="show_weather_checkbox">Show weather data</string>
     <string name="temperature_label">"Air temperature in Celcius: "</string>
     <string name="relative_humidity_label">\"\n Relative humidity: \"</string>
     <string name="no_weather_information">No weather information!</string>
-    <string name="are_you_sure_to_delete_tour">Are you sure to delete the tour?</string>
-    <string name="are_you_sure_to_complete_tour">Are you sure to complete tour? (You can\'t start it again)</string>
-    <string name="weather_start_point_label">Start point weather: \n</string>
-    <string name="weather_end_point_label">End point weather: \n</string>
 
+    <!--Graphhopper API related-->
+    <string name="graphhopper_api_key">e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9</string>
+    <string name="api_param_vehicle_foot">vehicle=foot</string>
+    <string name="api_param_optimize_true">optimize=true</string>
+    <string name="api_param_vehicle_bike">vehicle=bike</string>
+    <string name="api_param_vehicle_hike">vehicle=hike</string>
+
+    <!--Other strings-->
+    <string name="dialog_go_to_settings">GO TO SETTINGS</string>
+    <string name="task_cancelled">Task Cancelled</string>
+    <string name="date_format_detailed">yyyy_MM_dd HH:mm</string>
+    <string name="need_permissions">Need Permissions</string>
+    <string name="need_permissions_message">This app needs permission to use this feature. You can grant them in app settings.</string>
+    <string name="date_format_simple">yyyy-MM-dd HH</string>
+    <string name="toast_press_back_again_to_finish">Press back button again to close the application</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="title_activity_tour">My tours</string>
 
 </resources>

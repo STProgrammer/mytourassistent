@@ -8,22 +8,16 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.repository.Repository;
-import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
-import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
-import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.repository.network.models.Data;
 
-import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class AddTourViewModel extends AndroidViewModel {
-
 
 
     private Calendar mCalendarStart;
@@ -33,13 +27,9 @@ public class AddTourViewModel extends AndroidViewModel {
 
     private MutableLiveData<GeoPoint> firstGeoPoint;
     private MutableLiveData<GeoPoint> lastGeoPoint;
-
     private MutableLiveData<ArrayList<GeoPoint>> geoPointsPlanning;
 
-
-
     private Repository repository;
-
 
 
     public AddTourViewModel(@NonNull Application application) {
@@ -55,7 +45,6 @@ public class AddTourViewModel extends AndroidViewModel {
     public LiveData<ArrayList<GeoPoint>> getGeoPointsPlanning() {
         return geoPointsPlanning;
     }
-
 
 
     public void addNewTour(String tourName, long startTime, long endTime, int tourType, int tourStatus) {
@@ -88,8 +77,8 @@ public class AddTourViewModel extends AndroidViewModel {
     }
 
     public void getWeatherData(double latitude, double longitude, boolean isFirstGp) {
-        Date time = isFirstGp ? mCalendarStart.getTime(): mCalendarFinish.getTime();
-         repository.getWeatherData(latitude, longitude, time, isFirstGp);
+        Date time = isFirstGp ? mCalendarStart.getTime() : mCalendarFinish.getTime();
+        repository.getWeatherData(latitude, longitude, time, isFirstGp);
     }
 
     public Calendar getCalendarStart() {
@@ -108,14 +97,13 @@ public class AddTourViewModel extends AndroidViewModel {
         this.mCalendarFinish = mCalendarFinish;
     }
 
-    public LiveData<Data> getFirstWeatherGeopointResponse() {
+    public LiveData<Data> getFirstWeatherGeoPointResponse() {
         return repository.getFirstWeatherLiveData();
     }
 
-    public LiveData<Data> getLastWeatherGeopointResponse() {
+    public LiveData<Data> getLastWeatherGeoPointResponse() {
         return repository.getLastWeatherLiveData();
     }
-
 
     public int getTourType() {
         return tourType;
@@ -125,7 +113,7 @@ public class AddTourViewModel extends AndroidViewModel {
         this.tourType = tourType;
     }
 
-    public void init(){
+    public void init() {
         geoPointsPlanning = new MutableLiveData<>();
         geoPointsPlanning.setValue(new ArrayList<>());
         firstGeoPoint = new MutableLiveData<>();

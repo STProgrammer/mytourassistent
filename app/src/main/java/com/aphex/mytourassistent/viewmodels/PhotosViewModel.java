@@ -1,4 +1,4 @@
-package com.aphex.mytourassistent.views.activities.photos;
+package com.aphex.mytourassistent.viewmodels;
 
 import android.app.Application;
 

@@ -8,36 +8,30 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
-import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.repository.network.models.Data;
 
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class ActiveTourViewModel extends AndroidViewModel {
 
-    private Calendar mCalendarStart;
-    private Calendar mCalendarFinish;
-    private String tourName;
-    private String tourType;
 
-    private MutableLiveData<ArrayList<GeoPoint>> geoPointsPlanned;
-    private MutableLiveData<ArrayList<GeoPoint>> geoPointsActual;
-    private MutableLiveData<Tour> tour;
+    private final MutableLiveData<ArrayList<GeoPoint>> geoPointsPlanned;
+    private final MutableLiveData<ArrayList<GeoPoint>> geoPointsActual;
 
-    private Repository repository;
+    private final Repository repository;
     private GeoPoint currentLocation;
     private long currentGeoPointActualId = -1;
 
-    
+
     private double currentZoomLevel;
 
 
@@ -58,43 +52,12 @@ public class ActiveTourViewModel extends AndroidViewModel {
         return geoPointsPlanned;
     }
 
-
-    public void addNewTour(String tourName, long startTime, long endTime, int tourType, int tourStatus) {
-        repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPointsPlanned.getValue());
-    }
-
-    public LiveData<List<Tour>> getAllTours(boolean mIsFirstTime) {
-        return repository.getAllUncompletedTours(mIsFirstTime);
-    }
-
-    public LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId, boolean mIsFirstTime) {
-            return repository.getGeoPointsPlanned(tourId, mIsFirstTime);
-    }
-
-    public void addToGeoPointsActual(GeoPoint gp) {
-        geoPointsActual.getValue().add(gp);
-    }
-
     public LiveData<ArrayList<GeoPoint>> getGeoPointsActual() {
         return geoPointsActual;
     }
 
-    public MutableLiveData<Tour> getTour(long tourId) {
-        return repository.getTour(tourId);
-    }
-
     public LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId, boolean mIsFirstTime) {
         return repository.getTourWithAllGeoPoints(tourId, mIsFirstTime);
-    }
-
-    public void addGeoPointsActual(GeoPointActual gpa) {
-        repository.addGeoPointsActual(gpa);
-    }
-
-    public void startTour(long tourId, long startTime, int status) {
-        repository.startTour(tourId, startTime, status);
-
-
     }
 
     public void clearGeoPoints(long tourId) {
@@ -105,20 +68,20 @@ public class ActiveTourViewModel extends AndroidViewModel {
         repository.updateTour(tour);
     }
 
-    public void setCurrentLocation(GeoPoint gp) {
-        currentLocation = gp;
-    }
-
     public GeoPoint getCurrentLocation() {
         return currentLocation;
     }
 
-    public void setCurrentGeoPointActualId(long gpaId) {
-        currentGeoPointActualId = gpaId;
+    public void setCurrentLocation(GeoPoint gp) {
+        currentLocation = gp;
     }
 
     public long getCurrentGeoPointActualId() {
         return currentGeoPointActualId;
+    }
+
+    public void setCurrentGeoPointActualId(long gpaId) {
+        currentGeoPointActualId = gpaId;
     }
 
     public void setCurrentZoom(double zoomLevelDouble) {
@@ -127,10 +90,6 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public double getCurrentZoomLevel() {
         return currentZoomLevel;
-    }
-
-    public long getLastInsertedGeoPointActualId(long tourId) {
-        return repository.getLastInsertedGeoPointActualId(tourId);
     }
 
 
@@ -152,8 +111,10 @@ public class ActiveTourViewModel extends AndroidViewModel {
 
     public void savePhoto(String uri) {
         repository.savePhoto(uri, currentGeoPointActualId);
-        Log.d("PhotoDebug", "current gp:" + currentGeoPointActualId);
     }
 
 
+    public long getActivityTourId() {
+        return repository.getActivityTourId();
+    }
 }

@@ -10,12 +10,12 @@
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_alignParentTop="true"
         android:background="@color/light_blue_900"
         android:elevation="4dp"
-        app:theme="@style/ToolBarStyle"
-        android:layout_alignParentTop="true"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ToolBarStyle" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/tour_nav_host_fragment"

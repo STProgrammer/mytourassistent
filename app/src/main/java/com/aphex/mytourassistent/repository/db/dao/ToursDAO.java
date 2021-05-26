@@ -31,10 +31,6 @@ public abstract class ToursDAO {
 
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
-    public abstract LiveData<Tour> getTour(long tourId);
-
-    @Transaction
-    @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
     public abstract TourWithAllGeoPoints getTourWithAllGeoPoints(long tourId);
 
 
@@ -49,10 +45,6 @@ public abstract class ToursDAO {
     @Transaction
     @Query("DELETE FROM Tour WHERE Tour.tourId = :tourId")
     public abstract void delete(long tourId);
-
-    @Transaction
-    @Query("UPDATE Tour SET startTimeActual = :startTime, tourStatus = :status WHERE Tour.tourId = :tourId")
-    public abstract void startTour(long tourId, long startTime, int status);
 
     @Transaction
     @Update

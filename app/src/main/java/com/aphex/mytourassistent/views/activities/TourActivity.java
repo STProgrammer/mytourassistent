@@ -2,10 +2,8 @@ package com.aphex.mytourassistent.views.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -23,8 +21,7 @@ import com.aphex.mytourassistent.viewmodels.AddTourViewModel;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.databinding.ActivityTourBinding;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 
 public class TourActivity extends AppCompatActivity {
 
@@ -49,18 +46,14 @@ public class TourActivity extends AppCompatActivity {
 
         addTourViewModel = new ViewModelProvider(this).get(AddTourViewModel.class);
 
-        // Henter referanse til NavController-objektet.
-        // Gjøres ulikt avhengig av om man bruker <fragment../> eller <FragmentContainerView.../>
-        // i activity_main.xml. Her brukes vi FragmentContainerView i activity_main.xml
-        // og finner derfor objektet slik:
          navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(binding.tourNavHostFragment.getId());
         navController = navHostFragment.getNavController();
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
 
-        // Kopler til nav drawer:
-        // NB! Kopler til Toolbar (sørger for tilbakeknapper):
+        // Connect to Nav drawer:
+        // Connecting to Toolbar to get "back button"
         NavigationUI.setupWithNavController(binding.myToolbar, navController, appBarConfiguration);
     }
 
@@ -69,22 +62,21 @@ public class TourActivity extends AppCompatActivity {
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { ;
 
         switch (item.getItemId()) {
             case R.id.logout:
                 AuthUI.getInstance().signOut(this)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-            });
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
                 break;
             case R.id.settings:
                 Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
@@ -109,8 +101,7 @@ public class TourActivity extends AppCompatActivity {
         if (navHostFragment.getChildFragmentManager().getBackStackEntryCount() == 0) {
             Log.d("DebugNav", "onBackPressed:stack is 0 ");
             if (backButtonCount >= 1) {
-                finishAffinity();
-                System.exit(0);
+               finish();
             } else {
                 Toast.makeText(this, getString(R.string.toast_press_back_again_to_finish), Toast.LENGTH_SHORT).show();
                 backButtonCount++;

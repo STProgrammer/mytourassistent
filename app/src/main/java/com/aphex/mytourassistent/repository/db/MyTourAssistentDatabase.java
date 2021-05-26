@@ -31,7 +31,7 @@ public abstract class MyTourAssistentDatabase extends RoomDatabase {
 
     public abstract PhotoDAO photoDAO();
 
-    // volatile: har sammenheng med multithreading. Sikrer at alle tråder ser samme kopi av INSTANCE.
+
     private static volatile MyTourAssistentDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor =

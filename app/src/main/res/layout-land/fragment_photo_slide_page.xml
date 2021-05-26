@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
-    >
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/ivPhoto"
         android:layout_width="400dp"
         android:layout_height="match_parent"
-        android:src="@drawable/logoturapp"
-        android:layout_margin="16dp"
         android:layout_centerVertical="true"
-        android:scaleType="centerInside"
-        />
+        android:layout_margin="16dp"
+        android:scaleType="centerInside" />
 
 </LinearLayout>

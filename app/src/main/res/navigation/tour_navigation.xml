@@ -9,7 +9,7 @@
         android:id="@+id/myToursListFragment"
         android:name="com.aphex.mytourassistent.views.fragments.tours.MyToursListFragment"
         android:label="fragment_my_tours_list"
-        tools:layout="@layout/fragment_my_tours_list" >
+        tools:layout="@layout/fragment_my_tours_list">
         <action
             android:id="@+id/actionMyToursListFragment_to_addTourFragment"
             app:destination="@id/addTourFragment" />
@@ -36,7 +36,7 @@
         android:id="@+id/chooseTourOnMapFragment"
         android:name="com.aphex.mytourassistent.views.fragments.tours.add.ChooseTourOnMapFragment"
         android:label="fragment_choose_tour_on_map"
-        tools:layout="@layout/fragment_choose_tour_on_map" >
+        tools:layout="@layout/fragment_choose_tour_on_map">
         <action
             android:id="@+id/action_chooseTourOnMapFragment_to_addTourFragment"
             app:destination="@id/addTourFragment" />
@@ -45,7 +45,7 @@
         android:id="@+id/completedToursListFragment"
         android:name="com.aphex.mytourassistent.views.fragments.tours.completed.CompletedToursListFragment"
         android:label="fragment_completed_tours_list"
-        tools:layout="@layout/fragment_completed_tours_list" >
+        tools:layout="@layout/fragment_completed_tours_list">
         <action
             android:id="@+id/completedToursListFragment_to_completedTourDetailsFragment"
             app:destination="@id/completedTourDetailsFragment" />
@@ -54,11 +54,11 @@
         android:id="@+id/completedTourDetailsFragment"
         android:name="com.aphex.mytourassistent.views.fragments.tours.completed.CompletedTourDetailsFragment"
         android:label="fragment_completed_tour_details"
-        tools:layout="@layout/fragment_completed_tour_details" >
+        tools:layout="@layout/fragment_completed_tour_details">
         <argument
             android:name="TOUR_ID"
-            app:argType="long"
-            android:defaultValue="0L" />
+            android:defaultValue="0L"
+            app:argType="long" />
         <action
             android:id="@+id/action_completedTourDetailsFragment_to_completedToursListFragment"
             app:destination="@id/completedToursListFragment" />

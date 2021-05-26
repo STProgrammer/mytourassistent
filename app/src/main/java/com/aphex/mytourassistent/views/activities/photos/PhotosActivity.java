@@ -5,18 +5,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.widget.Toast;
 
-import com.aphex.mytourassistent.R;
-import com.aphex.mytourassistent.databinding.ActivityActiveTourBinding;
 import com.aphex.mytourassistent.databinding.ActivityPhotosBinding;
-
-import java.util.List;
+import com.aphex.mytourassistent.viewmodels.PhotosViewModel;
 
 public class PhotosActivity extends AppCompatActivity {
 
@@ -46,6 +41,7 @@ public class PhotosActivity extends AppCompatActivity {
         // Abonnerer på endringer:
         photosViewModel.loadPhotos(geoPointId);
         photosViewModel.getPhotos().observe(this, photos -> {
+
            NUM_PAGES = photos.size();
            pagerAdapter = new ScreenSlidePagerAdapter(this);
            binding.viewPager.setAdapter(pagerAdapter);

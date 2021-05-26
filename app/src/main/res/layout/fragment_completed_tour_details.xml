@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".views.fragments.tours.completed.CompletedTourDetailsFragment">
 
     <org.osmdroid.views.MapView
@@ -17,26 +16,27 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_tour_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="Tour title" />
+            <TextView
+                android:id="@+id/tv_tour_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="Tour title" />
 
-                <TextView
-                    android:id="@+id/tv_tour_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="Tour type" />
+            <TextView
+                android:id="@+id/tv_tour_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="Tour type" />
 
             <TextView
                 android:id="@+id/tv_tour_date_plan_start"
@@ -55,30 +55,30 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="9/5/2021" />
 
-                <TextView
-                    android:id="@+id/tv_tour_date_start"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="9/5/2021" />
+            <TextView
+                android:id="@+id/tv_tour_date_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
 
 
-                <TextView
-                    android:id="@+id/tv_tour_date_end"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="9/5/2021" />
+            <TextView
+                android:id="@+id/tv_tour_date_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
 
-                <TextView
-                    android:id="@+id/tv_tour_duration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="40 days 15 hours" />
+            <TextView
+                android:id="@+id/tv_tour_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="40 days 15 hours" />
 
 
             <TextView

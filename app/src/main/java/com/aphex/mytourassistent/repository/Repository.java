@@ -8,18 +8,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
-import com.aphex.mytourassistent.repository.db.entities.Photo;
-import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
-import com.aphex.mytourassistent.repository.network.api.WeatherAPI;
+import com.aphex.mytourassistent.repository.db.MyTourAssistentDatabase;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsActualDAO;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsPlannedDAO;
+import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
 import com.aphex.mytourassistent.repository.db.dao.ToursDAO;
-import com.aphex.mytourassistent.repository.db.MyTourAssistentDatabase;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
+import com.aphex.mytourassistent.repository.db.entities.Photo;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
+import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
+import com.aphex.mytourassistent.repository.network.api.WeatherAPI;
 import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.repository.network.models.Timeseries;
 import com.aphex.mytourassistent.repository.network.models.WeatherApiResponse;
@@ -44,12 +44,10 @@ public class Repository {
     private final Retrofit retrofit;
     private final WeatherAPI weatherApi;
 
-
     private ToursDAO toursDAO;
     private GeoPointsPlannedDAO geoPointsPlannedDAO;
     private GeoPointsActualDAO geoPointsActualDAO;
     private PhotoDAO photoDAO;
-
 
     private LiveData<List<Tour>> toursList;
     private LiveData<List<Tour>> toursListCompleted;
@@ -58,16 +56,15 @@ public class Repository {
 
     private MutableLiveData<Integer> tourStatusLiveData;
 
-
     private MutableLiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
     private LiveData<TourWithGeoPointsActual> tourWithGeoPointsActual;
 
     private MutableLiveData<Integer> statusInteger;
     private MutableLiveData<GeoPointActual> geoPointActualLiveData;
-    private MutableLiveData<Data> weatherDataPlannginStartPoint;
+    private MutableLiveData<Data> weatherDataPlanningStartPoint;
     private MutableLiveData<Data> weatherDataPlanningEndPoint;
     private MutableLiveData<List<Photo>> photos;
-
+    private long activityTourId;
 
     public Repository(Context applicationContext) {
         MyTourAssistentDatabase db = MyTourAssistentDatabase.getDatabase(applicationContext);
@@ -82,7 +79,7 @@ public class Repository {
         statusInteger = new MutableLiveData<>();
         geoPointActualLiveData = new MutableLiveData<>();
         tourStatusLiveData = new MutableLiveData<>();
-        weatherDataPlannginStartPoint = new MutableLiveData<>();
+        weatherDataPlanningStartPoint = new MutableLiveData<>();
         weatherDataPlanningEndPoint = new MutableLiveData<>();
         photos = new MutableLiveData<>();
 
@@ -129,10 +126,7 @@ public class Repository {
         toursList = toursDAO.getAllUncompletedTours();
         //});
 
-
         return toursList;
-
-        //they will observe live data value from here
     }
 
     public LiveData<List<Tour>> getAllCompletedTours(boolean mIsFirstTime) {
@@ -142,8 +136,6 @@ public class Repository {
         toursListCompleted = toursDAO.getAllCompletedTours();
 
         return toursListCompleted;
-
-        //they will observe live data value from here
     }
 
     public LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId, boolean mIsFirstTime) {
@@ -157,22 +149,15 @@ public class Repository {
 
     }
 
-    public MutableLiveData<Tour> getTour(long tourId) {
-        return new MutableLiveData<Tour>();
-
-    }
-
-    private MediatorLiveData<TourWithAllGeoPoints> mediator;
-
 
 
     public LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId, boolean mIsFirstTime) {
         if (!mIsFirstTime) {
             return tourWithAllGeoPoints;
         }
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
-            tourWithAllGeoPoints.postValue(toursDAO.getTourWithAllGeoPoints(tourId));
-        });
+        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        tourWithAllGeoPoints.postValue(toursDAO.getTourWithAllGeoPoints(tourId));
+        //});
         return tourWithAllGeoPoints;
     }
 
@@ -181,7 +166,7 @@ public class Repository {
             return tourWithGeoPointsActual;
         }
         //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
-            tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
+        tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
         //});
         return tourWithGeoPointsActual;
     }
@@ -193,28 +178,17 @@ public class Repository {
 
     }
 
+
     public void addGeoPointsActual(GeoPointActual gpa) {
         MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 long id = geoPointsActualDAO.insert(gpa);
-                gpa.geoPointActualId=id;
+                gpa.geoPointActualId = id;
                 geoPointActualLiveData.postValue(gpa);
-                //set the gpa to our livedataobject
-                //start listen to livedata from ActiveTourActivity
             } catch (SQLiteConstraintException e) {
             }
         });
 
-
-    }
-
-    public void startTour(long tourId, long startTime, int status) {
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
-            try {
-                toursDAO.startTour(tourId, startTime, status);
-            } catch (SQLiteConstraintException e) {
-            }
-        });
 
     }
 
@@ -226,7 +200,7 @@ public class Repository {
     }
 
     public void updateTour(Tour tour) {
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             toursDAO.update(tour);
             tourStatusLiveData.postValue(tour.tourStatus);
         });
@@ -234,17 +208,10 @@ public class Repository {
 
 
 
-    public long getLastInsertedGeoPointActualId(long tourId) {
-         return geoPointsActualDAO.getLastInsertedId(tourId);
-    }
-
     public LiveData<Integer> getStatusInteger() {
         return statusInteger;
     }
 
-    public void setStatusInteger(MutableLiveData<Integer> statusInteger) {
-        this.statusInteger = statusInteger;
-    }
 
     public LiveData<GeoPointActual> getLastGeoPointRecorded() {
         return geoPointActualLiveData;
@@ -270,20 +237,20 @@ public class Repository {
                 SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
                 List<Timeseries> timeseriesList = new ArrayList<>();
                 String ourFormattedDate = formatter.format(date);
-                if(weatherApiResponse.getProperties().getTimeseries()!=null&&weatherApiResponse.getProperties().getTimeseries().size()>0){
-            //iterate over all timeseries and only get those records which match with our date
-                    for(Timeseries timeSeriesItem:weatherApiResponse.getProperties().getTimeseries()){
-                            if(timeSeriesItem.getTime().startsWith(ourFormattedDate)){
-                                timeseriesList.add(timeSeriesItem);
-                            }
+                if (weatherApiResponse.getProperties().getTimeseries() != null && weatherApiResponse.getProperties().getTimeseries().size() > 0) {
+                    //iterate over all timeseries and only get those records which match with our date
+                    for (Timeseries timeSeriesItem : weatherApiResponse.getProperties().getTimeseries()) {
+                        if (timeSeriesItem.getTime().startsWith(ourFormattedDate)) {
+                            timeseriesList.add(timeSeriesItem);
+                        }
                     }
                     //now we have entries of single day
                 }
-                Log.d("DebugDate", "onResponse:before  "+timeseriesList.size());
+                Log.d("DebugDate", "onResponse:before  " + timeseriesList.size());
                 if (timeseriesList.size() == 0) {
-                    if (isFirstGp){
-                        weatherDataPlannginStartPoint.postValue(null);
-                    }else{
+                    if (isFirstGp) {
+                        weatherDataPlanningStartPoint.postValue(null);
+                    } else {
                         weatherDataPlanningEndPoint.postValue(null);
                     }
 
@@ -292,29 +259,29 @@ public class Repository {
                     calendar.setTime(date);
                     int hour = calendar.get(Calendar.HOUR_OF_DAY);//current format is numberic but we want to
                     //get it as 11:00:00
-                    String hourToCompare = hour+":00:00";
-                    Log.d("DebugDate", "onResponse: "+timeseriesList.size());
+                    String hourToCompare = hour + ":00:00";
+                    Log.d("DebugDate", "onResponse: " + timeseriesList.size());
                     boolean foundMatch = false;
                     for (Timeseries hourlyTimeSeries : timeseriesList) {
                         //compare with hour
-                        if (hourlyTimeSeries.getTime().contains(hourToCompare)){
+                        if (hourlyTimeSeries.getTime().contains(hourToCompare)) {
                             //we have found the date which we
                             foundMatch = true;
-                            if (isFirstGp){
+                            if (isFirstGp) {
                                 Log.d("DebugDate", "onResponse: isFirstGp ");
-                                weatherDataPlannginStartPoint.postValue(hourlyTimeSeries.getData());
+                                weatherDataPlanningStartPoint.postValue(hourlyTimeSeries.getData());
                                 break;
-                            }else{
+                            } else {
                                 Log.d("DebugDate", "onResponse: NOT isFirstGp ");
                                 weatherDataPlanningEndPoint.postValue(hourlyTimeSeries.getData());
                                 break;
                             }
                         }
                     }
-                    if (!foundMatch){
-                        if (isFirstGp){
-                            weatherDataPlannginStartPoint.postValue(null);
-                        }else{
+                    if (!foundMatch) {
+                        if (isFirstGp) {
+                            weatherDataPlanningStartPoint.postValue(null);
+                        } else {
                             weatherDataPlanningEndPoint.postValue(null);
                         }
                     }
@@ -326,24 +293,25 @@ public class Repository {
             @Override
             public void onFailure(Call<WeatherApiResponse> call, Throwable t) {
                 Log.d("DebugDate", "onFailure: ");
-                if (isFirstGp){
-                    weatherDataPlannginStartPoint.postValue(null);
-                }else{
+                if (isFirstGp) {
+                    weatherDataPlanningStartPoint.postValue(null);
+                } else {
                     weatherDataPlanningEndPoint.postValue(null);
                 }
             }
         });
     }
 
-    public LiveData<Data> getFirstWeatherLiveData(){
-        return weatherDataPlannginStartPoint;
+    public LiveData<Data> getFirstWeatherLiveData() {
+        return weatherDataPlanningStartPoint;
     }
-    public LiveData<Data> getLastWeatherLiveData(){
+
+    public LiveData<Data> getLastWeatherLiveData() {
         return weatherDataPlanningEndPoint;
     }
 
     public void savePhoto(String uri, long gpaId) {
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             photoDAO.insert(new Photo(gpaId, uri));
         });
 
@@ -351,7 +319,7 @@ public class Repository {
     }
 
     public LiveData<List<Photo>> getPhotos(long geoPointId) {
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             photos.postValue(photoDAO.getPhotos(geoPointId));
 
         });
@@ -359,10 +327,17 @@ public class Repository {
     }
 
     public void clearDatabase() {
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(() -> {
             toursDAO.deleteAll();
         });
     }
 
 
+    public void setActivityTourId(long tourId) {
+        activityTourId = tourId;
+    }
+
+    public long getActivityTourId() {
+        return activityTourId;
+    }
 }

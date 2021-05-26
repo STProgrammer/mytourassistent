@@ -10,17 +10,12 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.aphex.mytourassistent.R;
-import com.aphex.mytourassistent.databinding.ActivityActiveTourBinding;
-import com.aphex.mytourassistent.databinding.FragmentAddTourBinding;
 import com.aphex.mytourassistent.databinding.FragmentPhotoSlidePageBinding;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
+import com.aphex.mytourassistent.viewmodels.PhotosViewModel;
 import com.bumptech.glide.Glide;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,6 +71,10 @@ public class PhotoSlidePageFragment extends Fragment {
 
         myViewModel = new ViewModelProvider(requireActivity()).get(PhotosViewModel.class);
         myViewModel.getPhotos().observe(getViewLifecycleOwner(), photos -> {
+
+            if(!isAdded()){
+                return;
+            }
             // Getting image from the position:
             Photo photo = photos.get(this.position);
 

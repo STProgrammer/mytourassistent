@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="horizontal"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     android:weightSum="100"
     tools:context=".views.fragments.tours.completed.CompletedTourDetailsFragment">
 
@@ -13,38 +12,37 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        android:background="#DDD"
-        android:layout_weight="60"/>
+        android:layout_weight="60"
+        android:background="#DDD" />
 
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="40"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
-        >
+        android:layout_weight="40">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_tour_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="Tour title" />
+            <TextView
+                android:id="@+id/tv_tour_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="Tour title" />
 
-                <TextView
-                    android:id="@+id/tv_tour_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="Tour type" />
+            <TextView
+                android:id="@+id/tv_tour_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="Tour type" />
 
             <TextView
                 android:id="@+id/tv_tour_date_plan_start"
@@ -63,30 +61,30 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="9/5/2021" />
 
-                <TextView
-                    android:id="@+id/tv_tour_date_start"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="9/5/2021" />
+            <TextView
+                android:id="@+id/tv_tour_date_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
 
 
-                <TextView
-                    android:id="@+id/tv_tour_date_end"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="9/5/2021" />
+            <TextView
+                android:id="@+id/tv_tour_date_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="9/5/2021" />
 
-                <TextView
-                    android:id="@+id/tv_tour_duration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    tools:text="40 days 15 hours" />
+            <TextView
+                android:id="@+id/tv_tour_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="40 days 15 hours" />
 
 
             <TextView

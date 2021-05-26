@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -24,11 +23,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.enums.TourStatus;
+import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
-import com.aphex.mytourassistent.enums.TourStatus;
-import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.views.activities.ActiveTourActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -42,18 +41,15 @@ import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
 public class TourTrackingService extends LifecycleService {
     private final String ACTION_STOP_RECORDING = "ACTION_STOP_RECORDING";
-    Repository repository;
     private final String ACTION_PAUSE_RECORDING = "ACTION_PAUSE_RECORDING";
+
+    Repository repository;
     private SharedPreferences prefs;
 
-    public TourTrackingService() {
-    }
-
-    private Handler handler = new Handler(); //(Looper.getMainLooper());
     private static final int LOCATION_NOTIFICATION_ID = 1010;
 
     private LocationCallback locationCallback;
-    private Location previousLocation=null;
+    private Location previousLocation = null;
     private NotificationManager notificationManager;
     private String channelId;
 
@@ -63,19 +59,22 @@ public class TourTrackingService extends LifecycleService {
 
     private FusedLocationProviderClient fusedLocationClient;
 
+    public TourTrackingService() {
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        //get thevalues from intent
 
         repository = Repository.getInstance(getApplication());
 
-        prefs =  PreferenceManager.getDefaultSharedPreferences(this);  //Denne bruker getSharedPreferences(... , ...). Tilgjengelig fra alle aktiviteter.
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);  //Denne bruker getSharedPreferences(... , ...). Tilgjengelig fra alle aktiviteter.
 
     }
 
-    private Notification createNotification(String notificationText){
+    private Notification createNotification(String notificationText) {
         Intent notificationIntent = new Intent(this, ActiveTourActivity.class);
+        notificationIntent.putExtra("TOUR_ID", tourId);
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0, notificationIntent, 0);
         // The PendingIntent to launch our activity if the user selects
@@ -94,13 +93,13 @@ public class TourTrackingService extends LifecycleService {
         stopIntent.putExtra("TOUR_ID", tourId);
         PendingIntent stopPendingIntent =
                 PendingIntent.getBroadcast(this, 0, stopIntent, 0);
-        Log.d("Debug",tourId+"");
+        Log.d("Debug", tourId + "");
 
         NotificationCompat.Action actionPause = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_pause_24, getString(R.string.notification_pause), pausePendingIntent).build();
         NotificationCompat.Action actionStop = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_stop_24, getString(R.string.notification_stop), stopPendingIntent).build();
 
 
-        Notification notification =  new NotificationCompat.Builder(this, channelId)
+        Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle("Lokasjon")
                 .setOnlyAlertOnce(false)
                 .setContentText("Din posisjon: " + notificationText)
@@ -111,14 +110,10 @@ public class TourTrackingService extends LifecycleService {
                 .addAction(actionStop)
                 .build();
 
-        
-        //TODO play pause and stop button
-
-
         return notification;
     }
 
-    private String createNotificationChannel(NotificationManager notificationManager){
+    private String createNotificationChannel(NotificationManager notificationManager) {
         String channelId = "my_location_channelid";
         String channelName = "MyLocationService";
         NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -148,33 +143,30 @@ public class TourTrackingService extends LifecycleService {
             public void onLocationResult(LocationResult locationResult) {
 
                 //lets check our tour settings-> check and then value
-                if(prefs.getBoolean("auto_cancellation_checkbox", false)){
+                if (prefs.getBoolean("auto_cancellation_checkbox", false)) {
                     //now check nr of hours
-                    Log.d("DebugTime","checking time");
+                    Log.d("DebugTime", "checking time");
                     int nrOfHoursLimit = Integer.valueOf(prefs.getString("nr_of_hours", "1"));
                     TourWithAllGeoPoints twagp = repository.getTourWithAllGeoPoints(tourId, false).getValue();
 
-                    long difference = (new Date().getTime() - twagp.tour.startTimeOfTour)/(1000*60*60);
+                    long difference = (new Date().getTime() - twagp.tour.startTimeOfTour) / (1000 * 60 * 60);
                     //get the number of hours from this difference
                     if (nrOfHoursLimit < difference) {
-                        Log.d("DebugTime","auto pause");
-                        Intent intent = new Intent(context,PauseRecordingBroadcastReceiver.class);
+                        Log.d("DebugTime", "auto pause");
+                        Intent intent = new Intent(context, PauseRecordingBroadcastReceiver.class);
                         intent.setAction(ACTION_PAUSE_RECORDING);
                         sendBroadcast(intent);
                         return;
                     }
-                }else{
-                    Log.d("DebugTime","not checking time");
+                } else {
+                    Log.d("DebugTime", "not checking time");
                 }
                 //do nothing
                 StringBuffer locationBuffer = new StringBuffer();
                 for (Location location : locationResult.getLocations()) {
 
 
-
-
-
-                    // Beregner avstand fra forrisge veipunkt:
+                    // Calculating distance from previous point
                     if (previousLocation == null)
                         previousLocation = location;
                     float distance = previousLocation.distanceTo(location);
@@ -185,14 +177,6 @@ public class TourTrackingService extends LifecycleService {
 
                     locationBuffer.append(location.getLatitude() + ", " + location.getLongitude() + "\n");
 
-                    // Polyline: tegner stien.
-
-
-                    //before storing it to db
-                    //check with the last location object
-                    //add the method here to check if distance is more than 5 meters then save it in
-                    //db
-                    //activeTourViewModel.addGeoPointsActual(gpa);
                     if (repository.getLastGeoPointRecorded().getValue() == null) {//work only
                         GeoPointActual gpa = new GeoPointActual(location.getLatitude(), location.getLongitude(), tourId, travelOrder++);
                         repository.addGeoPointsActual(gpa);
@@ -205,8 +189,6 @@ public class TourTrackingService extends LifecycleService {
 
                 }
 
-                // Viser/oppdaterer varsel:
-                //TODO: update notification instead of new notification every time
                 Notification notification = createNotification(locationBuffer.toString());
                 NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(LOCATION_NOTIFICATION_ID, notification);
@@ -254,38 +236,6 @@ public class TourTrackingService extends LifecycleService {
         return null;
     }
 
-    // Runnable som inneholder metoden som bakgrunnstråden starter:
-
-    // Metoden som kjører i tråden.
-    private void backgroundThreadProcessing() {
-        //[ ... Tidskrevende kode ... ]
-        int res = 0;
-        for (int i = 0; i < 10; i++) {
-            try {
-                Thread.currentThread().sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        handler.post(doShowResult);
-
-        //Avslutt service når "oppdraget" er ferdig!
-        this.stopSelf();
-    }
-
-    private Runnable doShowResult = new Runnable() {
-        public void run() {
-            showResult();
-        }
-    };
-
-    private void showResult() {
-        // Viser en Toast - kan kun fremvises i GUI-tråden:
-        Context context = this.getApplicationContext();
-        Toast.makeText(context, "Oppdrag fullført!!!!", Toast.LENGTH_SHORT).show();
-
-        //Send beskjed til Activity vha. en broadcast / BroadcastReceiver.
-    }
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdates(LocationRequest locationRequest) {
@@ -298,7 +248,7 @@ public class TourTrackingService extends LifecycleService {
     }
 
     public static class PauseRecordingBroadcastReceiver extends BroadcastReceiver {
-        private static final String TAG = "MyBroadcastReceiver";
+
         @Override
         public void onReceive(Context context, Intent intent) {
             context.stopService(new Intent(context, TourTrackingService.class));
@@ -313,7 +263,7 @@ public class TourTrackingService extends LifecycleService {
     }
 
     public static class StopRecordingBroadcastReceiver extends BroadcastReceiver {
-        private static final String TAG = "MyBroadcastReceiver";
+
         @Override
         public void onReceive(Context context, Intent intent) {
             //get the current tour
@@ -322,7 +272,7 @@ public class TourTrackingService extends LifecycleService {
             TourWithAllGeoPoints twagp = repository.getTourWithAllGeoPoints(tourId, false).getValue();
             int status = twagp.tour.tourStatus;
             Tour tour = twagp.tour;
-            Log.d("Debug","On Stop "+tourId);
+            Log.d("Debug", "On Stop " + tourId);
             if (status == TourStatus.ACTIVE.getValue() ||
                     status == TourStatus.PAUSED.getValue()) {
                 tour.finishTimeActual = new Date().getTime();
@@ -333,7 +283,6 @@ public class TourTrackingService extends LifecycleService {
             }
         }
     }
-
 
 
 }
