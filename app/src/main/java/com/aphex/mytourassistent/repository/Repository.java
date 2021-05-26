@@ -120,7 +120,6 @@ public class Repository {
         });
     }
 
-    
 
     public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
         if (!mIsFirstTime) {
@@ -170,9 +169,9 @@ public class Repository {
         if (!mIsFirstTime) {
             return tourWithGeoPointsActual;
         }
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
             tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
-        });
+        //});
         return tourWithGeoPointsActual;
     }
 

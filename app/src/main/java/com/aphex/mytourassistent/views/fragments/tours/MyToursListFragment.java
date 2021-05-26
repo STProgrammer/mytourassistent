@@ -100,7 +100,7 @@ public class MyToursListFragment extends Fragment {
                 toursViewModel.setCurrentActiveTour(tours);
                 // Set the adapter
 
-                      if (mColumnCount <= 1) {
+                if (mColumnCount <= 1) {
                         binding.list.setLayoutManager(new LinearLayoutManager(requireContext()));
                     } else {
                         binding.list.setLayoutManager(new GridLayoutManager(requireContext(), mColumnCount));

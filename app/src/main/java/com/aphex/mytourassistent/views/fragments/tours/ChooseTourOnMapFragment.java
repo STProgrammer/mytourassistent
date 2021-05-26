@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -122,6 +123,7 @@ private View view;
     private boolean gotInitialLocation = false;
     private Marker endMarker;
     private boolean mIsFirstTime;
+    private SharedPreferences prefs;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,6 +152,7 @@ private View view;
 
         addTourViewModel = new ViewModelProvider(requireActivity()).get(AddTourViewModel.class);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 
         initLocationUpdates();
 
@@ -163,12 +166,15 @@ private View view;
                         if (isAdded()) {
                             Log.d("DebugCrash", "onChanged: ");
                             if (isAdded()) {
+                                binding.tvWeatherPlanningStart.setVisibility(View.VISIBLE);
+                                binding.ivWeatherIconStart.setVisibility(View.VISIBLE);
                                 if (data == null) {
                                     Log.d("DebugCrash", "now here");
                                     binding.tvWeatherPlanningStart.setText(getString(R.string.no_weather_information));
                                 } else {
                                     Log.d("DebugCrash", "Data not null here");
-                                    String valueToShow = getString(R.string.temperature_label);
+                                    String valueToShow = getString(R.string.weather_start_point_label);
+                                    valueToShow += getString(R.string.temperature_label);
                                     valueToShow += data.getInstant().getDetails().getAirTemperature();
                                     valueToShow += getString(R.string.relative_humidity_label);
                                     valueToShow += data.getInstant().getDetails().getRelativeHumidity();
@@ -188,13 +194,14 @@ private View view;
             public void onChanged(Data data) {
 
                 if (isAdded()) {
-
-
+                    binding.tvWeatherPlanningEnd.setVisibility(View.VISIBLE);
+                    binding.ivWeatherIconEnd.setVisibility(View.VISIBLE);
                 if (data == null) {
                     binding.tvWeatherPlanningEnd.setText(getString(R.string.no_weather_information));
                 }
                 else {
-                    String valueToShow = getString(R.string.temperature_label);
+                    String valueToShow = getString(R.string.weather_end_point_label);
+                    valueToShow += getString(R.string.temperature_label);
                     valueToShow += data.getInstant().getDetails().getAirTemperature();
                     valueToShow += getString(R.string.relative_humidity_label);
                     valueToShow += data.getInstant().getDetails().getRelativeHumidity();
@@ -268,7 +275,9 @@ private View view;
     }
 
     private void getWeatherData(GeoPoint geoPoint, boolean isFirstGp) {
-        addTourViewModel.getWeatherData(geoPoint.getLatitude(), geoPoint.getLongitude(), isFirstGp);
+        if (prefs.getBoolean("show_weather_checkbox", true)) {
+            addTourViewModel.getWeatherData(geoPoint.getLatitude(), geoPoint.getLongitude(), isFirstGp);
+        }
     }
 
     private int mappingWeathersymbolAndCode(String symbolCode) {

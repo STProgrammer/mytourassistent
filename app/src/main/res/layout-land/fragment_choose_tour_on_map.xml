@@ -13,40 +13,41 @@
         android:id="@+id/tv_weather_planning_start"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintVertical_bias="0.0"
         android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_weather_planning_end"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/ivWeatherIconStart"
-        app:layout_constraintTop_toBottomOf="@+id/tv_weather_planning_end" />
+        app:layout_constraintTop_toTopOf="@+id/ivWeatherIconStart" />
 
     <ImageView
-        android:id="@+id/ivWeatherIconStart"
-        android:layout_width="76dp"
-        android:layout_height="65dp"
-        android:layout_marginStart="28dp"
+        android:id="@+id/ivWeatherIconEnd"
+        android:layout_width="@dimen/active_tour_btn_size"
+        android:layout_height="@dimen/active_tour_btn_size"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toEndOf="@+id/map_view"
-        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconEnd" />
+        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconStart" />
 
     <TextView
         android:id="@+id/tv_weather_planning_end"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="27dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+         android:layout_marginEnd="16dp"
+        app:layout_constraintVertical_bias="0.0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintBottom_toTopOf="@id/btn_clear_plan"
         app:layout_constraintStart_toEndOf="@+id/ivWeatherIconEnd"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/ivWeatherIconEnd" />
 
     <ImageView
-        android:id="@+id/ivWeatherIconEnd"
-        android:layout_width="74dp"
-        android:layout_height="54dp"
-        android:layout_marginStart="32dp"
+        android:id="@+id/ivWeatherIconStart"
+        android:layout_width="@dimen/active_tour_btn_size"
+        android:layout_height="@dimen/active_tour_btn_size"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@+id/map_view"
         app:layout_constraintTop_toTopOf="parent" />
@@ -54,7 +55,7 @@
     <Button
         android:id="@+id/btn_finish_plan"
         android:layout_width="0dp"
-        android:layout_height="62dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
@@ -65,34 +66,36 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/map_view"
         app:layout_constraintTop_toBottomOf="@+id/btn_my_location"
-        app:layout_constraintVertical_bias="0.066" />
+        app:layout_constraintVertical_bias="0.0"
+
+        />
 
     <Button
         android:id="@+id/btn_clear_plan"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="29dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="@string/btn_clear"
         app:layout_constraintBottom_toBottomOf="@+id/btn_my_location"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.552"
         app:layout_constraintStart_toEndOf="@+id/btn_my_location"
         app:layout_constraintTop_toTopOf="@+id/btn_my_location"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/btn_my_location"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="32dp"
         android:text="@string/my_location"
         app:layout_constraintBottom_toBottomOf="@+id/map_view"
         app:layout_constraintStart_toEndOf="@+id/map_view"
-        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconStart"
+        app:layout_constraintEnd_toStartOf="@id/btn_clear_plan"
+        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconEnd"
         app:layout_constraintVertical_bias="0.157" />
 
     <org.osmdroid.views.MapView

@@ -153,6 +153,8 @@
     <string name="no_weather_information">No weather information!</string>
     <string name="are_you_sure_to_delete_tour">Are you sure to delete the tour?</string>
     <string name="are_you_sure_to_complete_tour">Are you sure to complete tour? (You can\'t start it again)</string>
+    <string name="weather_start_point_label">Start point weather: \n</string>
+    <string name="weather_end_point_label">End point weather: \n</string>
 
 
 </resources>

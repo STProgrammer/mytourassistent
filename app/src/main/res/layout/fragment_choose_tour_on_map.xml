@@ -1,71 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-
-
-<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.aphex.mytourassistent.views.activities.TourActivity"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    tools:context="com.aphex.mytourassistent.views.activities.TourActivity">
 
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
         android:layout_width="wrap_content"
-        android:layout_height="400dp"
+        android:layout_height="380dp"
         android:layout_margin="10dp"
         android:background="#DDD" />
 
-    <ScrollView android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:layout_width="match_parent"
+<!--    <ScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_weather_planning_start"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/ivWeatherIconStart"
+            app:layout_constraintTop_toTopOf="@+id/ivWeatherIconStart" />
 
-            <TextView
-                android:id="@+id/tv_weather_planning_start"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/ivWeatherIconStart"
+            android:layout_width="@dimen/weather_icon_size"
+            android:layout_height="@dimen/weather_icon_size"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/ivWeatherIconStart"
-                android:layout_width="@dimen/weather_icon_size"
-                android:layout_height="@dimen/weather_icon_size" />
+        <TextView
+            android:id="@+id/tv_weather_planning_end"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/ivWeatherIconEnd"
+            app:layout_constraintTop_toTopOf="@id/ivWeatherIconEnd"
+            tools:layout_editor_absoluteY="112dp" />
 
-            <TextView
-                android:id="@+id/tv_weather_planning_end"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <ImageView
+            android:id="@+id/ivWeatherIconEnd"
+            android:layout_width="@dimen/weather_icon_size"
+            android:layout_height="@dimen/weather_icon_size"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconStart" />
 
-            <ImageView
-                android:id="@+id/ivWeatherIconEnd"
-                android:layout_width="@dimen/weather_icon_size"
-                android:layout_height="@dimen/weather_icon_size" />
+        <Button
+            android:id="@+id/btn_finish_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/btn_finished"
+            app:layout_constraintEnd_toEndOf="@+id/btn_my_location"
+            app:layout_constraintHorizontal_bias="0.56"
+            app:layout_constraintStart_toStartOf="@+id/btn_my_location"
+            app:layout_constraintTop_toBottomOf="@+id/btn_my_location" />
 
-            <Button
-                android:id="@+id/btn_finish_plan"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/btn_finished" />
+        <Button
+            android:id="@+id/btn_clear_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_clear"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/btn_finish_plan"
+            app:layout_constraintHorizontal_bias="0.51"
+            app:layout_constraintStart_toStartOf="@+id/btn_finish_plan"
+            app:layout_constraintTop_toBottomOf="@+id/btn_finish_plan"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <Button
-        android:id="@+id/btn_clear_plan"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="@string/btn_clear" />
-
-    <Button
-        android:id="@+id/btn_my_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/my_location" />
-        </LinearLayout>
-    </ScrollView>
+        <Button
+            android:id="@+id/btn_my_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/my_location"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconEnd" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--    </ScrollView>-->
 
 </LinearLayout>
 
