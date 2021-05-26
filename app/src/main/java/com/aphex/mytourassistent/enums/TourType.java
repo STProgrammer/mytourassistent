@@ -1,7 +1,5 @@
 package com.aphex.mytourassistent.enums;
 
-import org.jetbrains.annotations.Contract;
-
 public enum TourType {
     WALKING(1),
     BIKING(2),

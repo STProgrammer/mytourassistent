@@ -1,7 +1,6 @@
 package com.aphex.mytourassistent.repository.db.entities;
 
 
-import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
@@ -29,8 +28,5 @@ public class GeoPointActual {
         this.travelOrder = travelOrder;
     }
 }
-//background service
-//foreground service->let u do anything continuesly
-//user starts tour
-// we show him notification that tour is in progress
+
 

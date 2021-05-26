@@ -1,4 +1,4 @@
-package com.aphex.mytourassistent.views.fragments.tours;
+package com.aphex.mytourassistent.views.fragments.tours.completed;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -111,12 +111,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
             binding.tvTourDateEnd.setText(finishTimeActual);
             binding.tvTourDuration.setText(duration);
 
-            binding.btnTourDetails.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onClickButton.onClickToDetailsFragment(tour.tourId);
-                }
-            });
+            binding.btnTourDetails.setOnClickListener(v -> onClickButton.onClickToDetailsFragment(tour.tourId));
 
             binding.ivDeleteTour.setOnClickListener(new View.OnClickListener() {
                 @Override

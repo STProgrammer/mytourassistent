@@ -94,8 +94,7 @@ public class ToursViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
-        LiveData<List<Tour>> tours = repository.getAllUncompletedTours(mIsFirstTime);
-        return tours;
+        return repository.getAllUncompletedTours(mIsFirstTime);
     }
 
     public void deleteTour(long tourId) {

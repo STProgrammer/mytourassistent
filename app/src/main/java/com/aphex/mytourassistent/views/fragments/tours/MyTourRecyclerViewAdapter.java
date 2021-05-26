@@ -76,7 +76,6 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
             String tourType = "";
             String tourStatus = "";
 
-
             switch(tour.tourType) {
                 case 1:
                     tourType = itemView.getContext().getString(R.string.tour_type_walking);
@@ -103,9 +102,6 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
                     tourStatus = itemView.getContext().getString(R.string.status_completed);
                     break;
             }
-
-
-
             binding.tvTourType.setText(tourType);
             binding.tvTourStatus.setText(tourStatus);
             binding.tvTourDateStart.setText(startDatePlanned);
@@ -113,12 +109,9 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
             if (tour.tourStatus == TourStatus.COMPLETED.getValue()) {
                 binding.btnTourStart.setVisibility(View.INVISIBLE);
             } else {
-                binding.btnTourStart.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //check if
-                        onClickButton.onClickStartActiveTourActivity(tour.tourId, tour.tourStatus);
-                    }
+                binding.btnTourStart.setOnClickListener(v -> {
+                    //check if
+                    onClickButton.onClickStartActiveTourActivity(tour.tourId, tour.tourStatus);
                 });
             }
 
@@ -131,8 +124,4 @@ public class MyTourRecyclerViewAdapter extends RecyclerView.Adapter<MyTourRecycl
             });
         }
     }
-
-
-
-
 }

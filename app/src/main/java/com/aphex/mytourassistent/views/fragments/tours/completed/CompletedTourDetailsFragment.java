@@ -1,4 +1,4 @@
-package com.aphex.mytourassistent.views.fragments.tours;
+package com.aphex.mytourassistent.views.fragments.tours.completed;
 
 import android.app.Activity;
 import android.app.AlertDialog;

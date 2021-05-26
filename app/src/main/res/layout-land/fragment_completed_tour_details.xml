@@ -3,24 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_height="match_parent"
+    android:weightSum="100"
     tools:context=".views.fragments.tours.completed.CompletedTourDetailsFragment">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
-        android:layout_width="wrap_content"
-        android:layout_height="422dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_margin="10dp"
-        android:background="#DDD" />
+        android:background="#DDD"
+        android:layout_weight="60"/>
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="40"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
 
                 <TextView
                     android:id="@+id/tv_tour_title"
@@ -117,6 +125,5 @@
                 android:text="@string/btn_delete_tour" />
         </LinearLayout>
     </ScrollView>
-
 
 </LinearLayout>

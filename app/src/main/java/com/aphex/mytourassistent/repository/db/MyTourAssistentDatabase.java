@@ -60,13 +60,6 @@ public abstract class MyTourAssistentDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-
-            // If you want to keep data through app restarts,
-            // comment out the following block
-            databaseWriteExecutor.execute(() -> {
-                // Populate the database in the background.
-                // If you want to start with more words, just add them.
-            });
         }
 
         @Override
@@ -74,16 +67,4 @@ public abstract class MyTourAssistentDatabase extends RoomDatabase {
             super.onOpen(db);
         }
     };
-
-    // MIGRERING/ENDRING I DATABASEN.
-    /*
-    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE user "
-                    + " ADD COLUMN birth_year INTEGER");
-        }
-    };
-    */
-
 }

@@ -8,8 +8,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
-import com.aphex.mytourassistent.repository.db.entities.Tour;
-import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsPlanned;
+
 
 import java.util.List;
 
@@ -20,10 +19,6 @@ public abstract class GeoPointsPlannedDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     public abstract long insert(GeoPointPlanned geoPointPlanned);
 
-    /*@Transaction
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    public abstract long insertAll(GeoPointPlanned... geoPointPlanned);
-*/
     @Transaction
     @Query("SELECT * FROM GeoPointPlanned WHERE GeoPointPlanned.fk_tourId = :tourId ORDER BY GeoPointPlanned.travelOrder")
     public abstract LiveData<List<GeoPointPlanned>> getGeoPointsPlanned(long tourId);

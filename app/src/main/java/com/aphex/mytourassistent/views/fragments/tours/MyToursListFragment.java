@@ -42,14 +42,7 @@ public class MyToursListFragment extends Fragment {
     private ToursViewModel toursViewModel;
     private boolean mIsFirstTime;
     private FragmentMyToursListBinding binding;
-
-
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public MyToursListFragment() {
-    }
+    private MyTourRecyclerViewAdapter myMyTourRecyclerViewAdapter;
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
@@ -87,10 +80,12 @@ public class MyToursListFragment extends Fragment {
 
         toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
         //fetch data
-        toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
-            @Override
-            public void onChanged(List<Tour> tours) {
-                if (tours.isEmpty()) {
+        toursViewModel.getAllUncompletedTours(mIsFirstTime).observe(requireActivity(), tours -> {
+            if (!isAdded()){
+                return;
+            }
+            binding.progressBar.setVisibility(View.GONE);
+            if (tours.isEmpty()) {
                     binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
                     binding.list.setVisibility(View.GONE);
                     return;
@@ -125,26 +120,23 @@ public class MyToursListFragment extends Fragment {
                             builder.show();
 
 
-                        }
+                    }
 
-                        @Override
-                        public void onClickStartActiveTourActivity(long tourId, int tourStatus) {
-                            //check if we can go futher or not
-                            //check db
-                            boolean tourStarted;
-                            if (toursViewModel.getCurrentActiveTour() == -1){
-                                startActiveTourActivity(tourId, tourStatus);
-                            } else if (toursViewModel.getCurrentActiveTour() == tourId) {
-                                startActiveTourActivity(tourId, tourStatus);
-                            } else {
-                                Toast.makeText(requireContext(), R.string.toast_alread_active_tour, Toast.LENGTH_SHORT).show();
-                            }
+                    @Override
+                    public void onClickStartActiveTourActivity(long tourId, int tourStatus) {
+                        //check if we can go further or not
+                        //check db
+                        if (toursViewModel.getCurrentActiveTour() == -1){
+                            startActiveTourActivity(tourId, tourStatus);
+                        } else if (toursViewModel.getCurrentActiveTour() == tourId) {
+                            startActiveTourActivity(tourId, tourStatus);
+                        } else {
+                            Toast.makeText(requireContext(), R.string.toast_alread_active_tour, Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    }
+                });
 
-            }
         });
-
     }
     public void startActiveTourActivity(long tourId, int tourStatus) {
         Intent intent = new Intent(requireContext(), ActiveTourActivity.class);

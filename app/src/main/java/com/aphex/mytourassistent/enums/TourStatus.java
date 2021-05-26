@@ -1,5 +1,6 @@
 package com.aphex.mytourassistent.enums;
 
+
 public enum TourStatus {
     NOT_STARTED(1),
     ACTIVE(2),

@@ -9,9 +9,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.aphex.mytourassistent.repository.db.entities.Photo;
-import com.aphex.mytourassistent.repository.db.entities.Tour;
-import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
-import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsPlanned;
+
 
 import java.util.List;
 
@@ -33,6 +31,4 @@ public abstract class PhotoDAO {
     @Query("SELECT * FROM Photo WHERE Photo.fk_geoPointActualId = :geoPointId")
     public abstract List<Photo> getPhotos(long geoPointId);
 
-
-    // public abstract void startTour(long tourId);
 }

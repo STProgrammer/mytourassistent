@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -71,8 +70,6 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,7 +91,6 @@ import java.util.concurrent.Executors;
 public class ActiveTourActivity extends AppCompatActivity {
 
     public static final String STRING_ACTION = "END_SERVICE";
-    private static final int MY_CAMERA_REQUEST_CODE = 456;
     private ActivityActiveTourBinding binding;
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(4);
@@ -104,14 +100,8 @@ public class ActiveTourActivity extends AppCompatActivity {
     private boolean firstTimeLocation;
 
     private TourWithAllGeoPoints tourWithAllGeoPoints;
-    private boolean trackingActive;
-    private boolean trackingFinished;
     public static long travelOrder;
 
-    private final int ACTIVE = TourStatus.ACTIVE.getValue();
-
-    private static final int CALLBACK_ALL_PERMISSIONS = 1;
-    private static final int REQUEST_CHECK_SETTINGS = 10;
 
     private static String[] requiredPermissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -121,16 +111,11 @@ public class ActiveTourActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
 
-    private MapView mapView;
     private CompassOverlay mCompassOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private ScaleBarOverlay mScaleBarOverlay;
-    private MinimapOverlay mMinimapOverlay;
 
-    // Indikerer om servicen er startet eller stoppet:
-    private boolean requestingLocationUpdates = false;
 
-//query the data
     private Polyline mPolyline;
     private ActiveTourViewModel activeTourViewModel;
     private SharedPreferences prefs;
@@ -162,52 +147,42 @@ public class ActiveTourActivity extends AppCompatActivity {
 
 
 
-        binding.btnReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int status = tourWithAllGeoPoints.tour.tourStatus;
-                if (status == TourStatus.ACTIVE.getValue() ||
-                        status == TourStatus.PAUSED.getValue()) {
-                    mPolyline.setPoints(new ArrayList<>());
-                    Objects.requireNonNull(activeTourViewModel.getGeoPointsActual().getValue()).clear();
-                    binding.mapView.invalidate();
-                    activeTourViewModel.clearGeoPoints(tourId);
-                    binding.tvInfo.setText(getString(R.string.tv_tracking_reset));
-                }
+        binding.btnReset.setOnClickListener(v -> {
+            int status = tourWithAllGeoPoints.tour.tourStatus;
+            if (status == TourStatus.ACTIVE.getValue() ||
+                    status == TourStatus.PAUSED.getValue()) {
+                mPolyline.setPoints(new ArrayList<>());
+                Objects.requireNonNull(activeTourViewModel.getGeoPointsActual().getValue()).clear();
+                binding.mapView.invalidate();
+                activeTourViewModel.clearGeoPoints(tourId);
+                binding.tvInfo.setText(getString(R.string.tv_tracking_reset));
             }
         });
 
-        binding.ivPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!hasPermissions(requiredPermissions)) {
-                    verifyPermissions();
-                    return;
-                }
-                int status = tourWithAllGeoPoints.tour.tourStatus;
-                Tour tour = tourWithAllGeoPoints.tour;
-                if (status == TourStatus.NOT_STARTED.getValue()) {
-                    tour.startTimeActual = new Date().getTime();
-                    tour.startTimeOfTour = new Date().getTime();
-                    tour.tourStatus = TourStatus.ACTIVE.getValue();
-                    activeTourViewModel.updateTour(tour);
-                    startRecording();
-                    //initLocationUpdates();
-                } else if (status == TourStatus.ACTIVE.getValue()) {
-                    //stopTracking();//at here
-                    stopRecording();
-                    tour.tourStatus = TourStatus.PAUSED.getValue();
-                    activeTourViewModel.updateTour(tour);
-                } else if (status == TourStatus.PAUSED.getValue()) {
-                    //initLocationUpdates();
-                    //again start the service
-                    startRecording();
-                    tour.startTimeOfTour = new Date().getTime();
-                    tour.tourStatus = TourStatus.ACTIVE.getValue();
-                    activeTourViewModel.updateTour(tour);
-                }
-
+        binding.ivPlay.setOnClickListener(v -> {
+            if (!hasPermissions(requiredPermissions)) {
+                verifyPermissions();
+                return;
             }
+            int status = tourWithAllGeoPoints.tour.tourStatus;
+            Tour tour = tourWithAllGeoPoints.tour;
+            if (status == TourStatus.NOT_STARTED.getValue()) {
+                tour.startTimeActual = new Date().getTime();
+                tour.startTimeOfTour = new Date().getTime();
+                tour.tourStatus = TourStatus.ACTIVE.getValue();
+                activeTourViewModel.updateTour(tour);
+                startRecording();
+            } else if (status == TourStatus.ACTIVE.getValue()) {
+                stopRecording();
+                tour.tourStatus = TourStatus.PAUSED.getValue();
+                activeTourViewModel.updateTour(tour);
+            } else if (status == TourStatus.PAUSED.getValue()) {
+                startRecording();
+                tour.startTimeOfTour = new Date().getTime();
+                tour.tourStatus = TourStatus.ACTIVE.getValue();
+                activeTourViewModel.updateTour(tour);
+            }
+
         });
 
         binding.ivStop.setOnClickListener(v -> {
@@ -224,8 +199,6 @@ public class ActiveTourActivity extends AppCompatActivity {
                     tour.tourStatus = TourStatus.COMPLETED.getValue();
                     activeTourViewModel.updateTour(tour);
                     stopRecording();
-                    //need to stop service heref
-                    //activeTourViewModel.completeTour()
                 }
             });
             builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
@@ -233,70 +206,60 @@ public class ActiveTourActivity extends AppCompatActivity {
 
         });
 
-        binding.ivPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ask permissions
-                //first check if we have permissions already if not then trigger
+        binding.ivPhoto.setOnClickListener(v -> {
+            //ask permissions
+            //first check if we have permissions already if not then trigger
 
-                //Taken and partly edited from:
-                //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
-                if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                    Dexter.withContext(ActiveTourActivity.this)
-                            .withPermission(Manifest.permission.CAMERA)
-                            .withListener(new PermissionListener() {
-                                @Override
-                                public void onPermissionGranted(PermissionGrantedResponse response) {
-                                    // permission is granted, open the camera
-                                    dispatchTakePictureIntent();
+            //Taken and partly edited from:
+            //https://www.androidhive.info/2017/12/android-easy-runtime-permissions-with-dexter/
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                Dexter.withContext(ActiveTourActivity.this)
+                        .withPermission(Manifest.permission.CAMERA)
+                        .withListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted(PermissionGrantedResponse response) {
+                                // permission is granted, open the camera
+                                dispatchTakePictureIntent();
+                            }
+
+                            @Override
+                            public void onPermissionDenied(PermissionDeniedResponse response) {
+                                // check for permanent denial of permission
+                                if (response.isPermanentlyDenied()) {
+                                    showSettingsDialog();
                                 }
+                            }
 
-                                @Override
-                                public void onPermissionDenied(PermissionDeniedResponse response) {
-                                    // check for permanent denial of permission
-                                    if (response.isPermanentlyDenied()) {
-                                        showSettingsDialog();
-                                    }
-                                }
-
-                                @Override
-                                public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-                                    token.continuePermissionRequest();
-                                }
-                            }).check();
-
-                }
-
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                                token.continuePermissionRequest();
+                            }
+                        }).check();
 
             }
+
+
         });
 
-        binding.btnFindMyLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!hasPermissions(requiredPermissions)) {
-                    verifyPermissions();
-                    return;
-                }
-                if (activeTourViewModel.getCurrentLocation() != null) {
-                    updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
-                }
-
+        binding.btnFindMyLocation.setOnClickListener(v -> {
+            if (!hasPermissions(requiredPermissions)) {
+                verifyPermissions();
+                return;
             }
+            if (activeTourViewModel.getCurrentLocation() != null) {
+                updateCurrentLocationIcon(activeTourViewModel.getCurrentLocation());
+            }
+            else {
+                Toast.makeText(getApplicationContext(), R.string.toast_cant_find_my_location, Toast.LENGTH_SHORT).show();
+            }
+
         });
-//who is getting the current location ->Our service
-        //from service to repository
-        //from repo to our
+
         if (mIsFirstTime) {
             verifyPermissions();
         }
 
         initMap();
-
-
 
     }
 
@@ -326,21 +289,17 @@ public class ActiveTourActivity extends AppCompatActivity {
         intent.putExtra("TRAVEL_ORDER", travelOrder);
         startForegroundService(intent);
     }
-
+    //------------------------
     // END BUILDING ACTIVITY
+    //------------------------
+
 
     private void drawTheRoute(List<GeoPointActualWithPhotos> geoPointsActual) {
         //fetch records / geopoints from db
+        // draw white lines on the map
         for (GeoPointActualWithPhotos gpa : geoPointsActual) {
             mPolyline.addPoint(new GeoPoint(gpa.geoPointActual.lat, gpa.geoPointActual.lng));
         }
-
-        // draw white lines on the map
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
     }
 
@@ -352,23 +311,7 @@ public class ActiveTourActivity extends AppCompatActivity {
         activeTourViewModel.setCurrentZoom(binding.mapView.getZoomLevelDouble());
     }
 
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("requestingLocationUpdates", requestingLocationUpdates);
-        super.onSaveInstanceState(outState);
-    }
-
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.keySet().contains("requestingLocationUpdates")) {
-            this.requestingLocationUpdates = savedInstanceState.getBoolean("requestingLocationUpdates");
-        } else {
-            this.requestingLocationUpdates = false;
-        }
-    }
+    
 
     public boolean hasPermissions(String... permissions) {
         if (permissions != null) {

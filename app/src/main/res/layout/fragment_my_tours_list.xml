@@ -24,6 +24,13 @@
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/item_my_tour" />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerInParent="true"
+         android:progressTint="@color/colorAccent"
+        />
 
 
 </RelativeLayout>

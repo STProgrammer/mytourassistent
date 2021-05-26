@@ -1,8 +1,6 @@
-package com.aphex.mytourassistent.views.fragments.tours;
+package com.aphex.mytourassistent.views.fragments.tours.completed;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,18 +11,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentCompletedToursListBinding;
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
+import com.aphex.mytourassistent.views.fragments.tours.MyToursListFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -92,6 +88,9 @@ public class CompletedToursListFragment extends Fragment {
         toursViewModel.getAllCompletedTours(mIsFirstTime).observe(requireActivity(), new Observer<List<Tour>>() {
             @Override
             public void onChanged(List<Tour> tours) {
+                if (!isAdded()){
+                    return;
+                }
                 if (tours.isEmpty()) {
                     binding.emptyPlaceHolderTextView.setVisibility(View.VISIBLE);
                     binding.list.setVisibility(View.GONE);

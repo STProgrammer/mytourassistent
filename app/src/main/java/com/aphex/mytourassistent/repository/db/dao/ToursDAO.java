@@ -23,14 +23,11 @@ public abstract class ToursDAO {
 
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourStatus IS NOT 4")
-    public abstract List<Tour> getAllUncompletedTours();
+    public abstract LiveData<List<Tour>> getAllUncompletedTours();
 
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourStatus = 4")
     public abstract LiveData<List<Tour>> getAllCompletedTours();
-
-
-
 
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
@@ -44,11 +41,6 @@ public abstract class ToursDAO {
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
     public abstract LiveData<TourWithGeoPointsActual> getTourWithGeoPointsActual(long tourId);
-
-    //room-> liveDate->
-    //background tasks --> rxjava, coroutines
-    //3 way to run background tasks
-
 
     @Transaction
     @Query("SELECT * FROM Tour JOIN GeoPointPlanned ON GeoPointPlanned.fk_tourId = Tour.tourId")
@@ -70,8 +62,4 @@ public abstract class ToursDAO {
     @Query("DELETE FROM Tour WHERE 1")
     public abstract void deleteAll();
 
-
-
-
-    // public abstract void startTour(long tourId);
 }

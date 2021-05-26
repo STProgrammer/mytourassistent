@@ -2,9 +2,7 @@ package com.aphex.mytourassistent.repository.db.entities;
 
 
 import androidx.room.Embedded;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.PrimaryKey;
+
 import androidx.room.Relation;
 
 import java.util.List;

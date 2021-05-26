@@ -1,4 +1,4 @@
-package com.aphex.mytourassistent.views.fragments.tours;
+package com.aphex.mytourassistent.views.fragments.tours.add;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;

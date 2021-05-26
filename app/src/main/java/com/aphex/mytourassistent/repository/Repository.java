@@ -51,7 +51,7 @@ public class Repository {
     private PhotoDAO photoDAO;
 
 
-    private MutableLiveData<List<Tour>> toursList;
+    private LiveData<List<Tour>> toursList;
     private LiveData<List<Tour>> toursListCompleted;
 
     private LiveData<List<GeoPointPlanned>> geoPointsPlanned;
@@ -125,12 +125,23 @@ public class Repository {
         if (!mIsFirstTime) {
             return toursList;
         }
-        MyTourAssistentDatabase.databaseWriteExecutor.execute(()->{
-            toursList.postValue(toursDAO.getAllUncompletedTours());
-        });
+        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()->{
+        toursList = toursDAO.getAllUncompletedTours();
+        //});
 
 
         return toursList;
+
+        //they will observe live data value from here
+    }
+
+    public LiveData<List<Tour>> getAllCompletedTours(boolean mIsFirstTime) {
+        if (!mIsFirstTime) {
+            return toursListCompleted;
+        }
+        toursListCompleted = toursDAO.getAllCompletedTours();
+
+        return toursListCompleted;
 
         //they will observe live data value from here
     }
@@ -221,16 +232,7 @@ public class Repository {
         });
     }
 
-    public LiveData<List<Tour>> getAllCompletedTours(boolean mIsFirstTime) {
-        if (!mIsFirstTime) {
-            return toursListCompleted;
-        }
-        toursListCompleted = toursDAO.getAllCompletedTours();
 
-        return toursListCompleted;
-
-        //they will observe live data value from here
-    }
 
     public long getLastInsertedGeoPointActualId(long tourId) {
          return geoPointsActualDAO.getLastInsertedId(tourId);
