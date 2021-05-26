@@ -1,69 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="10"
     tools:context="com.aphex.mytourassistent.views.activities.TourActivity">
 
+
+    <TextView
+        android:id="@+id/tv_weather_planning_start"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/ivWeatherIconStart"
+        app:layout_constraintTop_toBottomOf="@+id/tv_weather_planning_end" />
+
+    <ImageView
+        android:id="@+id/ivWeatherIconStart"
+        android:layout_width="76dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toEndOf="@+id/map_view"
+        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconEnd" />
+
+    <TextView
+        android:id="@+id/tv_weather_planning_end"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="27dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/ivWeatherIconEnd"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivWeatherIconEnd"
+        android:layout_width="74dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toEndOf="@+id/map_view"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_finish_plan"
+        android:layout_width="0dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/btn_finished"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/map_view"
+        app:layout_constraintTop_toBottomOf="@+id/btn_my_location"
+        app:layout_constraintVertical_bias="0.066" />
+
+    <Button
+        android:id="@+id/btn_clear_plan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="29dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/btn_clear"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_my_location"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.552"
+        app:layout_constraintStart_toEndOf="@+id/btn_my_location"
+        app:layout_constraintTop_toTopOf="@+id/btn_my_location"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/btn_my_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/my_location"
+        app:layout_constraintBottom_toBottomOf="@+id/map_view"
+        app:layout_constraintStart_toEndOf="@+id/map_view"
+        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconStart"
+        app:layout_constraintVertical_bias="0.157" />
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
         android:layout_width="400dp"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        android:layout_weight="1"
-        android:background="#DDD" />
+        android:layout_marginStart="16dp"
+        android:background="#DDD"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="10"
-        >
+    </org.osmdroid.views.MapView>
 
-        <TextView
-            android:id="@+id/tv_weather_planning_start"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <ImageView
-            android:id="@+id/ivWeatherIconStart"
-            android:layout_width="@dimen/weather_icon_size"
-            android:layout_height="@dimen/weather_icon_size"
-            />
-
-        <TextView
-            android:id="@+id/tv_weather_planning_end"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <ImageView
-            android:id="@+id/ivWeatherIconEnd"
-            android:layout_width="@dimen/weather_icon_size"
-            android:layout_height="@dimen/weather_icon_size" />
-
-        <Button
-            android:id="@+id/btn_finish_plan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_finished" />
-
-        <Button
-            android:id="@+id/btn_clear_plan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_clear" />
-
-        <Button
-            android:id="@+id/btn_my_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/my_location" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
