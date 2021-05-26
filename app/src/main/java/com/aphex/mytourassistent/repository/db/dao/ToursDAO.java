@@ -10,6 +10,7 @@ import androidx.room.Update;
 
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
+import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsPlanned;
 
 import java.util.List;
@@ -29,9 +30,7 @@ public abstract class ToursDAO {
     public abstract LiveData<List<Tour>> getAllCompletedTours();
 
 
-    @Transaction
-    @Query("SELECT * FROM Tour JOIN GeoPointPlanned ON GeoPointPlanned.fk_tourId = Tour.tourId")
-    public abstract List<TourWithGeoPointsPlanned> getAllToursWithGeopoints();
+
 
     @Transaction
     @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
@@ -41,6 +40,16 @@ public abstract class ToursDAO {
     @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
     public abstract LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId);
 
+
+    @Transaction
+    @Query("SELECT * FROM Tour WHERE Tour.tourId = :tourId")
+    public abstract LiveData<TourWithGeoPointsActual> getTourWithGeoPointsActual(long tourId);
+
+
+
+    @Transaction
+    @Query("SELECT * FROM Tour JOIN GeoPointPlanned ON GeoPointPlanned.fk_tourId = Tour.tourId")
+    public abstract List<TourWithGeoPointsPlanned> getAllToursWithGeopoints();
 
     @Transaction
     @Query("DELETE FROM Tour WHERE Tour.tourId = :tourId")
@@ -57,6 +66,8 @@ public abstract class ToursDAO {
     @Transaction
     @Query("DELETE FROM Tour WHERE 1")
     public abstract void deleteAll();
+
+
 
 
     // public abstract void startTour(long tourId);

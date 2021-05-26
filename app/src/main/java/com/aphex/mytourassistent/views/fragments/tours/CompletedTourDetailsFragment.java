@@ -40,6 +40,7 @@ import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
+import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.views.activities.photos.PhotosActivity;
 import com.bumptech.glide.Glide;
@@ -101,7 +102,7 @@ public class CompletedTourDetailsFragment extends Fragment {
     private CompassOverlay mCompassOverlay;
     private RotationGestureOverlay mRotationGestureOverlay;
     private ScaleBarOverlay mScaleBarOverlay;
-    private TourWithAllGeoPoints tourWithAllGeoPoints;
+    private TourWithGeoPointsActual tourWithAllGeoPoints;
 
     public CompletedTourDetailsFragment() {
         // Required empty public constructor
@@ -160,11 +161,11 @@ public class CompletedTourDetailsFragment extends Fragment {
         initMap();
 
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
-        toursViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(requireActivity(), tourWithAllGeoPoints -> {
-            if (tourWithAllGeoPoints != null) {
-                this.tourWithAllGeoPoints = tourWithAllGeoPoints;
-                if (tourWithAllGeoPoints.tour.comment != null) {
-                    binding.tvComment.setText(tourWithAllGeoPoints.tour.comment);
+        toursViewModel.getTourWithGeoPointsActual(tourId, mIsFirstTime).observe(requireActivity(), tourWithGeoPointsActual -> {
+            if (tourWithGeoPointsActual != null) {
+                this.tourWithAllGeoPoints = tourWithGeoPointsActual;
+                if (tourWithGeoPointsActual.tour.comment != null) {
+                    binding.tvComment.setText(tourWithGeoPointsActual.tour.comment);
                     binding.btnAddComment.setText(R.string.btn_edit_comment);
                 } else {
                     binding.btnAddComment.setText(R.string.btn_add_comment);
@@ -172,18 +173,18 @@ public class CompletedTourDetailsFragment extends Fragment {
 
                 StringBuilder sb = new StringBuilder();
                 String startDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.startTimePlanned));
+                        .format(new Date(tourWithGeoPointsActual.tour.startTimePlanned));
                 String finishDatePlanned = new SimpleDateFormat("yyyy-MM-dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.finishTimePlanned));
+                        .format(new Date(tourWithGeoPointsActual.tour.finishTimePlanned));
                 String tourType = "";
                 String tourStatus = "";
 
                 String startDateActual = new SimpleDateFormat("yyyy_MM_dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.startTimeActual));
+                        .format(new Date(tourWithGeoPointsActual.tour.startTimeActual));
                 String finishDateActual = new SimpleDateFormat("yyyy_MM_dd HH")
-                        .format(new Date(tourWithAllGeoPoints.tour.finishTimeActual));
+                        .format(new Date(tourWithGeoPointsActual.tour.finishTimeActual));
 
-                long difference = tourWithAllGeoPoints.tour.finishTimeActual - tourWithAllGeoPoints.tour.startTimeActual;
+                long difference = tourWithGeoPointsActual.tour.finishTimeActual - tourWithGeoPointsActual.tour.startTimeActual;
 
                 long secondsInMilli = 1000;
                 long minutesInMilli = secondsInMilli * 60;
@@ -204,7 +205,7 @@ public class CompletedTourDetailsFragment extends Fragment {
 
 
 
-                switch (tourWithAllGeoPoints.tour.tourType) {
+                switch (tourWithGeoPointsActual.tour.tourType) {
                     case 1:
                         tourType = getString(R.string.tour_type_walking);
                         break;
@@ -216,7 +217,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                         break;
                 }
 
-                binding.tvTourTitle.setText(new StringBuilder().append(getString(R.string.tours_list_title)).append(tourWithAllGeoPoints.tour.title).toString());
+                binding.tvTourTitle.setText(new StringBuilder().append(getString(R.string.tours_list_title)).append(tourWithGeoPointsActual.tour.title).toString());
                 binding.tvTourType.setText(new StringBuilder().append(getString(R.string.tours_list_type)).append(tourType).toString());
                 binding.tvTourDatePlanStart.setText(new StringBuilder().append(getString(R.string.tours_list_date_start_plan)).append(startDatePlanned).toString());
                 binding.tvTourDatePlanEnd.setText(new StringBuilder().append(getString(R.string.tours_list_date_end_plan)).append(finishDatePlanned).toString());
@@ -226,7 +227,7 @@ public class CompletedTourDetailsFragment extends Fragment {
 
 
                 //Drawing the route
-                for (GeoPointActualWithPhotos gp : tourWithAllGeoPoints.geoPointsActual) {
+                for (GeoPointActualWithPhotos gp : tourWithGeoPointsActual.geoPointsActual) {
                     GeoPoint geoPt = new GeoPoint(gp.geoPointActual.lat, gp.geoPointActual.lng);
                     toursViewModel.addToGeoPoints(geoPt);
                     mPolyline.addPoint(geoPt);
@@ -261,7 +262,7 @@ public class CompletedTourDetailsFragment extends Fragment {
 
                 ArrayList<GeoPoint> geoPoints = toursViewModel.getGeoPoints().getValue();
 
-                if (!tourWithAllGeoPoints.geoPointsActual.isEmpty()) {
+                if (!tourWithGeoPointsActual.geoPointsActual.isEmpty()) {
                     GeoPoint geoPointStart = Objects.requireNonNull(geoPoints).get(0);
 
                     // Markers:
@@ -299,8 +300,8 @@ public class CompletedTourDetailsFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 binding.tvComment.setText(editText.getText());
-                                if (tourWithAllGeoPoints != null) {
-                                    toursViewModel.addComment(editText.getText().toString(), tourWithAllGeoPoints.tour);
+                                if (tourWithGeoPointsActual != null) {
+                                    toursViewModel.addComment(editText.getText().toString(), tourWithGeoPointsActual.tour);
                                 }
                             }
                         });
@@ -324,7 +325,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                             Uri uriMapScreenShot = saveImageToExternalStorage(requireActivity(), mapScreenShot);
                             photosUri.add(uriMapScreenShot);
                             if (binding.swIncludePhotos.isChecked()) {
-                                for (GeoPointActualWithPhotos gpa: tourWithAllGeoPoints.geoPointsActual) {
+                                for (GeoPointActualWithPhotos gpa: tourWithGeoPointsActual.geoPointsActual) {
                                     for (Photo photo: gpa.photos) {
                                         photosUri.add(Uri.parse(photo.imageUri));
                                     }

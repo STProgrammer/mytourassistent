@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="10"
+    tools:context="com.aphex.mytourassistent.views.activities.TourActivity">
+
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/map_view"
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:layout_weight="1"
+        android:background="#DDD" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="10"
+        >
+
+        <TextView
+            android:id="@+id/tv_weather_planning_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/ivWeatherIconStart"
+            android:layout_width="@dimen/weather_icon_size"
+            android:layout_height="@dimen/weather_icon_size"
+            />
+
+        <TextView
+            android:id="@+id/tv_weather_planning_end"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/ivWeatherIconEnd"
+            android:layout_width="@dimen/weather_icon_size"
+            android:layout_height="@dimen/weather_icon_size" />
+
+        <Button
+            android:id="@+id/btn_finish_plan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_finished" />
+
+        <Button
+            android:id="@+id/btn_clear_plan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_clear" />
+
+        <Button
+            android:id="@+id/btn_my_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/my_location" />
+    </LinearLayout>
+
+</LinearLayout>
+

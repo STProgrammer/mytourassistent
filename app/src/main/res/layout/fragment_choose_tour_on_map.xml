@@ -15,7 +15,7 @@
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
         android:layout_width="wrap_content"
-        android:layout_height="422dp"
+        android:layout_height="400dp"
         android:layout_margin="10dp"
         android:background="#DDD" />
 
@@ -48,21 +48,21 @@
                 android:layout_height="@dimen/weather_icon_size" />
 
             <Button
-        android:id="@+id/btn_finish_plan"
-        android:layout_width="match_parent"
-        android:layout_height="67dp"
-        android:text="@string/btn_finished" />
+                android:id="@+id/btn_finish_plan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_finished" />
 
     <Button
         android:id="@+id/btn_clear_plan"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:text="@string/btn_clear" />
 
     <Button
         android:id="@+id/btn_my_location"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:text="@string/my_location" />
         </LinearLayout>
     </ScrollView>

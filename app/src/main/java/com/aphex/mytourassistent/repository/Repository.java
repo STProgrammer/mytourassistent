@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
+import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.repository.network.api.WeatherAPI;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsActualDAO;
 import com.aphex.mytourassistent.repository.db.dao.GeoPointsPlannedDAO;
@@ -58,6 +59,7 @@ public class Repository {
 
 
     private LiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
+    private LiveData<TourWithGeoPointsActual> tourWithGeoPointsActual;
 
     private MutableLiveData<Integer> statusInteger;
     private MutableLiveData<GeoPointActual> geoPointActualLiveData;
@@ -154,6 +156,17 @@ public class Repository {
         tourWithAllGeoPoints = toursDAO.getTourWithAllGeoPoints(tourId);
         //});
         return tourWithAllGeoPoints;
+    }
+
+    public LiveData<TourWithGeoPointsActual> getTourWithGeoPointsActual(long tourId, boolean mIsFirstTime) {
+        if (!mIsFirstTime) {
+            return tourWithGeoPointsActual;
+        }
+        //TODO: fix this
+        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+        tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
+        //});
+        return tourWithGeoPointsActual;
     }
 
     public void deleteTour(long tourId) {
@@ -342,4 +355,6 @@ public class Repository {
             toursDAO.deleteAll();
         });
     }
+
+
 }

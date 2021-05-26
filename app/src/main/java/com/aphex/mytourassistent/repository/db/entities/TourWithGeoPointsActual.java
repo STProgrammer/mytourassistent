@@ -14,7 +14,7 @@ public class TourWithGeoPointsActual {
             parentColumn = "tourId",
             entityColumn = "fk_tourId"
     )
-    public List<GeoPointPlanned> geoPointsActual;
+    public List<GeoPointActualWithPhotos> geoPointsActual;
 
     public TourWithGeoPointsActual() {}
 

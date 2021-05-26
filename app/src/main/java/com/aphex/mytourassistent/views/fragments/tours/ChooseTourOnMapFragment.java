@@ -582,7 +582,6 @@ private View view;
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
                     //binding.mapView.getOverlays().add(marker);
                     kmlOverlay.add(marker);
                     binding.mapView.getOverlays().add(kmlOverlay);
@@ -611,7 +610,6 @@ private View view;
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    marker.setTitle("Klikkpunkt");
                     marker.setPosition(gp);
                     binding.mapView.getOverlays().add(marker);
                 }
@@ -635,7 +633,25 @@ private View view;
                 binding.mapView.getOverlays().add(roadOverlay);
 
             });
+
+
+            if (toursViewModel.getFirstGeoPoint().getValue() != null) {
+                // Markers:
+                Marker startMarker = new Marker(binding.mapView);
+                startMarker.setPosition(toursViewModel.getFirstGeoPoint().getValue());
+                startMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
+                binding.mapView.getOverlays().add(startMarker);
+                startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
+            }
+            if (toursViewModel.getLastGeoPoint().getValue() != null) {
+                endMarker = new Marker(binding.mapView);
+                endMarker.setPosition(toursViewModel.getLastGeoPoint().getValue());
+                endMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
+                binding.mapView.getOverlays().add(endMarker);
+                endMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_flag_24, null));
+            }
         }
+
 
 
     }

@@ -1,7 +1,6 @@
 package com.aphex.mytourassistent.viewmodels;
 
 import android.app.Application;
-import android.text.Editable;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.repository.db.entities.Tour;
 import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
+import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.repository.network.models.Data;
 import com.aphex.mytourassistent.repository.Repository;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
@@ -92,6 +92,10 @@ public class ToursViewModel extends AndroidViewModel {
 
     public LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId, boolean mIsFirstTime) {
         return repository.getTourWithAllGeoPoints(tourId, mIsFirstTime);
+    }
+
+    public LiveData<TourWithGeoPointsActual> getTourWithGeoPointsActual(long tourId, boolean mIsFirstTime) {
+        return repository.getTourWithGeoPointsActual(tourId, mIsFirstTime);
     }
 
     public KmlDocument getKmlDocument() {
