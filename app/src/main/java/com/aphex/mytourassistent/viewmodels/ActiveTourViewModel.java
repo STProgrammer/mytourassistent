@@ -154,4 +154,6 @@ public class ActiveTourViewModel extends AndroidViewModel {
         repository.savePhoto(uri, currentGeoPointActualId);
         Log.d("PhotoDebug", "current gp:" + currentGeoPointActualId);
     }
+
+
 }

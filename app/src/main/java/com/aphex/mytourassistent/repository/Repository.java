@@ -152,9 +152,9 @@ public class Repository {
             return tourWithAllGeoPoints;
         }
         //TODO: fix this
-        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
-        tourWithAllGeoPoints = toursDAO.getTourWithAllGeoPoints(tourId);
-        //});
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            tourWithAllGeoPoints = toursDAO.getTourWithAllGeoPoints(tourId);
+        });
         return tourWithAllGeoPoints;
     }
 

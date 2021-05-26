@@ -43,11 +43,13 @@ public class ToursViewModel extends AndroidViewModel {
     private MutableLiveData<GeoPoint> firstGeoPoint;
     private MutableLiveData<GeoPoint> lastGeoPoint;
 
-    private MutableLiveData<ArrayList<GeoPoint>> geoPoints;
+    private MutableLiveData<ArrayList<GeoPoint>> geoPointsPlanning;
     private MutableLiveData<ArrayList<GeoPointPlanned>> plannedGeoPoints;
     private KmlDocument kmlDocument;
 
+    private MutableLiveData<ArrayList<GeoPoint>> geoPointsOnActive;
 
+    private MutableLiveData<ArrayList<GeoPoint>> geoPointsOnCompleted;
 
 
     private Repository repository;
@@ -57,24 +59,37 @@ public class ToursViewModel extends AndroidViewModel {
     public ToursViewModel(@NonNull Application application) {
         super(application);
         repository = Repository.getInstance(application);
-        geoPoints = new MutableLiveData<>();
-        geoPoints.setValue(new ArrayList<>());
+        geoPointsPlanning = new MutableLiveData<>();
+        geoPointsPlanning.setValue(new ArrayList<>());
+        geoPointsOnActive = new MutableLiveData<>();
+        geoPointsOnActive.setValue(new ArrayList<>());
+        geoPointsOnCompleted = new MutableLiveData<>();
+        geoPointsOnCompleted.setValue(new ArrayList<>());
         kmlDocument = new KmlDocument();
         firstGeoPoint = new MutableLiveData<>();
         lastGeoPoint = new MutableLiveData<>();
     }
 
-    public void addToGeoPoints(GeoPoint gp) {
-        geoPoints.getValue().add(gp);
+    public void addToGeoPointsPlanning(GeoPoint gp) {
+        geoPointsPlanning.getValue().add(gp);
     }
 
-    public LiveData<ArrayList<GeoPoint>> getGeoPoints() {
-        return geoPoints;
+    public LiveData<ArrayList<GeoPoint>> getGeoPointsPlanning() {
+        return geoPointsPlanning;
+    }
+
+
+    public MutableLiveData<ArrayList<GeoPoint>> getGeoPointsOnCompleted() {
+        return geoPointsOnCompleted;
+    }
+
+    public void addToGeoPointsOnCompleted(GeoPoint gp) {
+        geoPointsOnCompleted.getValue().add(gp);
     }
 
 
     public void addNewTour(String tourName, long startTime, long endTime, int tourType, int tourStatus) {
-        repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPoints.getValue());
+        repository.addTour(tourName, startTime, endTime, tourType, tourStatus, geoPointsPlanning.getValue());
     }
 
     public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {

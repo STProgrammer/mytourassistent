@@ -616,10 +616,6 @@ public class ActiveTourActivity extends AppCompatActivity {
         //
 
 
-
-
-
-
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
             if (tourWithAllGeoPoints != null) {

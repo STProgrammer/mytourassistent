@@ -2,7 +2,6 @@ package com.aphex.mytourassistent.views.fragments.tours;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -33,25 +31,16 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.aphex.mytourassistent.R;
-import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
 import com.aphex.mytourassistent.databinding.FragmentCompletedTourDetailsBinding;
-import com.aphex.mytourassistent.repository.db.entities.GeoPointActual;
 import com.aphex.mytourassistent.repository.db.entities.GeoPointActualWithPhotos;
-import com.aphex.mytourassistent.repository.db.entities.GeoPointPlanned;
 import com.aphex.mytourassistent.repository.db.entities.Photo;
-import com.aphex.mytourassistent.repository.db.entities.TourWithAllGeoPoints;
 import com.aphex.mytourassistent.repository.db.entities.TourWithGeoPointsActual;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.views.activities.photos.PhotosActivity;
-import com.bumptech.glide.Glide;
 
 import org.jetbrains.annotations.NotNull;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
-import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.util.StorageUtils;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -64,7 +53,6 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -74,8 +62,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-
-import static com.aphex.mytourassistent.repository.db.MyTourAssistentDatabase.databaseWriteExecutor;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -229,7 +215,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                 //Drawing the route
                 for (GeoPointActualWithPhotos gp : tourWithGeoPointsActual.geoPointsActual) {
                     GeoPoint geoPt = new GeoPoint(gp.geoPointActual.lat, gp.geoPointActual.lng);
-                    toursViewModel.addToGeoPoints(geoPt);
+                    toursViewModel.addToGeoPointsOnCompleted(geoPt);
                     mPolyline.addPoint(geoPt);
 
                     //Iterate and add all images
@@ -260,7 +246,7 @@ public class CompletedTourDetailsFragment extends Fragment {
                 }
 
 
-                ArrayList<GeoPoint> geoPoints = toursViewModel.getGeoPoints().getValue();
+                ArrayList<GeoPoint> geoPoints = toursViewModel.getGeoPointsOnCompleted().getValue();
 
                 if (!tourWithGeoPointsActual.geoPointsActual.isEmpty()) {
                     GeoPoint geoPointStart = Objects.requireNonNull(geoPoints).get(0);

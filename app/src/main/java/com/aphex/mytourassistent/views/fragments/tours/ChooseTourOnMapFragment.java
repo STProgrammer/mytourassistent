@@ -54,7 +54,6 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager;
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.config.Configuration;
@@ -72,7 +71,6 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -142,6 +140,8 @@ private View view;
         return binding.getRoot();
 
     }
+
+
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -163,26 +163,36 @@ private View view;
                 .observe(requireActivity(), new Observer<Data>() {
                     @Override
                     public void onChanged(Data data) {
-                            if (data == null) {
-                                binding.tvWeatherPlanningStart.setText(getString(R.string.no_weather_information));
-                            }
-                            else {
-                                String valueToShow = getString(R.string.temperature_label);
-                                valueToShow += data.getInstant().getDetails().getAirTemperature();
-                                valueToShow += getString(R.string.relative_humidity_label);
-                                valueToShow += data.getInstant().getDetails().getRelativeHumidity();
-                                if (data.getNext1Hours() != null) {
-                                    int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
-                                    binding.ivWeatherIconStart.setImageResource(resId);
+                        if (isAdded()) {
+                            Log.d("DebugCrash", "onChanged: ");
+                            if (isAdded()) {
+                                if (data == null) {
+                                    Log.d("DebugCrash", "now here");
+                                    binding.tvWeatherPlanningStart.setText(getString(R.string.no_weather_information));
+                                } else {
+                                    Log.d("DebugCrash", "Data not null here");
+                                    String valueToShow = getString(R.string.temperature_label);
+                                    valueToShow += data.getInstant().getDetails().getAirTemperature();
+                                    valueToShow += getString(R.string.relative_humidity_label);
+                                    valueToShow += data.getInstant().getDetails().getRelativeHumidity();
+                                    if (data.getNext1Hours() != null) {
+                                        int resId = mappingWeathersymbolAndCode(data.getNext1Hours().getSummary().getSymbolCode());
+                                        binding.ivWeatherIconStart.setImageResource(resId);
+                                    }
+                                    binding.tvWeatherPlanningStart.setText(valueToShow);
                                 }
-                                binding.tvWeatherPlanningStart.setText(valueToShow);
                             }
                         }
+                    }
                 });
 
         toursViewModel.getLastWeatherGeopointResponse().observe(requireActivity(), new Observer<Data>() {
             @Override
             public void onChanged(Data data) {
+
+                if (isAdded()) {
+
+
                 if (data == null) {
                     binding.tvWeatherPlanningEnd.setText(getString(R.string.no_weather_information));
                 }
@@ -198,21 +208,25 @@ private View view;
                     binding.tvWeatherPlanningEnd.setText(valueToShow);
                 }
             }
+            }
         });
 
 
         toursViewModel.getFirstGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
             @Override
             public void onChanged(GeoPoint geoPoint) {
-                getWeatherData(geoPoint, true);
+                if (isAdded()) {
+                    getWeatherData(geoPoint, true);
+                }
             }
         });
 
         toursViewModel.getLastGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
             @Override
             public void onChanged(GeoPoint geoPoint) {
-                getWeatherData(geoPoint, false);
-
+                if (isAdded()) {
+                    getWeatherData(geoPoint, false);
+                }
             }
         });
 
@@ -222,7 +236,7 @@ private View view;
             public void onClick(View v) {
                 binding.mapView.invalidate();
                 binding.mapView.getOverlays().clear();
-                toursViewModel.getGeoPoints().getValue().clear();
+                toursViewModel.getGeoPointsPlanning().getValue().clear();
                 toursViewModel.getFirstGeoPoint().setValue(null);
                 initMap();
 
@@ -551,7 +565,7 @@ private View view;
                 Toast.makeText(requireContext(),geoPoint.getLatitude() + " - " + geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
                 Marker marker = new Marker(binding.mapView);
                 marker.setPosition(geoPoint);
-                toursViewModel.addToGeoPoints(geoPoint);
+                toursViewModel.addToGeoPointsPlanning(geoPoint);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
 
 
@@ -578,7 +592,7 @@ private View view;
                         roadManager.addRequestOption("vehicle=hike");
                         roadManager.addRequestOption("optimize=true");
                     }
-                    Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
+                    Road road = roadManager.getRoad(toursViewModel.getGeoPointsPlanning().getValue());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -594,7 +608,7 @@ private View view;
         };
         binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
 
-        if (!toursViewModel.getGeoPoints().getValue().isEmpty()) {
+        if (!toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
             //this means user already have selected geopoints
             //in this case, we will connect all waypoints when user come to this screen
             //wen need to iterate over all the waypoints and connect them together
@@ -606,7 +620,7 @@ private View view;
 
             databaseWriteExecutor.execute(() -> {
 
-                for (GeoPoint gp: toursViewModel.getGeoPoints().getValue()) {
+                for (GeoPoint gp: toursViewModel.getGeoPointsPlanning().getValue()) {
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -628,7 +642,7 @@ private View view;
                     roadManager.addRequestOption("vehicle=hike");
                     roadManager.addRequestOption("optimize=true");
                 }
-                Road road = roadManager.getRoad(toursViewModel.getGeoPoints().getValue());
+                Road road = roadManager.getRoad(toursViewModel.getGeoPointsPlanning().getValue());
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 binding.mapView.getOverlays().add(roadOverlay);
 

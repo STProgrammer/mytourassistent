@@ -98,7 +98,7 @@ public class AddTourFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (toursViewModel.getGeoPoints().getValue().isEmpty()) {
+        if (toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
 //button will say choose tour on map
             binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
         } else{
@@ -186,7 +186,7 @@ public class AddTourFragment extends Fragment {
                     Toast.makeText(requireContext(),R.string.toast_empty_tourtype, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (toursViewModel.getGeoPoints().getValue().isEmpty()) {
+                if (toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
                     Toast.makeText(requireContext(), R.string.toast_empty_geopoints, Toast.LENGTH_SHORT).show();
                     return;
                 }
