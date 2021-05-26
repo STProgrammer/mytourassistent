@@ -118,6 +118,8 @@ public class MyToursListFragment extends Fragment {
                                     requireContext().stopService(new Intent(requireContext(), TourTrackingService.class));
                                 }
                                 toursViewModel.deleteTour(tourId);
+                                //update the screen
+
                             });
                             builder.setNegativeButton(R.string.btn_cancel, (dialog, which) -> dialog.cancel());
                             builder.show();

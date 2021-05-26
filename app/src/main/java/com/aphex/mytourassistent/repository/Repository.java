@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.aphex.mytourassistent.repository.db.dao.PhotoDAO;
@@ -50,7 +51,7 @@ public class Repository {
     private PhotoDAO photoDAO;
 
 
-    private LiveData<List<Tour>> toursList;
+    private MutableLiveData<List<Tour>> toursList;
     private LiveData<List<Tour>> toursListCompleted;
 
     private LiveData<List<GeoPointPlanned>> geoPointsPlanned;
@@ -58,7 +59,7 @@ public class Repository {
     private MutableLiveData<Integer> tourStatusLiveData;
 
 
-    private LiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
+    private MutableLiveData<TourWithAllGeoPoints> tourWithAllGeoPoints;
     private LiveData<TourWithGeoPointsActual> tourWithGeoPointsActual;
 
     private MutableLiveData<Integer> statusInteger;
@@ -119,12 +120,16 @@ public class Repository {
         });
     }
 
+    
 
     public LiveData<List<Tour>> getAllUncompletedTours(boolean mIsFirstTime) {
         if (!mIsFirstTime) {
             return toursList;
         }
-        toursList = toursDAO.getAllUncompletedTours();
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()->{
+            toursList.postValue(toursDAO.getAllUncompletedTours());
+        });
+
 
         return toursList;
 
@@ -147,13 +152,16 @@ public class Repository {
 
     }
 
+    private MediatorLiveData<TourWithAllGeoPoints> mediator;
+
+
+
     public LiveData<TourWithAllGeoPoints> getTourWithAllGeoPoints(long tourId, boolean mIsFirstTime) {
         if (!mIsFirstTime) {
             return tourWithAllGeoPoints;
         }
-        //TODO: fix this
         MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
-            tourWithAllGeoPoints = toursDAO.getTourWithAllGeoPoints(tourId);
+            tourWithAllGeoPoints.postValue(toursDAO.getTourWithAllGeoPoints(tourId));
         });
         return tourWithAllGeoPoints;
     }
@@ -162,10 +170,9 @@ public class Repository {
         if (!mIsFirstTime) {
             return tourWithGeoPointsActual;
         }
-        //TODO: fix this
-        //MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
-        tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
-        //});
+        MyTourAssistentDatabase.databaseWriteExecutor.execute(()-> {
+            tourWithGeoPointsActual = toursDAO.getTourWithGeoPointsActual(tourId);
+        });
         return tourWithGeoPointsActual;
     }
 

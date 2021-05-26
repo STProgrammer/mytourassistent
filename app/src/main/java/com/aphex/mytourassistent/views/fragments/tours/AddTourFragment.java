@@ -24,7 +24,7 @@ import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentAddTourBinding;
 import com.aphex.mytourassistent.enums.TourStatus;
 import com.aphex.mytourassistent.enums.TourType;
-import com.aphex.mytourassistent.viewmodels.ToursViewModel;
+import com.aphex.mytourassistent.viewmodels.AddTourViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -41,7 +41,7 @@ public class AddTourFragment extends Fragment {
 
     private FragmentAddTourBinding binding;
     DatePickerDialog picker;
-    ToursViewModel toursViewModel;
+    AddTourViewModel addTourViewModel;
 
     private SimpleDateFormat mSimpleDateFormat;
 
@@ -98,7 +98,7 @@ public class AddTourFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
+        if (addTourViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
 //button will say choose tour on map
             binding.btnChooseOnMap.setText(R.string.btn_choose_on_map);
         } else{
@@ -112,7 +112,7 @@ public class AddTourFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
+        addTourViewModel = new ViewModelProvider(requireActivity()).get(AddTourViewModel.class);
 
         mSimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm", Locale.getDefault());
 
@@ -126,7 +126,7 @@ public class AddTourFragment extends Fragment {
         binding.rgTourType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                toursViewModel.setTourType(getTourType());
+                addTourViewModel.setTourType(getTourType());
             }
         });
 
@@ -156,16 +156,17 @@ public class AddTourFragment extends Fragment {
         binding.btnChooseOnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (toursViewModel.getmCalendarStart() == null) {
+                if (addTourViewModel.getCalendarStart() == null) {
                     Toast.makeText(requireActivity(), R.string.toast_select_start_date_first, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (toursViewModel.getmCalendarFinish() == null) {
+                if (addTourViewModel.getCalendarFinish() == null) {
                     Toast.makeText(requireActivity(), R.string.toast_select_end_date_first, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (toursViewModel.getTourType() == -1) {
+                if (addTourViewModel.getTourType() == -1) {
                     Toast.makeText(requireActivity(), R.string.toast_select_tour_type_first, Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 Navigation.findNavController(getView()).navigate(R.id.chooseTourOnMapFragment);
             }
@@ -174,7 +175,7 @@ public class AddTourFragment extends Fragment {
         binding.btnAddNewTour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (toursViewModel.getmCalendarStart() == null || toursViewModel.getmCalendarFinish() == null) {
+                if (addTourViewModel.getCalendarStart() == null || addTourViewModel.getCalendarFinish() == null) {
                     Toast.makeText(requireContext(),R.string.toast_empty_date, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -186,18 +187,18 @@ public class AddTourFragment extends Fragment {
                     Toast.makeText(requireContext(),R.string.toast_empty_tourtype, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
+                if (addTourViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
                     Toast.makeText(requireContext(), R.string.toast_empty_geopoints, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                long startTime = toursViewModel.getmCalendarStart().getTimeInMillis();
-                long endTime = toursViewModel.getmCalendarFinish().getTimeInMillis();
-                toursViewModel.setTourType(getTourType());
+                long startTime = addTourViewModel.getCalendarStart().getTimeInMillis();
+                long endTime = addTourViewModel.getCalendarFinish().getTimeInMillis();
+                addTourViewModel.setTourType(getTourType());
 
 //show some progress bar
-                toursViewModel.addNewTour(binding.etTourName.getText().toString(),
-                        startTime, endTime, toursViewModel.getTourType(), TourStatus.NOT_STARTED.getValue());
+                addTourViewModel.addNewTour(binding.etTourName.getText().toString(),
+                        startTime, endTime, addTourViewModel.getTourType(), TourStatus.NOT_STARTED.getValue());
             }
         });
 
@@ -209,8 +210,8 @@ public class AddTourFragment extends Fragment {
             }
 
         };
-        toursViewModel.getStatusInteger().removeObserver(observer);
-        toursViewModel.getStatusInteger().observe(requireActivity(),observer);
+        addTourViewModel.getStatusOnAddTour().removeObserver(observer);
+        addTourViewModel.getStatusOnAddTour().observe(requireActivity(),observer);
 
 
     }
@@ -236,9 +237,9 @@ public class AddTourFragment extends Fragment {
     private final View.OnClickListener textListenerStart = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            toursViewModel.setmCalendarStart(Calendar.getInstance());
-            new DatePickerDialog(requireContext(), mDateStartDataSet, toursViewModel.getmCalendarStart().get(Calendar.YEAR),
-                    toursViewModel.getmCalendarStart().get(Calendar.MONTH), toursViewModel.getmCalendarStart().get(Calendar.DAY_OF_MONTH)).show();
+            addTourViewModel.setCalendarStart(Calendar.getInstance());
+            new DatePickerDialog(requireContext(), mDateStartDataSet, addTourViewModel.getCalendarStart().get(Calendar.YEAR),
+                    addTourViewModel.getCalendarStart().get(Calendar.MONTH), addTourViewModel.getCalendarStart().get(Calendar.DAY_OF_MONTH)).show();
         }
     };
 
@@ -246,10 +247,10 @@ public class AddTourFragment extends Fragment {
     private final DatePickerDialog.OnDateSetListener mDateStartDataSet = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            toursViewModel.getmCalendarStart().set(Calendar.YEAR, year);
-            toursViewModel.getmCalendarStart().set(Calendar.MONTH, monthOfYear);
-            toursViewModel.getmCalendarStart().set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            new TimePickerDialog(requireContext(), mTimeStartDataSet, toursViewModel.getmCalendarStart().get(Calendar.HOUR_OF_DAY), toursViewModel.getmCalendarStart().get(Calendar.MINUTE), true).show();
+            addTourViewModel.getCalendarStart().set(Calendar.YEAR, year);
+            addTourViewModel.getCalendarStart().set(Calendar.MONTH, monthOfYear);
+            addTourViewModel.getCalendarStart().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            new TimePickerDialog(requireContext(), mTimeStartDataSet, addTourViewModel.getCalendarStart().get(Calendar.HOUR_OF_DAY), addTourViewModel.getCalendarStart().get(Calendar.MINUTE), true).show();
         }
     };
 
@@ -257,9 +258,9 @@ public class AddTourFragment extends Fragment {
     private final TimePickerDialog.OnTimeSetListener mTimeStartDataSet = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            toursViewModel.getmCalendarStart().set(Calendar.HOUR_OF_DAY, hourOfDay);
-            toursViewModel.getmCalendarStart().set(Calendar.MINUTE, minute);
-            binding.etTourStartTime.setText(mSimpleDateFormat.format(toursViewModel.getmCalendarStart().getTime()));
+            addTourViewModel.getCalendarStart().set(Calendar.HOUR_OF_DAY, hourOfDay);
+            addTourViewModel.getCalendarStart().set(Calendar.MINUTE, minute);
+            binding.etTourStartTime.setText(mSimpleDateFormat.format(addTourViewModel.getCalendarStart().getTime()));
         }
     };
 
@@ -267,9 +268,9 @@ public class AddTourFragment extends Fragment {
     private final View.OnClickListener textListenerFinish = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            toursViewModel.setmCalendarFinish(Calendar.getInstance());
-            new DatePickerDialog(requireContext(), mDateFinishDataSet, toursViewModel.getmCalendarFinish().get(Calendar.YEAR),
-                    toursViewModel.getmCalendarFinish().get(Calendar.MONTH), toursViewModel.getmCalendarFinish().get(Calendar.DAY_OF_MONTH)).show();
+            addTourViewModel.setCalendarFinish(Calendar.getInstance());
+            new DatePickerDialog(requireContext(), mDateFinishDataSet, addTourViewModel.getCalendarFinish().get(Calendar.YEAR),
+                    addTourViewModel.getCalendarFinish().get(Calendar.MONTH), addTourViewModel.getCalendarFinish().get(Calendar.DAY_OF_MONTH)).show();
         }
     };
 
@@ -277,10 +278,10 @@ public class AddTourFragment extends Fragment {
     private final DatePickerDialog.OnDateSetListener mDateFinishDataSet = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            toursViewModel.getmCalendarFinish().set(Calendar.YEAR, year);
-            toursViewModel.getmCalendarFinish().set(Calendar.MONTH, monthOfYear);
-            toursViewModel.getmCalendarFinish().set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            new TimePickerDialog(requireContext(), mTimeFinishDataSet, toursViewModel.getmCalendarFinish().get(Calendar.HOUR_OF_DAY), toursViewModel.getmCalendarFinish().get(Calendar.MINUTE), true).show();
+            addTourViewModel.getCalendarFinish().set(Calendar.YEAR, year);
+            addTourViewModel.getCalendarFinish().set(Calendar.MONTH, monthOfYear);
+            addTourViewModel.getCalendarFinish().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            new TimePickerDialog(requireContext(), mTimeFinishDataSet, addTourViewModel.getCalendarFinish().get(Calendar.HOUR_OF_DAY), addTourViewModel.getCalendarFinish().get(Calendar.MINUTE), true).show();
         }
     };
 
@@ -288,9 +289,9 @@ public class AddTourFragment extends Fragment {
     private final TimePickerDialog.OnTimeSetListener mTimeFinishDataSet = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            toursViewModel.getmCalendarFinish().set(Calendar.HOUR_OF_DAY, hourOfDay);
-            toursViewModel.getmCalendarFinish().set(Calendar.MINUTE, minute);
-            binding.etTourFinishTime.setText(mSimpleDateFormat.format(toursViewModel.getmCalendarFinish().getTime()));
+            addTourViewModel.getCalendarFinish().set(Calendar.HOUR_OF_DAY, hourOfDay);
+            addTourViewModel.getCalendarFinish().set(Calendar.MINUTE, minute);
+            binding.etTourFinishTime.setText(mSimpleDateFormat.format(addTourViewModel.getCalendarFinish().getTime()));
         }
     };
 

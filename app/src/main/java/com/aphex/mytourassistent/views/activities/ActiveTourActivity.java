@@ -619,6 +619,8 @@ public class ActiveTourActivity extends AppCompatActivity {
         //FETCHING DATA FROM DATABASE TOUR AND LOCATIONS
         activeTourViewModel.getTourWithAllGeoPoints(tourId, mIsFirstTime).observe(this, tourWithAllGeoPoints -> {
             if (tourWithAllGeoPoints != null) {
+                binding.progressBar.setVisibility(View.GONE);
+
                 activeTourViewModel.getTourStatus().postValue(tourWithAllGeoPoints.tour.tourStatus);
 
                 binding.tvActiveTourTitle.setText(getString(R.string.tours_list_title) + " " + tourWithAllGeoPoints.tour.title);

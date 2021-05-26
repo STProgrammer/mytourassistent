@@ -34,7 +34,7 @@ import com.aphex.mytourassistent.R;
 import com.aphex.mytourassistent.databinding.FragmentChooseTourOnMapBinding;
 import com.aphex.mytourassistent.enums.TourType;
 import com.aphex.mytourassistent.repository.network.models.Data;
-import com.aphex.mytourassistent.viewmodels.ToursViewModel;
+import com.aphex.mytourassistent.viewmodels.AddTourViewModel;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -60,7 +60,6 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
@@ -85,9 +84,8 @@ private View view;
 
     private FragmentChooseTourOnMapBinding binding;
 
-    private ToursViewModel toursViewModel;
+    private AddTourViewModel addTourViewModel;
 
-    FolderOverlay kmlOverlay;
 
 
     ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
@@ -150,16 +148,15 @@ private View view;
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
 
-        toursViewModel = new ViewModelProvider(requireActivity()).get(ToursViewModel.class);
-//sharedViewModels
+        addTourViewModel = new ViewModelProvider(requireActivity()).get(AddTourViewModel.class);
+
+
         initLocationUpdates();
 
         binding.mapView.getController().setZoom(7.0);
 
-        kmlOverlay = (FolderOverlay)toursViewModel.getKmlDocument().mKmlRoot.buildOverlay(binding.mapView, null, null, toursViewModel.getKmlDocument());
-
         //listen to weather api responses
-        toursViewModel.getFirstWeatherGeopointResponse()
+        addTourViewModel.getFirstWeatherGeopointResponse()
                 .observe(requireActivity(), new Observer<Data>() {
                     @Override
                     public void onChanged(Data data) {
@@ -186,7 +183,7 @@ private View view;
                     }
                 });
 
-        toursViewModel.getLastWeatherGeopointResponse().observe(requireActivity(), new Observer<Data>() {
+        addTourViewModel.getLastWeatherGeopointResponse().observe(requireActivity(), new Observer<Data>() {
             @Override
             public void onChanged(Data data) {
 
@@ -212,20 +209,25 @@ private View view;
         });
 
 
-        toursViewModel.getFirstGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
+        addTourViewModel.getFirstGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
             @Override
             public void onChanged(GeoPoint geoPoint) {
                 if (isAdded()) {
-                    getWeatherData(geoPoint, true);
+                    if (geoPoint != null) {
+                        getWeatherData(geoPoint, true);
+                    }
                 }
             }
         });
 
-        toursViewModel.getLastGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
+        addTourViewModel.getLastGeoPoint().observe(requireActivity(), new Observer<GeoPoint>() {
             @Override
             public void onChanged(GeoPoint geoPoint) {
                 if (isAdded()) {
-                    getWeatherData(geoPoint, false);
+                    if (geoPoint != null) {
+                        getWeatherData(geoPoint, false);
+                    }
+
                 }
             }
         });
@@ -236,8 +238,8 @@ private View view;
             public void onClick(View v) {
                 binding.mapView.invalidate();
                 binding.mapView.getOverlays().clear();
-                toursViewModel.getGeoPointsPlanning().getValue().clear();
-                toursViewModel.getFirstGeoPoint().setValue(null);
+                addTourViewModel.getGeoPointsPlanning().getValue().clear();
+                addTourViewModel.getFirstGeoPoint().setValue(null);
                 initMap();
 
             }
@@ -266,7 +268,7 @@ private View view;
     }
 
     private void getWeatherData(GeoPoint geoPoint, boolean isFirstGp) {
-        toursViewModel.getWeatherData(geoPoint.getLatitude(), geoPoint.getLongitude(), isFirstGp);
+        addTourViewModel.getWeatherData(geoPoint.getLatitude(), geoPoint.getLongitude(), isFirstGp);
     }
 
     private int mappingWeathersymbolAndCode(String symbolCode) {
@@ -529,7 +531,6 @@ private View view;
         //play around with these values to get the location on screen in the right place for your application
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
         binding.mapView.getOverlays().add(this.mScaleBarOverlay);
-        kmlOverlay = (FolderOverlay) toursViewModel.getKmlDocument().mKmlRoot.buildOverlay(binding.mapView, null,null, toursViewModel.getKmlDocument());
 
 
         // Fange opp posisjon i klikkpunkt på kartet:
@@ -541,8 +542,8 @@ private View view;
             @Override
             public boolean longPressHelper(GeoPoint geoPoint) {
 
-                if (toursViewModel.getFirstGeoPoint().getValue() == null) {
-                    toursViewModel.getFirstGeoPoint().postValue(geoPoint);
+                if (addTourViewModel.getFirstGeoPoint().getValue() == null) {
+                    addTourViewModel.getFirstGeoPoint().postValue(geoPoint);
                     // Markers:
                     Marker startMarker = new Marker(binding.mapView);
                     startMarker.setPosition(geoPoint);
@@ -553,7 +554,7 @@ private View view;
                     if (endMarker != null) {
                         binding.mapView.getOverlays().remove(endMarker);
                     }
-                    toursViewModel.getLastGeoPoint().postValue(geoPoint);
+                    addTourViewModel.getLastGeoPoint().postValue(geoPoint);
                     endMarker = new Marker(binding.mapView);
                     endMarker.setPosition(geoPoint);
                     endMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
@@ -565,7 +566,7 @@ private View view;
                 Toast.makeText(requireContext(),geoPoint.getLatitude() + " - " + geoPoint.getLongitude(), Toast.LENGTH_LONG).show();
                 Marker marker = new Marker(binding.mapView);
                 marker.setPosition(geoPoint);
-                toursViewModel.addToGeoPointsPlanning(geoPoint);
+                addTourViewModel.addToGeoPointsPlanning(geoPoint);
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
 
 
@@ -581,24 +582,22 @@ private View view;
 
 
                     RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
-                    if (toursViewModel.getTourType() == TourType.WALKING.getValue()) {
+                    if (addTourViewModel.getTourType() == TourType.WALKING.getValue()) {
                         roadManager.addRequestOption("vehicle=foot");
                         roadManager.addRequestOption("optimize=true");
                     }
-                    else if (toursViewModel.getTourType() == TourType.BIKING.getValue()) {
+                    else if (addTourViewModel.getTourType() == TourType.BIKING.getValue()) {
                         roadManager.addRequestOption("vehicle=bike");
                         roadManager.addRequestOption("optimize=true");
-                    } else if (toursViewModel.getTourType() == TourType.SKIING.getValue()) {
+                    } else if (addTourViewModel.getTourType() == TourType.SKIING.getValue()) {
                         roadManager.addRequestOption("vehicle=hike");
                         roadManager.addRequestOption("optimize=true");
                     }
-                    Road road = roadManager.getRoad(toursViewModel.getGeoPointsPlanning().getValue());
+                    Road road = roadManager.getRoad(addTourViewModel.getGeoPointsPlanning().getValue());
                     Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                     binding.mapView.getOverlays().add(roadOverlay);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
-                    //binding.mapView.getOverlays().add(marker);
-                    kmlOverlay.add(marker);
-                    binding.mapView.getOverlays().add(kmlOverlay);
+                    binding.mapView.getOverlays().add(marker);
                 });
 
 
@@ -608,7 +607,7 @@ private View view;
         };
         binding.mapView.getOverlays().add(new MapEventsOverlay(mReceive));
 
-        if (!toursViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
+        if (!addTourViewModel.getGeoPointsPlanning().getValue().isEmpty()) {
             //this means user already have selected geopoints
             //in this case, we will connect all waypoints when user come to this screen
             //wen need to iterate over all the waypoints and connect them together
@@ -620,7 +619,7 @@ private View view;
 
             databaseWriteExecutor.execute(() -> {
 
-                for (GeoPoint gp: toursViewModel.getGeoPointsPlanning().getValue()) {
+                for (GeoPoint gp: addTourViewModel.getGeoPointsPlanning().getValue()) {
                     Marker marker = new Marker(binding.mapView);
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
                     marker.setIcon(requireActivity().getResources().getDrawable(R.drawable.ic_baseline_my_location_24, null));
@@ -631,35 +630,35 @@ private View view;
 //"routeType=pedestrian"
                 //"engine=fossgis_osrm_foot"
                 RoadManager roadManager = new GraphHopperRoadManager("e5c15fd2-5d4e-4bc3-b043-4b3b9125afc9", true);
-                if (toursViewModel.getTourType() == TourType.WALKING.getValue()) {
+                if (addTourViewModel.getTourType() == TourType.WALKING.getValue()) {
                     roadManager.addRequestOption("vehicle=foot");
                     roadManager.addRequestOption("optimize=true");
                 }
-                else if (toursViewModel.getTourType() == TourType.BIKING.getValue()) {
+                else if (addTourViewModel.getTourType() == TourType.BIKING.getValue()) {
                     roadManager.addRequestOption("vehicle=bike");
                     roadManager.addRequestOption("optimize=true");
-                } else if (toursViewModel.getTourType() == TourType.SKIING.getValue()) {
+                } else if (addTourViewModel.getTourType() == TourType.SKIING.getValue()) {
                     roadManager.addRequestOption("vehicle=hike");
                     roadManager.addRequestOption("optimize=true");
                 }
-                Road road = roadManager.getRoad(toursViewModel.getGeoPointsPlanning().getValue());
+                Road road = roadManager.getRoad(addTourViewModel.getGeoPointsPlanning().getValue());
                 Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
                 binding.mapView.getOverlays().add(roadOverlay);
 
             });
 
 
-            if (toursViewModel.getFirstGeoPoint().getValue() != null) {
+            if (addTourViewModel.getFirstGeoPoint().getValue() != null) {
                 // Markers:
                 Marker startMarker = new Marker(binding.mapView);
-                startMarker.setPosition(toursViewModel.getFirstGeoPoint().getValue());
+                startMarker.setPosition(addTourViewModel.getFirstGeoPoint().getValue());
                 startMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
                 binding.mapView.getOverlays().add(startMarker);
                 startMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_circle_24, null));
             }
-            if (toursViewModel.getLastGeoPoint().getValue() != null) {
+            if (addTourViewModel.getLastGeoPoint().getValue() != null) {
                 endMarker = new Marker(binding.mapView);
-                endMarker.setPosition(toursViewModel.getLastGeoPoint().getValue());
+                endMarker.setPosition(addTourViewModel.getLastGeoPoint().getValue());
                 endMarker.setAnchor(Marker.ANCHOR_TOP, Marker.ANCHOR_TOP);
                 binding.mapView.getOverlays().add(endMarker);
                 endMarker.setIcon(getResources().getDrawable(R.drawable.ic_baseline_flag_24, null));

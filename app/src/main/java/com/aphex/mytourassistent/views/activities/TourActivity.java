@@ -2,6 +2,7 @@ package com.aphex.mytourassistent.views.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.aphex.mytourassistent.R;
+import com.aphex.mytourassistent.viewmodels.AddTourViewModel;
 import com.aphex.mytourassistent.viewmodels.ToursViewModel;
 import com.aphex.mytourassistent.databinding.ActivityTourBinding;
 import com.firebase.ui.auth.AuthUI;
@@ -31,6 +33,7 @@ public class TourActivity extends AppCompatActivity {
     private ToursViewModel toursViewModel;
     private NavController navController;
     private NavHostFragment navHostFragment;
+    private AddTourViewModel addTourViewModel;
 
 
     @Override
@@ -44,6 +47,7 @@ public class TourActivity extends AppCompatActivity {
 
         toursViewModel = new ViewModelProvider(this).get(ToursViewModel.class);
 
+        addTourViewModel = new ViewModelProvider(this).get(AddTourViewModel.class);
 
         // Henter referanse til NavController-objektet.
         // Gjøres ulikt avhengig av om man bruker <fragment../> eller <FragmentContainerView.../>
@@ -87,6 +91,11 @@ public class TourActivity extends AppCompatActivity {
                 startActivity(intent);
                 return super.onOptionsItemSelected(item);
             default:
+                //lets check if user clicked on Add Tour reset the values of viewmodel
+                if (item.getItemId() == R.id.addTourFragment) {
+                    //clear data for SharedViewModel
+                    addTourViewModel.init();
+                }
                 Log.d("DebugNav", "On menu selected:"+navController.getCurrentDestination().getLabel());
                 return NavigationUI.onNavDestinationSelected(item, navController)
                     || super.onOptionsItemSelected(item);
