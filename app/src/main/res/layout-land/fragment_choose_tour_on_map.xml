@@ -9,7 +9,8 @@
     tools:context="com.aphex.mytourassistent.views.activities.TourActivity">
 
 
-    <TextView
+            <TextView
+            android:textColor="@color/black"
         android:id="@+id/tv_weather_planning_start"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -30,7 +31,8 @@
         app:layout_constraintStart_toEndOf="@+id/map_view"
         app:layout_constraintTop_toBottomOf="@+id/ivWeatherIconStart" />
 
-    <TextView
+            <TextView
+            android:textColor="@color/black"
         android:id="@+id/tv_weather_planning_end"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

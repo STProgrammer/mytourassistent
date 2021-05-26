@@ -26,7 +26,8 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_weather_planning_start"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -48,7 +49,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_weather_planning_end"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

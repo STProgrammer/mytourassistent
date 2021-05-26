@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".views.fragments.tours.MyToursListFragment">
 
-    <TextView
+            <TextView
+            android:textColor="@color/black"
         android:id="@+id/emptyPlaceHolderTextView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

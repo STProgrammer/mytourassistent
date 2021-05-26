@@ -28,7 +28,8 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,7 +37,8 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="Tour title" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,7 +46,8 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="Tour type" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_plan_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,7 +56,8 @@
                 tools:text="9/5/2021" />
 
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_plan_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +65,8 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="9/5/2021" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +75,8 @@
                 tools:text="9/5/2021" />
 
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,7 +84,8 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="9/5/2021" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,13 +94,15 @@
                 tools:text="40 days 15 hours" />
 
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_comment_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/comment_label" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

@@ -18,18 +18,22 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
+                    <TextView
                 android:id="@+id/tv_list_label_title"
                 android:layout_width="match_parent"
+                android:textColor="@color/black"
+
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/tours_list_title"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
-            <TextView
+                    <TextView
                 android:id="@+id/tv_tour_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
+
                 android:layout_weight="1"
                 android:textAppearance="?attr/textAppearanceListItem"
                 tools:text="Tour title" />
@@ -65,7 +69,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_label_date_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -73,7 +78,8 @@
                 android:text="@string/tours_list_date_start"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,7 +94,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_label_date_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,7 +103,8 @@
                 android:text="@string/tours_list_date_end"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_date_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,7 +119,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_label_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -119,7 +128,8 @@
                 android:text="@string/tours_list_duration"
                 android:textAppearance="?attr/textAppearanceListItem" />
 
-            <TextView
+                    <TextView
+            android:textColor="@color/black"
                 android:id="@+id/tv_tour_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

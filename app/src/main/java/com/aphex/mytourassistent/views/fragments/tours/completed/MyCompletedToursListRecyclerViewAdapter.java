@@ -101,6 +101,7 @@ public class MyCompletedToursListRecyclerViewAdapter extends RecyclerView.Adapte
                     break;
             }
 
+
             binding.tvTourType.setText(tourType);
             binding.tvTourDateStart.setText(startTimeActual);
             binding.tvTourDateEnd.setText(finishTimeActual);
