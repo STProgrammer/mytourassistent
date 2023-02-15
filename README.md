@@ -1,5 +1,5 @@
 # MyTourAssistent
-A project from "Programming Mobile Devices" DTE-2602 2021 Spring, from UiT The Arctic University of Norway.
+A project from "Programming Mobile Devices" DTE-2603 2021 Spring, from UiT The Arctic University of Norway.
 
 An Android mobile application written in Java.
 
